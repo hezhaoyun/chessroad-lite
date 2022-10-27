@@ -82,6 +82,8 @@ class MainMenuState extends State<MainMenu>
     //
     await LocalData().load();
 
+    if (!mounted) return;
+
     createFlowers(context, this, () => setState(() {}));
 
     bool newUser = await checkPrivacyPolicy();
@@ -109,7 +111,7 @@ class MainMenuState extends State<MainMenu>
         counterDown--;
       }
 
-      if (counterDown > 0) {
+      if (counterDown > 0 && mounted) {
         await Ad.instance.showSplashVideo(context);
       }
     }

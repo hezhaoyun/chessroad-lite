@@ -200,18 +200,22 @@ class BattlePageState extends State<BattlePage>
             Move.fromEngineStep(item.move),
           );
         }
-        showAnalysisItems(
-          context,
-          items: result.value,
-          callback: (index) => Navigator.of(context).pop(),
-        );
+        if (mounted) {
+          showAnalysisItems(
+            context,
+            items: result.value,
+            callback: (index) => Navigator.of(context).pop(),
+          );
+        }
       } else if (result.type == 'no-result') {
-        showSnackBar(context, '已请求服务器计算，请稍后查看！');
+        if (mounted) showSnackBar(context, '已请求服务器计算，请稍后查看！');
       } else {
-        showSnackBar(
-          context,
-          sprintf('错误：%s', [result.type]),
-        );
+        if (mounted) {
+          showSnackBar(
+            context,
+            sprintf('错误：%s', [result.type]),
+          );
+        }
       }
     } catch (e) {
       showSnackBar(
@@ -333,6 +337,8 @@ class BattlePageState extends State<BattlePage>
   saveManual() async {
     //
     final success = await _boardState.saveManual(GameScene.battle);
+
+    if (!mounted) return;
 
     if (success) {
       showSnackBar(context, '保存成功！');
@@ -471,8 +477,7 @@ class BattlePageState extends State<BattlePage>
       //
       // 撤销人走的一步棋，下次人重新走棋时，还可以重新请求引擎
       _boardState.regret(GameScene.battle, steps: 1);
-
-      showSnackBar(context, '网络错误，请重试！');
+      if (mounted) showSnackBar(context, '网络错误，请重试！');
       _pageState.changeStatus('网络错误，请重试！');
 
       //
@@ -481,7 +486,7 @@ class BattlePageState extends State<BattlePage>
       // 撤销人走的一步棋，下次人重新走棋时，还可以重新请求引擎
       _boardState.regret(GameScene.battle, steps: 1);
 
-      showSnackBar(context, '引擎超时未回复，请重试一次！');
+      if (mounted) showSnackBar(context, '引擎超时未回复，请重试一次！');
       _pageState.changeStatus('引擎超时未回复，请重试一次！');
 
       //
@@ -489,7 +494,7 @@ class BattlePageState extends State<BattlePage>
       // 撤销人走的一步棋，下次人重新走棋时，还可以重新请求引擎
       _boardState.regret(GameScene.battle, steps: 1);
 
-      showSnackBar(context, searchResult.type);
+      if (mounted) showSnackBar(context, searchResult.type);
       _pageState.changeStatus(searchResult.type);
     }
   }
