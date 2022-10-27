@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'board/board_widget.dart';
+
 import '../game/game.dart';
-import '../routes/settings/settings_page.dart';
 import '../game/page_state.dart';
+import '../routes/settings/settings_page.dart';
+import 'board/board_widget.dart';
 import 'ruler.dart';
 
 const _paddingH = 10.0;
@@ -14,8 +15,14 @@ double _additionPaddingH = 0;
 Widget createPageHeader(BuildContext context, GameScene scene,
     {Function()? leftAction, showSubTitle = true}) {
   //
+  // TODO: Why sometimes margin is negative?
+  EdgeInsets margin = EdgeInsets.only(top: Ruler.statusBarHeight(context));
+  if (margin.isNonNegative == false) {
+    margin = const EdgeInsets.symmetric(vertical: 16);
+  }
+
   return Container(
-    margin: EdgeInsets.only(top: Ruler.statusBarHeight(context)),
+    margin: margin,
     child: Column(
       children: <Widget>[
         Row(
