@@ -16,10 +16,10 @@ class CheckboxListTileEx extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CheckboxListTileExState createState() => _CheckboxListTileExState();
+  CheckboxListTileExState createState() => CheckboxListTileExState();
 }
 
-class _CheckboxListTileExState extends State<CheckboxListTileEx> {
+class CheckboxListTileExState extends State<CheckboxListTileEx> {
   //
   late bool value;
 

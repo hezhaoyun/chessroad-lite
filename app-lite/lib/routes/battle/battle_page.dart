@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sprintf/sprintf.dart';
+
 import '../../ad/trigger.dart';
+import '../../cchess/cc_base.dart';
+import '../../cchess/cc_fen.dart';
+import '../../cchess/step_name.dart';
 import '../../common/prt.dart';
 import '../../config/profile.dart';
 import '../../engine/analysis.dart';
@@ -10,18 +14,15 @@ import '../../engine/cloud_engine.dart';
 import '../../engine/engine.dart';
 import '../../game/board_state.dart';
 import '../../game/game.dart';
-import '../../cchess/cc_base.dart';
-import '../../cchess/cc_fen.dart';
-import '../../cchess/step_name.dart';
+import '../../game/page_state.dart';
 import '../../services/audios.dart';
 import '../../ui/build_utils.dart';
-import '../../game/page_state.dart';
 import '../../ui/checkbox_list_tile_ex.dart';
 import '../../ui/operation_bar.dart';
+import '../../ui/piece_animation_mixin.dart';
 import '../../ui/review_panel.dart';
 import '../../ui/ruler.dart';
 import '../../ui/snack_bar.dart';
-import '../../ui/piece_animation_mixin.dart';
 
 class BattlePage extends StatefulWidget {
   //
@@ -30,10 +31,10 @@ class BattlePage extends StatefulWidget {
   const BattlePage({Key? key}) : super(key: key);
 
   @override
-  _BattlePageState createState() => _BattlePageState();
+  BattlePageState createState() => BattlePageState();
 }
 
-class _BattlePageState extends State<BattlePage>
+class BattlePageState extends State<BattlePage>
     with PieceAnimationMixIn, TickerProviderStateMixin {
   //
   bool _working = false;
