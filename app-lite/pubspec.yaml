@@ -1,0 +1,89 @@
+name: chessroad
+description: 棋路-中国象棋基于 flutter 的实现。
+publish_to: "none"
+version: 1.0.1+1
+
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+
+dependencies:
+
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.4
+  provider: ^6.0.2
+  path_provider: ^2.0.9
+  date_format: ^2.0.6
+  package_info_plus: ^1.4.3
+  flutter_linkify: ^5.0.2
+  url_launcher: ^6.1.0
+  in_app_review: ^2.0.4
+  wakelock: ^0.6.1+2
+  flutter_easyloading: ^3.0.5
+  kplayer: ^0.2.4
+  sprintf: ^7.0.0
+
+  eleeye_engine:
+    path: ../eleeye_engine
+  
+  challenger_engine:
+    path: ../challenger_engine
+
+  pikafish_engine:
+    path: ../pikafish_engine
+  
+  flutter_pangle_ads: ^2.5.0
+
+
+dev_dependencies:
+
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+
+    - images/logo.png
+    - images/mei.png
+    - images/zhu.png
+    - images/qrcode.png
+    - images/bg.jpg
+    - images/room.png
+    - images/nobody.png
+
+    - assets/audios/bg_music.mp3
+    - assets/audios/capture.mp3
+    - assets/audios/check.mp3
+    - assets/audios/click.mp3
+    - assets/audios/regret.mp3
+    - assets/audios/draw.mp3
+    - assets/audios/tips.mp3
+    - assets/audios/invalid.mp3
+    - assets/audios/lose.mp3
+    - assets/audios/move.mp3
+    - assets/audios/win.mp3
+
+    - assets/eleeye_book.dat
+    - assets/pikafish.nnue
+
+  fonts:
+    - family: ZhongSan
+      fonts:
+        - asset: fonts/sunzhongsan.ttf
+
+    - family: QiTi
+      fonts:
+        - asset: fonts/qiti.ttf
+
+    - family: XiaoLi
+      fonts:
+        - asset: fonts/hanyixiaoli.ttf

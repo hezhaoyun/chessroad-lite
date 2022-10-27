@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>传输棋谱</title>
+</head>
+
+<body style="margin: 32px; background-color: #EEE0CB;">
+    <h1 style="color: #6D000D;">棋路 - 向手机传送棋谱</h1>
+    <p>你可以从电脑向手机传送棋谱，请点击下边的「选取文件」选择你电脑上的 CBL 或 XQF 文件（也可选择棋谱文件的 zip 压缩包），然后点击「传送」按钮！</p>
+    <p>传输的文件不要太大，最好不超过 5M！</p>
+    <p></p>
+    <form action="/upload" enctype="multipart/form-data" method="post">
+        <input type="file" name="file" id="manual_file">
+        <input type="submit" value="传送">
+    </form>
+</body>
+
+</html>
