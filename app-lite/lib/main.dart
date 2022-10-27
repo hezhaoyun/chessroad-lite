@@ -58,6 +58,10 @@ class ChessRoadAppState extends State<ChessRoadApp>
   Widget build(BuildContext context) {
     //
     return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<BoardState>(create: (_) => BoardState()),
+        ChangeNotifierProvider<PageState>(create: (_) => PageState()),
+      ],
       child: MaterialApp(
         navigatorKey: ChessRoadApp.navKey,
         theme: ThemeData(primarySwatch: Colors.brown),
@@ -65,10 +69,6 @@ class ChessRoadAppState extends State<ChessRoadApp>
         builder: EasyLoading.init(),
         debugShowCheckedModeBanner: false,
       ),
-      providers: [
-        ChangeNotifierProvider<BoardState>(create: (_) => BoardState()),
-        ChangeNotifierProvider<PageState>(create: (_) => PageState()),
-      ],
     );
   }
 

@@ -228,13 +228,13 @@ class MainMenuState extends State<MainMenu>
             ),
             const Expanded(child: SizedBox()),
             TextButton(
+              onPressed: showReadme,
               child: Text(
                 '版本说明',
                 style: menuItemStyle,
               ),
-              onPressed: showReadme,
             ),
-            const Expanded(child: SizedBox(), flex: 4),
+            const Expanded(flex: 4, child: SizedBox()),
           ],
         ),
       );
@@ -243,8 +243,8 @@ class MainMenuState extends State<MainMenu>
     final mainEntries = Center(
       child: Column(
         children: <Widget>[
-          const Expanded(child: SizedBox(), flex: 2),
-          Hero(child: Image.asset('images/logo.png'), tag: 'logo'),
+          const Expanded(flex: 2, child: SizedBox()),
+          Hero(tag: 'logo', child: Image.asset('images/logo.png')),
           const Expanded(child: SizedBox()),
           Transform.scale(
             scale: _inAnimation.value,
@@ -256,7 +256,7 @@ class MainMenuState extends State<MainMenu>
           ),
           const Expanded(child: SizedBox()),
           buildActionCtrls(),
-          const Expanded(child: SizedBox(), flex: 2),
+          const Expanded(flex: 2, child: SizedBox()),
           Container(height: 10),
           Text(
             '用心娱乐，为爱传承',
