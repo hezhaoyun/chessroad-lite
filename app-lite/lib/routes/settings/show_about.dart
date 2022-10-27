@@ -10,7 +10,7 @@ import '../../ui/snack_bar.dart';
 showAbout(BuildContext context) async {
   //
   final packageInfo = await PackageInfo.fromPlatform();
-  final _version = '${packageInfo.version} (${packageInfo.buildNumber})';
+  final version = '${packageInfo.version} (${packageInfo.buildNumber})';
 
   showDialog(
     context: context,
@@ -26,7 +26,7 @@ showAbout(BuildContext context) async {
         children: <Widget>[
           const SizedBox(height: 5),
           const Text('版本'),
-          Text(_version),
+          Text(version),
           const SizedBox(height: 15),
           const Text('QQ 3群（招募中）'),
           Linkify(
