@@ -76,15 +76,15 @@ class BoardState with ChangeNotifier {
     notifyListeners();
   }
 
-  bool move(int from, int to) {
+  bool move(Move move) {
     //
-    if (!_phase.move(from, to)) {
+    if (!_phase.move(move)) {
       Audios.playTone('invalid.mp3');
       return false;
     }
 
-    _focusIndex = to;
-    _blurIndex = from;
+    _focusIndex = move.to;
+    _blurIndex = move.from;
 
     if (ChessRules.beChecked(_phase)) {
       Audios.playTone('check.mp3');

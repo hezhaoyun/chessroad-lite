@@ -62,29 +62,25 @@ class Phase {
     _initBoard = other._initBoard;
   }
 
-  bool move(int from, int to, {validate = true}) {
+  bool move(Move move, {validate = true}) {
     //
     // 移动是否符合象棋规则
-    if (validate && !validateMove(from, to)) {
+    if (validate && !validateMove(move.from, move.to)) {
       return false;
     }
 
     // 生成棋步，记录步数
-    final captured = _pieces[to];
+    final captured = _pieces[move.to];
 
-    final move = Move(
-      from,
-      to,
-      captured: captured,
-      counterMarks: _recorder.toString(),
-    );
+    move.captured = captured;
+    move.counterMarks = _recorder.toString();
 
     StepName.translate(this, move);
     _recorder.stepIn(move, _side);
 
     // 修改棋盘
-    _pieces[to] = _pieces[from];
-    _pieces[from] = Piece.empty;
+    _pieces[move.to] = _pieces[move.from];
+    _pieces[move.from] = Piece.empty;
 
     // 交换走棋方
     _side = Side.oppo(_side);
@@ -165,23 +161,23 @@ class Phase {
       tempPhase.regret();
     }
 
-    tempPhase.move(last9steps(0).from, last9steps(0).to);
+    tempPhase.move(last9steps(0));
     if (!ChessRules.beChecked(tempPhase)) return false;
 
-    tempPhase.move(last9steps(1).from, last9steps(1).to);
-    tempPhase.move(last9steps(2).from, last9steps(2).to);
+    tempPhase.move(last9steps(1));
+    tempPhase.move(last9steps(2));
     if (!ChessRules.beChecked(tempPhase)) return false;
 
-    tempPhase.move(last9steps(3).from, last9steps(3).to);
-    tempPhase.move(last9steps(4).from, last9steps(4).to);
+    tempPhase.move(last9steps(3));
+    tempPhase.move(last9steps(4));
     if (!ChessRules.beChecked(tempPhase)) return false;
 
-    tempPhase.move(last9steps(5).from, last9steps(5).to);
-    tempPhase.move(last9steps(6).from, last9steps(6).to);
+    tempPhase.move(last9steps(5));
+    tempPhase.move(last9steps(6));
     if (!ChessRules.beChecked(tempPhase)) return false;
 
-    tempPhase.move(last9steps(7).from, last9steps(7).to);
-    tempPhase.move(last9steps(8).from, last9steps(8).to);
+    tempPhase.move(last9steps(7));
+    tempPhase.move(last9steps(8));
     if (!ChessRules.beChecked(tempPhase)) return false;
 
     return true;
@@ -280,6 +276,68 @@ class Phase {
     return 'position fen $phase moves $moves';
   }
 
+  String? buildInfoText() {
+    //
+    if (lastMove == null) return '';
+    final lmv = lastMove!;
+
+    if (lmv.depth != null && lmv.score != null) {
+      //
+      // 有详细的 info 反馈，例如 皮卡鱼 引擎的反馈
+
+      final score = lmv.score! * (Side.red == _side ? -1 : 1);
+      final goodSide = score > 0
+          ? '红优'
+          : score < 0
+              ? '黑优'
+              : '均势';
+
+      final pvMoves = lmv.pv ?? '';
+      final mvs = pvMoves.split(' ');
+
+      final tempPhase = Phase.clone(this);
+      final lastSideIsRed = _side == Side.black;
+
+      String blackStepName = '', otherStepNames = '';
+
+      if (lastSideIsRed && mvs.length > 1) {
+        final move = Move.fromEngineStep(mvs[1]);
+        blackStepName = StepName.translate(tempPhase, move);
+        tempPhase.move(move);
+      }
+
+      for (var i = lastSideIsRed ? 2 : 1; i < mvs.length; i += 2) {
+        //
+        var move = Move.fromEngineStep(mvs[i]);
+        final redStep = StepName.translate(tempPhase, move);
+        tempPhase.move(move);
+
+        otherStepNames += '$redStep  ';
+
+        if (i + 1 < mvs.length) {
+          move = Move.fromEngineStep(mvs[i + 1]);
+          final blackStep = StepName.translate(tempPhase, move);
+          tempPhase.move(move);
+          otherStepNames += '$blackStep\n';
+        }
+      }
+
+      return '局面评估：$score '
+          '($goodSide)\n'
+          '搜索深度：${lmv.depth ?? 0}\n'
+          '搜索节点：${lmv.nodes ?? 0}\n'
+          '累计时间：${lmv.time ?? 0}\n'
+          '后续着法：$blackStepName\n'
+          '$otherStepNames\n';
+    }
+
+    return null;
+  }
+
+  String get infoText {
+    return buildInfoText() ?? _recorder.buildManualText();
+  }
+
   String buildMoveListForManual() => _recorder.buildMoveListForManual();
 
   // broken setting operation
@@ -303,5 +361,4 @@ class Phase {
   String? get lastCapturedPhase => _lastCapturedPhase;
   String get allMoves => _recorder.allMoves();
   String get movesAfterLastCaptured => _recorder.movesAfterLastCaptured();
-  String get manualText => _recorder.buildManualText();
 }

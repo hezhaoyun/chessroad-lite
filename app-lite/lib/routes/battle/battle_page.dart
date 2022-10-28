@@ -89,7 +89,7 @@ class BattlePageState extends State<BattlePage>
         int.parse(moveList.substring(i + 3, i + 4)),
       );
 
-      phase.move(move.from, move.to);
+      phase.move(move);
     }
 
     _boardState.inverseBoard(boardInversed, notify: false);
@@ -284,7 +284,7 @@ class BattlePageState extends State<BattlePage>
       //
       final step = searchResult.value;
 
-      _boardState.move(step.from, step.to);
+      _boardState.move(step);
       startPieceAnimation();
 
       final result = BattleAgent.shared.scanBattleResult(
@@ -374,7 +374,7 @@ class BattlePageState extends State<BattlePage>
       }
 
       // 现在点击的棋子和上一次选择棋子不同边，要么是吃子，要么是移动棋子到空白处
-      if (_boardState.move(_boardState.focusIndex, index)) {
+      if (_boardState.move(Move(_boardState.focusIndex, index))) {
         //
         startPieceAnimation();
 
@@ -425,7 +425,7 @@ class BattlePageState extends State<BattlePage>
     if (searchResult.type == Engine.kMove) {
       //
       final Move step = searchResult.value;
-      _boardState.move(step.from, step.to);
+      _boardState.move(step);
 
       if (_boardState.phase.appearRepeatPhase()) {
         final recorder = _boardState.phase.recorder;
@@ -628,24 +628,26 @@ class BattlePageState extends State<BattlePage>
 
   Widget buildFooter() {
     //
+    final content = _boardState.phase.infoText;
+
     if (Ruler.isLongScreen(context)) {
-      return buildManualPanel(_boardState.phase.manualText);
+      return buildInfoPanel(content);
     }
 
-    return buildExpandableManaulPanel(context, _boardState.phase.manualText);
+    return buildExpandableManaulPanel(context, content);
   }
 
-  Widget buildManualPanel(String text) {
+  Widget buildInfoPanel(String text) {
     //
     final manualStyle = GameFonts.ui(
-      fontSize: 18,
+      fontSize: 17,
       color: GameColors.darkTextSecondary,
       height: 1.5,
     );
 
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 16),
+        margin: const EdgeInsets.all(16),
         child: SingleChildScrollView(child: Text(text, style: manualStyle)),
       ),
     );

@@ -104,11 +104,42 @@ class NativeEngineImpl extends NativeEngine {
       times: waitTimes + 100,
     );
 
+    // bestmove h9g7 info depth 10 seldepth 13 multipv 1 score cp -75 nodes 14091 nps 6358 hashfull 4 tbhits 0 time 2216 pv h9g7 h0g2 i9h9 i0h0 b9c7 h0h4 c9e7 c3c4 h7i7 h4h9 g7h9 g3g4
+
     if (response.startsWith(Engine.kBestMove)) {
       //
+      // pikafish
+      var regx = RegExp(
+          r'bestmove (.{4}) info .*depth (\d+) .*score cp (-?\d+) .*nodes (\d+) .*time (\d+) .*pv\s?(.*)');
+      var match = regx.firstMatch(response);
+
+      if (match != null) {
+        //
+        final step = match.group(1)!;
+        final depth = int.parse(match.group(2)!);
+        final score = int.parse(match.group(3)!);
+        final nodes = int.parse(match.group(4)!);
+        final time = int.parse(match.group(5)!);
+        final pv = match.group(6)!;
+
+        return EngineResponse(
+          Engine.kMove,
+          Engine.kNative,
+          value: Move.fromEngineStep(
+            step,
+            score: score,
+            depth: depth,
+            nodes: nodes,
+            time: time,
+            pv: pv,
+          ),
+        );
+      }
+
+      // eleeye / challenger
       // move a3a4 info depth 11 score 123 pv
-      final regx = RegExp(r'bestmove\s(.{4}).+score\s(\-?\d+)');
-      final match = regx.firstMatch(response);
+      regx = RegExp(r'bestmove\s(.{4}).+score\s(\-?\d+)');
+      match = regx.firstMatch(response);
 
       if (match != null) {
         final step = match.group(1)!;
@@ -120,12 +151,13 @@ class NativeEngineImpl extends NativeEngine {
         );
       }
 
+      // ...
       // move a3a4
-      final regxWithoutInfo = RegExp(r'move\s(.{4})');
-      final matchWithoutInfo = regxWithoutInfo.firstMatch(response);
+      regx = RegExp(r'move\s(.{4})');
+      match = regx.firstMatch(response);
 
-      if (matchWithoutInfo != null) {
-        final step = matchWithoutInfo.group(1)!;
+      if (match != null) {
+        final step = match.group(1)!;
         return EngineResponse(
           Engine.kMove,
           Engine.kNative,

@@ -32,7 +32,7 @@ class LocalData {
     _profile.backup = await Profile.shared().load();
 
     aceptedPrivacyPolicy = DataItem(_profile, 'acepted_privacy_policy', false);
-    engineName = DataItem(_profile, 'engine_name', NativeEngine.kNameEleeye);
+    engineName = DataItem(_profile, 'engine_name', NativeEngine.kNamePikafish);
     engineConfig = DataItem(_profile, 'engine_config', 5);
     cloudEngineEnabled = DataItem(_profile, 'cloud_engine_enabled', true);
     lastReivewInvite = DataItem(_profile, 'last_review_invite', '');

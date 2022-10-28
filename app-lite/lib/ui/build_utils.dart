@@ -15,10 +15,9 @@ double _additionPaddingH = 0;
 Widget createPageHeader(BuildContext context, GameScene scene,
     {Function()? leftAction, showSubTitle = true}) {
   //
-  // TODO: Why sometimes margin is negative?
   EdgeInsets margin = EdgeInsets.only(top: Ruler.statusBarHeight(context));
-  if (margin.isNonNegative == false) {
-    margin = const EdgeInsets.symmetric(vertical: 16);
+  if (!margin.isNonNegative) {
+    margin = const EdgeInsets.symmetric(vertical: 26);
   }
 
   return Container(

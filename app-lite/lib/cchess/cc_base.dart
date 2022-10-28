@@ -81,7 +81,8 @@ class Move {
   // 这一步走完后的 FEN 记数，用于悔棋时恢复 FEN 步数 Counter
   String counterMarks = '';
 
-  int? score;
+  int? score, depth, nodes, time;
+  String? pv;
 
   Move(
     this.from,
@@ -110,7 +111,8 @@ class Move {
     captured = Piece.empty;
   }
 
-  Move.fromEngineStep(this.step, {this.score}) {
+  Move.fromEngineStep(this.step,
+      {this.score, this.depth, this.nodes, this.time, this.pv}) {
     //
     if (!validateEngineStep(step)) {
       throw 'Error: Invlid Step: $step';

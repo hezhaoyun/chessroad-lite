@@ -1,3 +1,5 @@
+import 'package:sprintf/sprintf.dart';
+
 import 'cc_base.dart';
 
 class MoveRecorder {
