@@ -21,7 +21,8 @@ Future openPrivacyPolicy(BuildContext context) async {
         child: Linkify(
           onOpen: (link) async {
             if (await canLaunchUrl(Uri.parse(url))) {
-              await launchUrl(Uri.parse(url));
+              await launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication);
             } else {
               prt('Could not launch $url');
             }

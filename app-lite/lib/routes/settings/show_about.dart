@@ -57,7 +57,8 @@ showAbout(BuildContext context) async {
           Linkify(
             onOpen: (link) async {
               if (await canLaunchUrl(Uri.parse(link.url))) {
-                await launchUrl(Uri.parse(link.url));
+                await launchUrl(Uri.parse(link.url),
+                    mode: LaunchMode.externalApplication);
               } else {
                 Clipboard.setData(ClipboardData(text: link.url));
                 showSnackBar(context, '链接已复制到剪贴板！');

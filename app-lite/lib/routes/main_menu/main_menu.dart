@@ -132,7 +132,7 @@ class MainMenuState extends State<MainMenu>
     const url = 'https://mdevs.cn';
 
     if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
       Clipboard.setData(const ClipboardData(text: url));
       showSnackBar(context, '链接已复制到剪贴板！');
@@ -158,7 +158,8 @@ class MainMenuState extends State<MainMenu>
           onOpen: (link) async {
             Navigator.of(context).pop();
             if (await canLaunchUrl(Uri.parse(link.url))) {
-              await launchUrl(Uri.parse(link.url));
+              await launchUrl(Uri.parse(link.url),
+                  mode: LaunchMode.externalApplication);
             } else {
               Clipboard.setData(ClipboardData(text: link.url));
               showSnackBar(context, '链接已复制到剪贴板！');
