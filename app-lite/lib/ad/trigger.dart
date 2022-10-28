@@ -31,10 +31,10 @@ class AdTrigger {
 
   final GameScene scene;
 
-  int _startTimesLess = 0;
-  int _regretTimesLess = 0;
-  int _hintTimesLess = 0;
-  int _analysisTimesLess = 0;
+  // int _startTimesLess = 0;
+  // int _regretTimesLess = 0;
+  // int _hintTimesLess = 0;
+  // int _analysisTimesLess = 0;
 
   AdTrigger(this.scene) {
     resetTimesLess();
@@ -43,25 +43,26 @@ class AdTrigger {
   bool isAdTime(AdAction action) {
     //
     if (!LocalData().aceptedPrivacyPolicy.value) return false;
+    return false;
 
-    switch (action) {
-      //
-      case AdAction.start:
-        _startTimesLess--;
-        return _startTimesLess < 0;
+    // switch (action) {
+    //   //
+    //   case AdAction.start:
+    //     _startTimesLess--;
+    //     return _startTimesLess < 0;
 
-      case AdAction.regret:
-        _regretTimesLess--;
-        return _regretTimesLess < 0;
+    //   case AdAction.regret:
+    //     _regretTimesLess--;
+    //     return _regretTimesLess < 0;
 
-      case AdAction.requestHint:
-        _hintTimesLess--;
-        return _hintTimesLess < 0;
+    //   case AdAction.requestHint:
+    //     _hintTimesLess--;
+    //     return _hintTimesLess < 0;
 
-      case AdAction.requestAnalysis:
-        _analysisTimesLess--;
-        return _analysisTimesLess < 0;
-    }
+    //   case AdAction.requestAnalysis:
+    //     _analysisTimesLess--;
+    //     return _analysisTimesLess < 0;
+    // }
   }
 
   requestShowRewardAd(AdAction action, BuildContext context) {
@@ -134,10 +135,10 @@ class AdTrigger {
     switch (scene) {
       //
       case GameScene.battle:
-        _startTimesLess = AdActionLimits.battleTimes;
-        _regretTimesLess = AdActionLimits.battleRegretTimes;
-        _hintTimesLess = AdActionLimits.battleHintTimes;
-        _analysisTimesLess = AdActionLimits.battleAnalysisTimes;
+        // _startTimesLess = AdActionLimits.battleTimes;
+        // _regretTimesLess = AdActionLimits.battleRegretTimes;
+        // _hintTimesLess = AdActionLimits.battleHintTimes;
+        // _analysisTimesLess = AdActionLimits.battleAnalysisTimes;
         break;
 
       default:
