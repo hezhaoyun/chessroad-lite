@@ -5,11 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
+
 import 'engine/battle_agent.dart';
-import 'routes/main_menu/main_menu.dart';
-import 'services/audios.dart';
 import 'game/board_state.dart';
 import 'game/page_state.dart';
+import 'routes/main_menu/main_menu.dart';
+import 'services/audios.dart';
 
 void main() async {
   //
@@ -38,10 +39,10 @@ class ChessRoadApp extends StatefulWidget {
   const ChessRoadApp({Key? key}) : super(key: key);
 
   @override
-  _ChessRoadAppState createState() => _ChessRoadAppState();
+  ChessRoadAppState createState() => ChessRoadAppState();
 }
 
-class _ChessRoadAppState extends State<ChessRoadApp>
+class ChessRoadAppState extends State<ChessRoadApp>
     with WidgetsBindingObserver {
   //
   @override
@@ -57,6 +58,10 @@ class _ChessRoadAppState extends State<ChessRoadApp>
   Widget build(BuildContext context) {
     //
     return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<BoardState>(create: (_) => BoardState()),
+        ChangeNotifierProvider<PageState>(create: (_) => PageState()),
+      ],
       child: MaterialApp(
         navigatorKey: ChessRoadApp.navKey,
         theme: ThemeData(primarySwatch: Colors.brown),
@@ -64,10 +69,6 @@ class _ChessRoadAppState extends State<ChessRoadApp>
         builder: EasyLoading.init(),
         debugShowCheckedModeBanner: false,
       ),
-      providers: [
-        ChangeNotifierProvider<BoardState>(create: (_) => BoardState()),
-        ChangeNotifierProvider<PageState>(create: (_) => PageState()),
-      ],
     );
   }
 

@@ -9,10 +9,10 @@ class EditPage extends StatefulWidget {
   const EditPage(this.title, {Key? key, this.initValue}) : super(key: key);
 
   @override
-  _EditPageState createState() => _EditPageState();
+  EditPageState createState() => EditPageState();
 }
 
-class _EditPageState extends State<EditPage> {
+class EditPageState extends State<EditPage> {
   //
   late TextEditingController _textController;
   final FocusNode _commentFocus = FocusNode();

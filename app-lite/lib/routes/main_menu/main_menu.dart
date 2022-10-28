@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:chessroad/config/local_data.dart';
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,25 +7,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../ad/ad.dart';
 import '../../engine/battle_agent.dart';
-import '../../services/audios.dart';
 import '../../game/game.dart';
+import '../../services/audios.dart';
 import '../../ui/ruler.dart';
 import '../../ui/snack_bar.dart';
-import 'flowers_mixin.dart';
 import '../battle/battle_page.dart';
 import '../settings/settings_page.dart';
+import 'flowers_mixin.dart';
 
 class MainMenu extends StatefulWidget {
   //
   const MainMenu({Key? key}) : super(key: key);
 
   @override
-  _MainMenuState createState() => _MainMenuState();
+  MainMenuState createState() => MainMenuState();
 }
 
-class _MainMenuState extends State<MainMenu>
+class MainMenuState extends State<MainMenu>
     with TickerProviderStateMixin, FlowersMinix {
   //
   late AnimationController _inController, _shadowController;
@@ -80,6 +82,8 @@ class _MainMenuState extends State<MainMenu>
     //
     await LocalData().load();
 
+    if (!mounted) return;
+
     createFlowers(context, this, () => setState(() {}));
 
     bool newUser = await checkPrivacyPolicy();
@@ -107,7 +111,7 @@ class _MainMenuState extends State<MainMenu>
         counterDown--;
       }
 
-      if (counterDown > 0) {
+      if (counterDown > 0 && mounted) {
         await Ad.instance.showSplashVideo(context);
       }
     }
@@ -226,13 +230,13 @@ class _MainMenuState extends State<MainMenu>
             ),
             const Expanded(child: SizedBox()),
             TextButton(
+              onPressed: showReadme,
               child: Text(
                 '版本说明',
                 style: menuItemStyle,
               ),
-              onPressed: showReadme,
             ),
-            const Expanded(child: SizedBox(), flex: 4),
+            const Expanded(flex: 4, child: SizedBox()),
           ],
         ),
       );
@@ -241,8 +245,8 @@ class _MainMenuState extends State<MainMenu>
     final mainEntries = Center(
       child: Column(
         children: <Widget>[
-          const Expanded(child: SizedBox(), flex: 2),
-          Hero(child: Image.asset('images/logo.png'), tag: 'logo'),
+          const Expanded(flex: 2, child: SizedBox()),
+          Hero(tag: 'logo', child: Image.asset('images/logo.png')),
           const Expanded(child: SizedBox()),
           Transform.scale(
             scale: _inAnimation.value,
@@ -254,7 +258,7 @@ class _MainMenuState extends State<MainMenu>
           ),
           const Expanded(child: SizedBox()),
           buildActionCtrls(),
-          const Expanded(child: SizedBox(), flex: 2),
+          const Expanded(flex: 2, child: SizedBox()),
           Container(height: 10),
           Text(
             '用心娱乐，为爱传承',

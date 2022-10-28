@@ -119,8 +119,8 @@ class _OperationBarState extends State<OperationBar> {
       buttons.add(
         TextButton(
           key: globalKey,
-          child: Text(e.name, style: buttonStyle),
           onPressed: null,
+          child: Text(e.name, style: buttonStyle),
         ),
       );
     }
@@ -148,8 +148,8 @@ class _OperationBarState extends State<OperationBar> {
 
       // buttons 中的按钮会被 unmount，这里直接重建
       finalChildren.add(TextButton(
-        child: Text(e.name, style: buttonStyle),
         onPressed: e.callback,
+        child: Text(e.name, style: buttonStyle),
       ));
     }
   }

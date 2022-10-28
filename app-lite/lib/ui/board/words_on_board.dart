@@ -34,13 +34,14 @@ class WordsOnBoard extends StatelessWidget {
       children: const <Widget>[
         Expanded(child: SizedBox()),
         Text('楚河', style: riverTipsStyle),
-        Expanded(child: SizedBox(), flex: 2),
+        Expanded(flex: 2, child: SizedBox()),
         Text('汉界', style: riverTipsStyle),
         Expanded(child: SizedBox()),
       ],
     );
 
     return DefaultTextStyle(
+      style: GameFonts.art(color: GameColors.boardTips),
       child: Column(
         children: <Widget>[
           Row(children: topSideChildren),
@@ -50,7 +51,6 @@ class WordsOnBoard extends StatelessWidget {
           Row(children: bottomSideChildren),
         ],
       ),
-      style: GameFonts.art(color: GameColors.boardTips),
     );
   }
 }

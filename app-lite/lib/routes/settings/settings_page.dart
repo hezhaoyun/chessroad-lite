@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
 import 'package:chessroad/ui/review_panel.dart';
 import 'package:flutter/material.dart';
+
 import '../../config/local_data.dart';
 import '../../engine/battle_agent.dart';
 import '../../engine/engine.dart';
@@ -16,10 +17,10 @@ class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   //
   updateLoginState(bool _) {
     if (mounted) setState(() {});
