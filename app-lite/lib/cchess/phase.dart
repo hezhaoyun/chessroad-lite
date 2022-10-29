@@ -269,7 +269,7 @@ class Phase {
       moves = movesAfterLastCaptured;
     } else {
       phase = Fen.phaseToFen(this);
-      moves = movesAfterLastCaptured;
+      moves = allMoves;
     }
 
     if (moves == '') return 'position fen $phase';
