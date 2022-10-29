@@ -240,7 +240,7 @@ class BattlePageState extends State<BattlePage>
         ListTile(
           title: Text(item.stepName!, style: GameFonts.ui(fontSize: 18)),
           subtitle: Text(
-            sprintf('获胜机率：.2f%', [item.winrate]),
+            sprintf('获胜机率：%.2f%', [item.winrate]),
           ),
           trailing: Text(
             sprintf('局面评分：%d', [item.score]),
