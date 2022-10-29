@@ -104,13 +104,16 @@ class NativeEngineImpl extends NativeEngine {
       times: waitTimes + 100,
     );
 
-    // bestmove h9g7 info depth 10 seldepth 13 multipv 1 score cp -75 nodes 14091 nps 6358 hashfull 4 tbhits 0 time 2216 pv h9g7 h0g2 i9h9 i0h0 b9c7 h0h4 c9e7 c3c4 h7i7 h4h9 g7h9 g3g4
+    // bestmove h9g7 info depth 10 seldepth 13 multipv 1 score cp -75 nodes 14091
+    // nps 6358 hashfull 4 tbhits 0 time 2216 pv h9g7 h0g2 i9h9 i0h0 b9c7 h0h4 c9e7
+    // c3c4 h7i7 h4h9 g7h9 g3g4
 
     if (response.startsWith(Engine.kBestMove)) {
       //
       // pikafish
       var regx = RegExp(
-          r'bestmove (.{4}) info .*depth (\d+) .*score cp (-?\d+) .*nodes (\d+) .*time (\d+) .*pv\s?(.*)');
+        r'bestmove (.{4}) info .*depth (\d+) .*score cp (-?\d+) .*nodes (\d+) .*time (\d+) .*pv\s?(.*)',
+      );
       var match = regx.firstMatch(response);
 
       if (match != null) {
