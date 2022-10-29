@@ -106,9 +106,13 @@ class Move {
   }
 
   Move.fromCoordinate(this.fx, this.fy, this.tx, this.ty) {
+    //
     from = fx + fy * 9;
     to = tx + ty * 9;
     captured = Piece.empty;
+
+    step = String.fromCharCode('a'.codeUnitAt(0) + fx) + (9 - fy).toString();
+    step += String.fromCharCode('a'.codeUnitAt(0) + tx) + (9 - ty).toString();
   }
 
   Move.fromEngineStep(this.step,

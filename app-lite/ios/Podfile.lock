@@ -1,11 +1,11 @@
 PODS:
-  - Ads-CN (4.7.0.8):
-    - Ads-CN/BUAdSDK (= 4.7.0.8)
-  - Ads-CN/BUAdSDK (4.7.0.8):
+  - Ads-CN (4.8.0.8):
+    - Ads-CN/BUAdSDK (= 4.8.0.8)
+  - Ads-CN/BUAdSDK (4.8.0.8):
     - Ads-CN/Dep_Accurate
-  - Ads-CN/Dep_Accurate (4.7.0.8):
+  - Ads-CN/Dep_Accurate (4.8.0.8):
     - BUAdSDK (= 0.1.0.24)
-    - BURelyFoundation/CSJ (= 0.0.3.6)
+    - BURelyFoundation/CSJ (= 0.0.3.13)
   - audio_session (0.0.1):
     - Flutter
   - audioplayers_darwin (0.0.1):
@@ -13,9 +13,9 @@ PODS:
   - BUAdSDK (0.1.0.24):
     - BUAdSDK/BUAdSDK (= 0.1.0.24)
   - BUAdSDK/BUAdSDK (0.1.0.24)
-  - BURelyFoundation/AFNetworking (0.0.3.6)
-  - BURelyFoundation/BURelyFoundation (0.0.3.6)
-  - BURelyFoundation/CSJ (0.0.3.6):
+  - BURelyFoundation/AFNetworking (0.0.3.13)
+  - BURelyFoundation/BURelyFoundation (0.0.3.13)
+  - BURelyFoundation/CSJ (0.0.3.13):
     - BURelyFoundation/AFNetworking
     - BURelyFoundation/BURelyFoundation
     - BURelyFoundation/Foundation
@@ -26,20 +26,20 @@ PODS:
     - BURelyFoundation/YYModel
     - BURelyFoundation/ZFPlayer
     - BURelyFoundation/Zip
-  - BURelyFoundation/Foundation (0.0.3.6):
+  - BURelyFoundation/Foundation (0.0.3.13):
     - BURelyFoundation/NETWork
-  - BURelyFoundation/Gecko (0.0.3.6):
+  - BURelyFoundation/Gecko (0.0.3.13):
     - BURelyFoundation/Foundation
-  - BURelyFoundation/HM (0.0.3.6)
-  - BURelyFoundation/NETWork (0.0.3.6):
+  - BURelyFoundation/HM (0.0.3.13)
+  - BURelyFoundation/NETWork (0.0.3.13):
     - BURelyFoundation/AFNetworking
-  - BURelyFoundation/SDWebImage (0.0.3.6):
+  - BURelyFoundation/SDWebImage (0.0.3.13):
     - BURelyFoundation/Foundation
-  - BURelyFoundation/YYModel (0.0.3.6)
-  - BURelyFoundation/ZFPlayer (0.0.3.6):
+  - BURelyFoundation/YYModel (0.0.3.13)
+  - BURelyFoundation/ZFPlayer (0.0.3.13):
     - BURelyFoundation/Foundation
     - BURelyFoundation/Zip
-  - BURelyFoundation/Zip (0.0.3.6):
+  - BURelyFoundation/Zip (0.0.3.13):
     - BURelyFoundation/Foundation
   - challenger_engine (0.0.1):
     - Flutter
@@ -114,11 +114,11 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
-  Ads-CN: c247036bc72f08d14e310aca4bf60025b556a264
+  Ads-CN: dae418d831065e5107e4c344ced780873d609de4
   audio_session: 4f3e461722055d21515cf3261b64c973c062f345
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
   BUAdSDK: 5528f72f7b9b478a12743ea23af7bdb9746efc00
-  BURelyFoundation: b208aa141bb04033a1dd66dbdea114f4745f357a
+  BURelyFoundation: 92b5a155543721655445b54ddbbf3035a0c6f16e
   challenger_engine: 2d6edd45cb8a2fef301dc4112173fe5a4128a982
   eleeye_engine: 0f98e2938fa36a794800179b802faa83fdbc298d
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
@@ -127,7 +127,7 @@ SPEC CHECKSUMS:
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
-  pikafish_engine: da42b1e55be6f10236a7f6c9a1e9781f850a5e48
+  pikafish_engine: 5f825a72b8e253d4a4bfa41f6b1b30c76d962b41
   url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 
