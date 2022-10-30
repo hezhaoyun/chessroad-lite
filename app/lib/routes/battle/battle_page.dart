@@ -458,7 +458,7 @@ class BattlePageState extends State<BattlePage>
             _pageState.changeStatus(BattlePage.yourTurn);
           }
           // debug
-          if (LocalData().debugMode.value) {
+          if (LocalData().debugMode.value && mounted) {
             Future.delayed(const Duration(seconds: 1), () => askEngineHint());
           }
           break;
