@@ -10,6 +10,7 @@ import '../../engine/engine.dart';
 import '../../engine/native_engine_config.dart';
 import '../../game/game.dart';
 import '../../services/audios.dart';
+import '../../ui/snack_bar.dart';
 import 'show_about.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -22,6 +23,8 @@ class SettingsPage extends StatefulWidget {
 
 class SettingsPageState extends State<SettingsPage> {
   //
+  int _titleClicked = 0;
+
   updateLoginState(bool _) {
     if (mounted) setState(() {});
   }
@@ -334,7 +337,10 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Text('关于', style: headerStyle),
+            TextButton(
+              onPressed: clickAboutTitle,
+              child: Text('关于', style: headerStyle),
+            ),
             Card(
               color: GameColors.boardBackground,
               margin: const EdgeInsets.symmetric(vertical: 10),
@@ -396,5 +402,22 @@ class SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void clickAboutTitle() {
+    //
+    _titleClicked++;
+
+    if (_titleClicked >= 5) {
+      //
+      LocalData().debugMode.value = !LocalData().debugMode.value;
+
+      _titleClicked = 0;
+
+      showSnackBar(
+        context,
+        'DebugMode: ${LocalData().debugMode.value}',
+      );
+    }
   }
 }

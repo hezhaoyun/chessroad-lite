@@ -7,6 +7,7 @@ import '../../cchess/cc_base.dart';
 import '../../cchess/cc_fen.dart';
 import '../../cchess/step_name.dart';
 import '../../common/prt.dart';
+import '../../config/local_data.dart';
 import '../../config/profile.dart';
 import '../../engine/analysis.dart';
 import '../../engine/battle_agent.dart';
@@ -455,6 +456,10 @@ class BattlePageState extends State<BattlePage>
             );
           } else {
             _pageState.changeStatus(BattlePage.yourTurn);
+          }
+          // debug
+          if (LocalData().debugMode.value) {
+            Future.delayed(const Duration(seconds: 1), () => askEngineHint());
           }
           break;
         case BattleResult.win:

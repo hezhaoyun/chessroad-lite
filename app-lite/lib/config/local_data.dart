@@ -7,6 +7,7 @@ class LocalData {
   //
   late final Profile _profile;
 
+  late final DataItem debugMode;
   late final DataItem aceptedPrivacyPolicy;
   late final DataItem engineName;
   late final DataItem engineConfig;
@@ -31,6 +32,7 @@ class LocalData {
     // 这里为了保持对老版本的兼容，分离后，不能在本地数据中找到配置项时，就在 shared 里面查找
     _profile.backup = await Profile.shared().load();
 
+    debugMode = DataItem(_profile, 'debug_mode', false);
     aceptedPrivacyPolicy = DataItem(_profile, 'acepted_privacy_policy', false);
     engineName = DataItem(_profile, 'engine_name', NativeEngine.kNamePikafish);
     engineConfig = DataItem(_profile, 'engine_config', 3);
