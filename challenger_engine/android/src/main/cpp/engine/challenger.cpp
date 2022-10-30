@@ -11,7 +11,7 @@
 
 int SearchDepth = 64;
 
-int engineMain() {
+int challengerMain() {
     
     std::cout << engine_info() << std::endl;
     

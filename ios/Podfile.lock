@@ -1,54 +1,13 @@
 PODS:
-  - Ads-CN (4.8.0.8):
-    - Ads-CN/BUAdSDK (= 4.8.0.8)
-  - Ads-CN/BUAdSDK (4.8.0.8):
-    - Ads-CN/Dep_Accurate
-  - Ads-CN/Dep_Accurate (4.8.0.8):
-    - BUAdSDK (= 0.1.0.24)
-    - BURelyFoundation/CSJ (= 0.0.3.13)
   - audio_session (0.0.1):
     - Flutter
   - audioplayers_darwin (0.0.1):
     - Flutter
-  - BUAdSDK (0.1.0.24):
-    - BUAdSDK/BUAdSDK (= 0.1.0.24)
-  - BUAdSDK/BUAdSDK (0.1.0.24)
-  - BURelyFoundation/AFNetworking (0.0.3.13)
-  - BURelyFoundation/BURelyFoundation (0.0.3.13)
-  - BURelyFoundation/CSJ (0.0.3.13):
-    - BURelyFoundation/AFNetworking
-    - BURelyFoundation/BURelyFoundation
-    - BURelyFoundation/Foundation
-    - BURelyFoundation/Gecko
-    - BURelyFoundation/HM
-    - BURelyFoundation/NETWork
-    - BURelyFoundation/SDWebImage
-    - BURelyFoundation/YYModel
-    - BURelyFoundation/ZFPlayer
-    - BURelyFoundation/Zip
-  - BURelyFoundation/Foundation (0.0.3.13):
-    - BURelyFoundation/NETWork
-  - BURelyFoundation/Gecko (0.0.3.13):
-    - BURelyFoundation/Foundation
-  - BURelyFoundation/HM (0.0.3.13)
-  - BURelyFoundation/NETWork (0.0.3.13):
-    - BURelyFoundation/AFNetworking
-  - BURelyFoundation/SDWebImage (0.0.3.13):
-    - BURelyFoundation/Foundation
-  - BURelyFoundation/YYModel (0.0.3.13)
-  - BURelyFoundation/ZFPlayer (0.0.3.13):
-    - BURelyFoundation/Foundation
-    - BURelyFoundation/Zip
-  - BURelyFoundation/Zip (0.0.3.13):
-    - BURelyFoundation/Foundation
   - challenger_engine (0.0.1):
     - Flutter
   - eleeye_engine (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_pangle_ads (2.6.1):
-    - Ads-CN (>= 4.7.0.8)
-    - Flutter
   - in_app_review (0.2.0):
     - Flutter
   - just_audio (0.0.1):
@@ -70,7 +29,6 @@ DEPENDENCIES:
   - challenger_engine (from `.symlinks/plugins/challenger_engine/ios`)
   - eleeye_engine (from `.symlinks/plugins/eleeye_engine/ios`)
   - Flutter (from `Flutter`)
-  - flutter_pangle_ads (from `.symlinks/plugins/flutter_pangle_ads/ios`)
   - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -78,12 +36,6 @@ DEPENDENCIES:
   - pikafish_engine (from `.symlinks/plugins/pikafish_engine/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock (from `.symlinks/plugins/wakelock/ios`)
-
-SPEC REPOS:
-  trunk:
-    - Ads-CN
-    - BUAdSDK
-    - BURelyFoundation
 
 EXTERNAL SOURCES:
   audio_session:
@@ -96,8 +48,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/eleeye_engine/ios"
   Flutter:
     :path: Flutter
-  flutter_pangle_ads:
-    :path: ".symlinks/plugins/flutter_pangle_ads/ios"
   in_app_review:
     :path: ".symlinks/plugins/in_app_review/ios"
   just_audio:
@@ -114,15 +64,11 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
-  Ads-CN: dae418d831065e5107e4c344ced780873d609de4
   audio_session: 4f3e461722055d21515cf3261b64c973c062f345
   audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
-  BUAdSDK: 5528f72f7b9b478a12743ea23af7bdb9746efc00
-  BURelyFoundation: 92b5a155543721655445b54ddbbf3035a0c6f16e
   challenger_engine: 2d6edd45cb8a2fef301dc4112173fe5a4128a982
   eleeye_engine: 0f98e2938fa36a794800179b802faa83fdbc298d
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_pangle_ads: 67f54dac3846a1df5489afea1fe6f66e1730e48a
   in_app_review: 4a97249f7a2f539a0f294c2d9196b7fe35e49541
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e

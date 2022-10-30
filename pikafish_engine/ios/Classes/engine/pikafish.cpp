@@ -25,7 +25,7 @@ using namespace Stockfish;
 
 int SearchDepth = 64;
 
-int engineMain() {
+int pikafishMain() {
 
   std::cout << engine_info() << std::endl;
 

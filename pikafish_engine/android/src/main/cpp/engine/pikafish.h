@@ -10,6 +10,6 @@
 
 extern int SearchDepth;
 
-int engineMain();
+int pikafishMain();
 
 #endif /* pikafish_h */

@@ -1,4 +1,4 @@
-﻿//
+//
 //  eleeye.h
 //  Runner
 //
@@ -13,6 +13,6 @@ extern int SearchDepth;
 
 void PrintLn(const char *sz, ...);
 
-int engineMain();
+int eleeyeMain();
 
 #endif /* eleeye_h */

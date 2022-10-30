@@ -51,7 +51,7 @@ void PrintLn(const char *sz, ...) {
     while (!channel->pushResponse(buffer)) Idle();
 }
 
-int engineMain() {
+int eleeyeMain() {
     int i;
     bool bPonderTime;
     UcciCommStruct UcciComm;

@@ -10,6 +10,6 @@
 
 extern int SearchDepth;
 
-int engineMain();
+int challengerMain();
 
 #endif /* challenger_h */

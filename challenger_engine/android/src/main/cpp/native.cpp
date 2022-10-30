@@ -25,7 +25,7 @@ extern "C" {
 
         printf("Engine Think Thread enter.\n");
 
-        engineMain();
+        challengerMain();
 
         printf("Engine Think Thread exit.\n");
 

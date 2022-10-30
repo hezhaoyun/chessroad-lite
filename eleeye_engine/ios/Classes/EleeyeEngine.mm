@@ -29,7 +29,7 @@
     
     NSLog(@"Engine Think Thread enter.\n");
     
-    engineMain();
+    eleeyeMain();
     
     NSLog(@"Engine Think Thread exit.\n");
 }
