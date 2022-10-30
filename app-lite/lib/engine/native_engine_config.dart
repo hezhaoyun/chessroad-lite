@@ -21,7 +21,7 @@ class NativeEngineConfig {
     'Analysis',
     -1,
     8,
-    1000,
+    3000,
     knowledge: 'large',
     pruning: 'large',
     randomness: 'none',

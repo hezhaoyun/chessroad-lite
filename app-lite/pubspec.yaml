@@ -1,7 +1,7 @@
 name: chessroad
 description: 棋路-中国象棋基于 flutter 的实现。
 publish_to: "none"
-version: 1.0.5+5
+version: 1.0.6+6
 
 environment:
   sdk: '>=2.17.0 <4.0.0'
@@ -36,7 +36,7 @@ dependencies:
   pikafish_engine:
     path: ../pikafish_engine
   
-  flutter_pangle_ads: ^2.5.0
+  # flutter_pangle_ads: ^2.5.0
 
 
 dev_dependencies:

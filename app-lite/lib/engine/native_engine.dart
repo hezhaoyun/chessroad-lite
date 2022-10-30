@@ -101,7 +101,7 @@ class NativeEngineImpl extends NativeEngine {
     final response = await waitResponse(
       [Engine.kBestMove, Engine.kNoBestMove],
       sleep: 100,
-      times: waitTimes + 100,
+      times: waitTimes + 1000,
     );
 
     // bestmove h9g7 info depth 10 seldepth 13 multipv 1 score cp -75 nodes 14091
