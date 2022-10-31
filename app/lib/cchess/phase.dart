@@ -83,7 +83,7 @@ class Phase {
     _pieces[move.from] = Piece.empty;
 
     // 交换走棋方
-    _side = Side.oppo(_side);
+    _side = Side.opponent(_side);
 
     // 记录最近一个吃子局面的 FEN，UCCI 引擎需要
     if (captured != Piece.empty) {
@@ -102,7 +102,7 @@ class Phase {
     _pieces[move.from] = Piece.empty;
 
     // 交换走棋方
-    if (turnSide) _side = Side.oppo(_side);
+    if (turnSide) _side = Side.opponent(_side);
   }
 
   bool regret() {
@@ -113,7 +113,7 @@ class Phase {
     _pieces[lastMove.from] = _pieces[lastMove.to];
     _pieces[lastMove.to] = lastMove.captured;
 
-    _side = Side.oppo(_side);
+    _side = Side.opponent(_side);
 
     final counterMarks = MoveRecorder.fromCounterMarks(lastMove.counterMarks);
     _recorder.halfMove = counterMarks.halfMove;
@@ -130,7 +130,7 @@ class Phase {
         tempPhase._pieces[move.from] = tempPhase._pieces[move.to];
         tempPhase._pieces[move.to] = move.captured;
 
-        tempPhase._side = Side.oppo(tempPhase._side);
+        tempPhase._side = Side.opponent(tempPhase._side);
       }
 
       _lastCapturedPhase = Fen.phaseToFen(tempPhase);
@@ -347,7 +347,7 @@ class Phase {
   void setPiece(int index, String piece) => _pieces[index] = piece;
 
   String get side => _side;
-  void trunSide() => _side = Side.oppo(_side);
+  void turnSide() => _side = Side.opponent(_side);
 
   // broken access to recorder outside
 

@@ -13,10 +13,10 @@ class BoardWidget extends StatelessWidget {
   //
   final double width;
   final Function(BuildContext, int)? onBoardTap;
-  final bool oppoHuman;
+  final bool opponentHuman;
 
   const BoardWidget(this.width, this.onBoardTap,
-      {Key? key, this.oppoHuman = false})
+      {Key? key, this.opponentHuman = false})
       : super(key: key);
 
   double get height =>
@@ -26,7 +26,7 @@ class BoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //
-    prt('BoardWiget build...');
+    prt('BoardWidget build...');
 
     final boardContainer = Container(
       width: width,
@@ -53,7 +53,7 @@ class BoardWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              buildPiecesLayer(board, oppoHuman: oppoHuman),
+              buildPiecesLayer(board, opponentHuman: opponentHuman),
             ],
           );
         },
@@ -86,7 +86,7 @@ class BoardWidget extends StatelessWidget {
     );
   }
 
-  Widget buildPiecesLayer(BoardState board, {bool oppoHuman = false}) {
+  Widget buildPiecesLayer(BoardState board, {bool opponentHuman = false}) {
     //
     return PiecesLayer(
       PiecesLayout(width, board.phase,
@@ -94,7 +94,7 @@ class BoardWidget extends StatelessWidget {
           blurIndex: board.blurIndex,
           boardInversed: board.boardInversed,
           pieceAnimationValue: board.pieceAnimationValue,
-          oppoHuman: oppoHuman),
+          opponentHuman: opponentHuman),
     );
   }
 }

@@ -34,7 +34,7 @@ void main() async {
 class ChessRoadApp extends StatefulWidget {
   //
   static final navKey = GlobalKey<NavigatorState>();
-  static get conext => navKey.currentContext;
+  static get context => navKey.currentContext;
 
   const ChessRoadApp({Key? key}) : super(key: key);
 

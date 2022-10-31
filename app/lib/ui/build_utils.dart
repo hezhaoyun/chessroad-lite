@@ -89,7 +89,7 @@ Widget createPageHeader(BuildContext context, GameScene scene,
 }
 
 Widget createChessBoard(BuildContext context, GameScene scene,
-    {Function(BuildContext, int)? onBoardTap, bool oppoHuman = false}) {
+    {Function(BuildContext, int)? onBoardTap, bool opponentHuman = false}) {
   //
   // 当屏幕的纵横比小于16/9时，限制棋盘的宽度
   final windowSize = MediaQuery.of(context).size;
@@ -103,7 +103,7 @@ Widget createChessBoard(BuildContext context, GameScene scene,
   final boardWidget = BoardWidget(
     width - _paddingH * 2,
     onBoardTap,
-    oppoHuman: oppoHuman,
+    opponentHuman: opponentHuman,
   );
 
   return Container(
