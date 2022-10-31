@@ -8,7 +8,7 @@ class LocalData {
   late final Profile _profile;
 
   late final DataItem debugMode;
-  late final DataItem aceptedPrivacyPolicy;
+  late final DataItem acceptedPrivacyPolicy;
   late final DataItem engineName;
   late final DataItem engineConfig;
   late final DataItem cloudEngineEnabled;
@@ -33,7 +33,7 @@ class LocalData {
     _profile.backup = await Profile.shared().load();
 
     debugMode = DataItem(_profile, 'debug_mode', false);
-    aceptedPrivacyPolicy = DataItem(_profile, 'acepted_privacy_policy', false);
+    acceptedPrivacyPolicy = DataItem(_profile, 'acepted_privacy_policy', false);
     engineName = DataItem(_profile, 'engine_name', NativeEngine.kNamePikafish);
     engineConfig = DataItem(_profile, 'engine_config', 3);
     cloudEngineEnabled = DataItem(_profile, 'cloud_engine_enabled', true);
@@ -45,6 +45,9 @@ class LocalData {
     bgmEnabled = DataItem(_profile, 'bgm_enabled', false);
     toneEnabled = DataItem(_profile, 'tone_enabled', true);
     highContrast = DataItem(_profile, 'high_contrast', false);
+
+    // TODO: 暂时禁用引擎切换，只保留皮卡鱼
+    engineName.value = NativeEngine.kNamePikafish;
   }
 
   Future<bool> save() => _profile.save();

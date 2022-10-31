@@ -22,7 +22,7 @@ abstract class Engine {
   static const kTimeout = 'timeout';
   static const kNetworkError = 'network-error';
   static const kDataError = 'data-error';
-  static const kUnkownError = 'unknown-error';
+  static const kUnknownError = 'unknown-error';
 
   Future<void> startup() async {}
 
@@ -38,7 +38,7 @@ abstract class Engine {
 
   Future<EngineResponse> search(Phase phase,
       {int? timeLimit, int? depth}) async {
-    return EngineResponse(kUnkownError, kUnkownError, value: '');
+    return EngineResponse(kUnknownError, kUnknownError, value: '');
   }
 }
 
@@ -49,8 +49,9 @@ abstract class NativeEngine extends Engine {
   static const kNamePikafish = '皮卡鱼';
 
   static final kEngineNames = [
-    kNameEleeye,
-    kNameChallenger,
+    // TODO: 暂时禁用引擎切换，只保留皮卡鱼
+    // kNameEleeye,
+    // kNameChallenger,
     kNamePikafish,
   ];
 

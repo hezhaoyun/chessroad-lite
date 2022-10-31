@@ -35,7 +35,7 @@ Future openPrivacyPolicy(BuildContext context) async {
         TextButton(
           child: const Text('拒绝'),
           onPressed: () async {
-            LocalData().aceptedPrivacyPolicy.value = false;
+            LocalData().acceptedPrivacyPolicy.value = false;
             await LocalData().save();
             exit(0);
           },
@@ -44,7 +44,7 @@ Future openPrivacyPolicy(BuildContext context) async {
           child: const Text('同意'),
           onPressed: () async {
             Navigator.of(context).pop();
-            LocalData().aceptedPrivacyPolicy.value = true;
+            LocalData().acceptedPrivacyPolicy.value = true;
             await LocalData().save();
           },
         )

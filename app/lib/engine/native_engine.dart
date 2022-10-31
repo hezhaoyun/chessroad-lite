@@ -25,16 +25,27 @@ class NativeEngineImpl extends NativeEngine {
   Future<void> engineChanged() async {
     //
     await _engine?.shutdown();
+    await waitResponse([], times: 20);
 
-    if (LocalData().engineName.value == NativeEngine.kNameChallenger) {
+    final engineName = LocalData().engineName.value;
+
+    if (engineName == NativeEngine.kNameChallenger) {
       _engine = ChallengerEngineImpl();
-    } else if (LocalData().engineName.value == NativeEngine.kNamePikafish) {
+    } else if (engineName == NativeEngine.kNamePikafish) {
       _engine = PikafishEngineImpl();
     } else {
       _engine = EleeyeEngineImpl();
     }
 
     await _engine?.startup();
+    await waitResponse(['ucciok'], times: 20);
+
+    // if (engineName == NativeEngine.kNameChallenger ||
+    //     engineName == NativeEngine.kNamePikafish) {
+    //   //
+    //   await _engine?.send('ucinewgame');
+    //   await waitResponse([], times: 20);
+    // }
   }
 
   NativeEngine? _engine;
@@ -44,14 +55,14 @@ class NativeEngineImpl extends NativeEngine {
   Future<void> startup() async {
     if (_engine == null) return;
     await _engine!.startup();
-    await waitResponse(['ucciok'], sleep: 10, times: 20);
+    await waitResponse(['ucciok'], times: 20);
   }
 
   @override
   Future<void> applyConfig(NativeEngineConfig config) async {
     if (_engine == null) return;
     await _engine!.applyConfig(config);
-    await waitResponse([], sleep: 10, times: 20);
+    await waitResponse([], times: 20);
   }
 
   @override
@@ -178,11 +189,8 @@ class NativeEngineImpl extends NativeEngine {
     return EngineResponse(Engine.kTimeout, Engine.kNative);
   }
 
-  Future<String> waitResponse(
-    List<String> prefixes, {
-    sleep = 100,
-    times = 350,
-  }) async {
+  Future<String> waitResponse(List<String> prefixes,
+      {sleep = 100, times = 350}) async {
     //
     if (times <= 0) return '';
 

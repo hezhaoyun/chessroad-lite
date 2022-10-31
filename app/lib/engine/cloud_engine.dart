@@ -47,7 +47,7 @@ class CloudEngine extends Engine {
     }
 
     prt('ChessDB.query: $response\n');
-    return EngineResponse(Engine.kUnkownError, Engine.kCloud);
+    return EngineResponse(Engine.kUnknownError, Engine.kCloud);
   }
 
   Future<EngineResponse> think(Phase phase, {bool byUser = true}) async {
@@ -97,7 +97,7 @@ class CloudEngine extends Engine {
     }
 
     prt('ChessDB.query: $response\n');
-    return EngineResponse(Engine.kUnkownError, Engine.kCloud);
+    return EngineResponse(Engine.kUnknownError, Engine.kCloud);
   }
 
   static Future<EngineResponse> analysis(Phase phase) async {
@@ -116,7 +116,7 @@ class CloudEngine extends Engine {
     }
 
     prt('ChessDB.query: $response\n');
-    return EngineResponse(Engine.kUnkownError, Engine.kCloud);
+    return EngineResponse(Engine.kUnknownError, Engine.kCloud);
   }
 
   static Map<String, dynamic>? randomStep(String response) {

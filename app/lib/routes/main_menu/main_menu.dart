@@ -119,7 +119,7 @@ class MainMenuState extends State<MainMenu>
 
   checkPrivacyPolicy() async {
     //
-    if (!LocalData().aceptedPrivacyPolicy.value) {
+    if (!LocalData().acceptedPrivacyPolicy.value) {
       await openPrivacyPolicy(context);
       return true;
     }

@@ -21,9 +21,7 @@ class BattleAgent {
     _engine = HybridEngine();
     await _engine.startup();
 
-    if (_engine is NativeEngine) {
-      await (_engine as HybridEngine).applyConfig(NativeEngineConfig.current);
-    }
+    applyNativeEngineConfig(NativeEngineConfig.current);
   }
 
   applyNativeEngineConfig(NativeEngineConfig config) async {
@@ -35,6 +33,7 @@ class BattleAgent {
   nativeEngineChanged() async {
     if (_engine is NativeEngine) {
       await (_engine as HybridEngine).nativeEngineChanged();
+      applyNativeEngineConfig(NativeEngineConfig.current);
     }
   }
 

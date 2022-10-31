@@ -74,13 +74,13 @@ class HybridEngine extends NativeEngine {
       }
     }
 
-    final nativeReponse = await _nativeEngine!.search(
+    final nativeResponse = await _nativeEngine!.search(
       phase,
       timeLimit: _lastConfig!.timeLimit,
       depth: _lastConfig!.depth,
     );
-    prt('nativeReponse: ${nativeReponse.type}');
+    prt('nativeResponse: ${nativeResponse.type}');
 
-    return nativeReponse;
+    return nativeResponse;
   }
 }

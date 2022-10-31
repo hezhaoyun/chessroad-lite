@@ -347,6 +347,8 @@ void UCI::loop(int argc, char* argv[]) {
       }
 
   } while (token != "quit" && argc == 1); // The command-line arguments are one-shot
+
+  PrintLn("bye");
 }
 
 

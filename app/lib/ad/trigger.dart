@@ -42,7 +42,7 @@ class AdTrigger {
 
   bool isAdTime(AdAction action) {
     //
-    if (!LocalData().aceptedPrivacyPolicy.value) return false;
+    if (!LocalData().acceptedPrivacyPolicy.value) return false;
     return false;
 
     // switch (action) {

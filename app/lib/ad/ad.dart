@@ -58,7 +58,7 @@ class CSJ implements Ad {
     //
     /*=hide_for_windows=*/
 
-    if (!LocalData().aceptedPrivacyPolicy.value) return;
+    if (!LocalData().acceptedPrivacyPolicy.value) return;
 
     if (Platform.isIOS) {
       // await FlutterPangleAds.requestIDFA;
