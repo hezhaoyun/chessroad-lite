@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 class Petal {
   //
-  Offset postion, origin;
+  Offset position, origin;
   double speed, radius;
   Color color;
 
-  Petal(this.postion, this.origin, this.color, this.speed, this.radius);
+  Petal(this.position, this.origin, this.color, this.speed, this.radius);
 }
 
 class FlowerPainter extends CustomPainter {
@@ -27,16 +27,16 @@ class FlowerPainter extends CustomPainter {
       //
       double dx = -_random.nextDouble() / 2;
       double dy = p.speed;
-      p.postion += Offset(dx, dy);
+      p.position += Offset(dx, dy);
 
-      if (p.postion.dy > size.height) {
-        p.postion = p.origin;
+      if (p.position.dy > size.height) {
+        p.position = p.origin;
       }
     }
 
     for (var p in petals) {
       _paint.color = p.color;
-      canvas.drawCircle(p.postion, p.radius, _paint);
+      canvas.drawCircle(p.position, p.radius, _paint);
     }
   }
 
@@ -44,7 +44,7 @@ class FlowerPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-mixin FlowersMinix {
+mixin FlowersMixin {
   //
   late BuildContext _context;
   late Function _callUpdate;
@@ -80,13 +80,13 @@ mixin FlowersMinix {
       final y = _random.nextDouble() * MediaQuery.of(_context).size.height;
       final z = _random.nextDouble() + 0.5;
 
-      final postion = Offset(x, y);
+      final position = Offset(x, y);
       final origin = Offset(x, 0);
       final color = getRandomColor();
       final speed = _random.nextDouble() + 0.01 / z;
       final radius = 2.0 / z;
 
-      _petals.add(Petal(postion, origin, color, speed, radius));
+      _petals.add(Petal(position, origin, color, speed, radius));
     }
   }
 

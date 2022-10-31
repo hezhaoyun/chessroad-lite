@@ -22,7 +22,7 @@ abstract class Engine {
   static const kTimeout = 'timeout';
   static const kNetworkError = 'network-error';
   static const kDataError = 'data-error';
-  static const kUnknownError = 'unknown-error';
+  static const kUnkownError = 'unknown-error';
 
   Future<void> startup() async {}
 
@@ -38,7 +38,7 @@ abstract class Engine {
 
   Future<EngineResponse> search(Phase phase,
       {int? timeLimit, int? depth}) async {
-    return EngineResponse(kUnknownError, kUnknownError, value: '');
+    return EngineResponse(kUnkownError, kUnkownError, value: '');
   }
 }
 

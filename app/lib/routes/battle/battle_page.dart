@@ -39,7 +39,7 @@ class BattlePageState extends State<BattlePage>
     with PieceAnimationMixIn, TickerProviderStateMixin {
   //
   bool _working = false;
-  bool _oppoHuman = false;
+  bool _opponentHuman = false;
 
   late BoardState _boardState;
   late PageState _pageState;
@@ -60,7 +60,7 @@ class BattlePageState extends State<BattlePage>
 
     await loadBattle();
 
-    if (_boardState.isOppoTurn && !_oppoHuman) {
+    if (_boardState.isOpponentTurn && !_opponentHuman) {
       askEngineGo();
     } else {
       _pageState.changeStatus(BattlePage.yourTurn);
@@ -75,7 +75,7 @@ class BattlePageState extends State<BattlePage>
     final initBoard = profile['battlepage-init-board'] ?? Fen.defaultPhase;
     final moveList = profile['battlepage-move-list'] ?? '';
     final boardInversed = profile['battlepage-board-inversed'] ?? false;
-    _oppoHuman = profile['battlepage-oppo-human'] ?? false;
+    _opponentHuman = profile['battlepage-oppo-human'] ?? false;
 
     prt('boardInversed: $boardInversed');
 
@@ -106,14 +106,14 @@ class BattlePageState extends State<BattlePage>
     profile['battlepage-init-board'] = Fen.defaultPhase;
     profile['battlepage-move-list'] = moveList;
     profile['battlepage-board-inversed'] = _boardState.boardInversed;
-    profile['battlepage-oppo-human'] = _oppoHuman;
+    profile['battlepage-oppo-human'] = _opponentHuman;
 
     return await profile.save();
   }
 
   confirmNewGame() {
     //
-    bool oppoFirst = false;
+    bool opponentFirst = false;
 
     showDialog(
       context: context,
@@ -124,13 +124,13 @@ class BattlePageState extends State<BattlePage>
             children: [
               CheckboxListTileEx(
                 title: const Text('对方先行'),
-                onChanged: (value) => oppoFirst = value,
-                value: oppoFirst,
+                onChanged: (value) => opponentFirst = value,
+                value: opponentFirst,
               ),
               CheckboxListTileEx(
                 title: const Text('玩家控制双方棋子'),
-                onChanged: (value) => _oppoHuman = value,
-                value: _oppoHuman,
+                onChanged: (value) => _opponentHuman = value,
+                value: _opponentHuman,
               ),
             ],
           ),
@@ -140,7 +140,7 @@ class BattlePageState extends State<BattlePage>
             child: const Text('确定'),
             onPressed: () {
               Navigator.of(context).pop();
-              newGame(oppoFirst);
+              newGame(opponentFirst);
             },
           ),
           TextButton(
@@ -152,15 +152,15 @@ class BattlePageState extends State<BattlePage>
     );
   }
 
-  newGame(bool oppoFirst) async {
+  newGame(bool opponentFirst) async {
     //
     if (AdTrigger.battle.checkAdChance(AdAction.start, context)) return;
 
-    _boardState.inverseBoard(oppoFirst);
+    _boardState.inverseBoard(opponentFirst);
 
     _boardState.load(Fen.defaultPhase, notify: true);
 
-    if (oppoFirst && !_oppoHuman) askEngineGo();
+    if (opponentFirst && !_opponentHuman) askEngineGo();
 
     setState(() {});
 
@@ -295,7 +295,7 @@ class BattlePageState extends State<BattlePage>
 
       switch (result) {
         case BattleResult.pending:
-          if (_boardState.isOppoTurn && !_oppoHuman) {
+          if (_boardState.isOpponentTurn && !_opponentHuman) {
             Future.delayed(const Duration(seconds: 1), () => askEngineGo());
           }
           break;
@@ -324,7 +324,7 @@ class BattlePageState extends State<BattlePage>
     //
     _boardState.inverseBoard(!_boardState.boardInversed);
 
-    if (_boardState.isOppoTurn && !_oppoHuman) {
+    if (_boardState.isOpponentTurn && !_opponentHuman) {
       askEngineGo();
     } else {
       _pageState.changeStatus(BattlePage.yourTurn);
@@ -355,7 +355,7 @@ class BattlePageState extends State<BattlePage>
     final phase = _boardState.phase;
 
     // 仅 Phase 中的 side 指示一方能动棋
-    if (_boardState.isOppoTurn && !_oppoHuman) return;
+    if (_boardState.isOpponentTurn && !_opponentHuman) return;
 
     final tapedPiece = phase.pieceAt(index);
 
@@ -386,7 +386,7 @@ class BattlePageState extends State<BattlePage>
 
         switch (result) {
           case BattleResult.pending:
-            if (!_oppoHuman) {
+            if (!_opponentHuman) {
               Future.delayed(const Duration(seconds: 1), () => askEngineGo());
             }
             break;
@@ -602,7 +602,7 @@ class BattlePageState extends State<BattlePage>
       context,
       GameScene.battle,
       onBoardTap: onBoardTap,
-      oppoHuman: _oppoHuman,
+      opponentHuman: _opponentHuman,
     );
     final operatorBar = OperationBar(items: [
       ActionItem(name: '新局', callback: confirmNewGame),
@@ -639,7 +639,7 @@ class BattlePageState extends State<BattlePage>
       return buildInfoPanel(content);
     }
 
-    return buildExpandableManaulPanel(context, content);
+    return buildExpandableManualPanel(context, content);
   }
 
   Widget buildInfoPanel(String text) {
@@ -658,7 +658,7 @@ class BattlePageState extends State<BattlePage>
     );
   }
 
-  Widget buildExpandableManaulPanel(BuildContext context, String text) {
+  Widget buildExpandableManualPanel(BuildContext context, String text) {
     //
     final manualStyle = GameFonts.ui(fontSize: 18, height: 1.5);
 

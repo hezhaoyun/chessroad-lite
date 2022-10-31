@@ -26,14 +26,14 @@ class BoardState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  bool _boardInversed = false;
-  bool get boardInversed => _boardInversed;
+  bool tBoardInverse = false;
+  bool get boardInversed => tBoardInverse;
 
   bool _sitUnderside = true;
 
   inverseBoard(bool inverse, {notify = true, swapSite = false}) {
     //
-    _boardInversed = inverse;
+    tBoardInverse = inverse;
 
     if (swapSite) {
       _sitUnderside = !_sitUnderside;
@@ -43,8 +43,8 @@ class BoardState with ChangeNotifier {
   }
 
   String get playerSide {
-    if (_sitUnderside) return _boardInversed ? Side.black : Side.red;
-    return _boardInversed ? Side.red : Side.black;
+    if (_sitUnderside) return tBoardInverse ? Side.black : Side.red;
+    return tBoardInverse ? Side.red : Side.black;
   }
 
   String get oppositeSide => playerSide == Side.red ? Side.black : Side.red;
@@ -102,12 +102,12 @@ class BoardState with ChangeNotifier {
   regret(GameScene scene, {steps = 2}) {
     //
     // 轮到自己走棋的时候，才能悔棋
-    if (isVs(scene) && isOppoTurn) {
+    if (isVs(scene) && isOpponentTurn) {
       Audios.playTone('invalid.mp3');
       return;
     }
 
-    var regreted = false;
+    var regretted = false;
 
     /// 悔棋一回合（两步），才能撤回自己上一次的动棋
 
@@ -127,10 +127,10 @@ class BoardState with ChangeNotifier {
         _blurIndex = _focusIndex = Move.invalidIndex;
       }
 
-      regreted = true;
+      regretted = true;
     }
 
-    if (regreted) {
+    if (regretted) {
       Audios.playTone('regret.mp3');
       notifyListeners();
     } else {
@@ -159,5 +159,5 @@ class BoardState with ChangeNotifier {
   double get pieceAnimationValue => _pieceAnimationValue;
 
   bool get isMyTurn => _phase.side == playerSide;
-  bool get isOppoTurn => _phase.side == oppositeSide;
+  bool get isOpponentTurn => _phase.side == oppositeSide;
 }

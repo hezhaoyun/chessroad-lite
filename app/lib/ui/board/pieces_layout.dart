@@ -14,7 +14,7 @@ class PiecesLayout {
   final bool boardInversed;
 
   final double pieceAnimationValue;
-  final bool oppoHuman;
+  final bool opponentHuman;
 
   PiecesLayout(
     this.width,
@@ -23,7 +23,7 @@ class PiecesLayout {
     required this.boardInversed,
     this.focusIndex = Move.invalidIndex,
     this.blurIndex = Move.invalidIndex,
-    this.oppoHuman = false,
+    this.opponentHuman = false,
   });
 
   double get gridWidth => (width - Ruler.kBoardPadding * 2) / 9 * 8;
@@ -51,7 +51,7 @@ class PiecesLayout {
         var posX = offsetX + squareWidth * x;
         var posY = offsetY + squareWidth * y;
 
-        // upadte the piece's location with last moved
+        // update the piece's location with last moved
         if (pieceAnimationValue < 1 &&
             index == focusIndex &&
             blurIndex != Move.invalidIndex) {
@@ -75,7 +75,7 @@ class PiecesLayout {
             selected: index == focusIndex,
             x: posX,
             y: posY,
-            rotate: oppoHuman &&
+            rotate: opponentHuman &&
                 Side.of(piece) == (boardInversed ? Side.red : Side.black),
           ),
         );

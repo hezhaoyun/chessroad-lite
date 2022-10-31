@@ -25,7 +25,7 @@ class AdActionLimits {
 class AdTrigger {
   //
   static final AdTrigger battle = AdTrigger(GameScene.battle);
-  static final List<AdTrigger> tiggers = [
+  static final List<AdTrigger> triggers = [
     battle,
   ];
 
@@ -113,7 +113,7 @@ class AdTrigger {
 
   static sendReward(BuildContext context) {
     //
-    for (var trigger in tiggers) {
+    for (var trigger in triggers) {
       trigger.resetTimesLess();
     }
 

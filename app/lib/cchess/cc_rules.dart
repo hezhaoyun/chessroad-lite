@@ -7,12 +7,12 @@ class ChessRules {
     //
     final myKingPos = findKingPos(phase);
 
-    final oppoPhase = Phase.clone(phase);
-    oppoPhase.trunSide();
+    final opponentPhase = Phase.clone(phase);
+    opponentPhase.turnSide();
 
-    final oppoSteps = enumSteps(oppoPhase);
+    final opponentSteps = enumSteps(opponentPhase);
 
-    for (var step in oppoSteps) {
+    for (var step in opponentSteps) {
       if (step.to == myKingPos) return true;
     }
 

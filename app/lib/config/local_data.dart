@@ -12,7 +12,7 @@ class LocalData {
   late final DataItem engineName;
   late final DataItem engineConfig;
   late final DataItem cloudEngineEnabled;
-  late final DataItem lastReivewInvite;
+  late final DataItem lastReviewInvite;
   late final DataItem showAdDate;
   late final DataItem showAdTimes;
   late final DataItem uiFont;
@@ -37,7 +37,7 @@ class LocalData {
     engineName = DataItem(_profile, 'engine_name', NativeEngine.kNamePikafish);
     engineConfig = DataItem(_profile, 'engine_config', 3);
     cloudEngineEnabled = DataItem(_profile, 'cloud_engine_enabled', true);
-    lastReivewInvite = DataItem(_profile, 'last_review_invite', '');
+    lastReviewInvite = DataItem(_profile, 'last_review_invite', '');
     showAdDate = DataItem(_profile, 'show_ad_date', '');
     showAdTimes = DataItem(_profile, 'show_ad_times', 0);
     uiFont = DataItem(_profile, 'ui_font', '');

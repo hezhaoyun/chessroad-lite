@@ -6,14 +6,14 @@ class PageState with ChangeNotifier {
   String _status = '...';
   String get status => _status;
 
-  double _stepTimeOppo = 0;
-  double get stepTimeOppo => _stepTimeOppo;
+  double _stepTimeOpponent = 0;
+  double get stepTimeOpponent => _stepTimeOpponent;
 
   double _stepTimeSelf = 0;
   double get stepTimeSelf => _stepTimeSelf;
 
-  double _gameTimeOppo = 0;
-  double get gameTimeOppo => _gameTimeOppo;
+  double _gameTimeOpponent = 0;
+  double get gameTimeOpponent => _gameTimeOpponent;
 
   double _gameTimeSelf = 0;
   double get gameTimeSelf => _gameTimeSelf;
@@ -25,7 +25,7 @@ class PageState with ChangeNotifier {
 
   updateClock(
     Map<String, dynamic> selfTimer,
-    Map<String, dynamic> oppoTimer, {
+    Map<String, dynamic> opponentTimer, {
     notify = true,
   }) {
     //
@@ -33,8 +33,8 @@ class PageState with ChangeNotifier {
       _stepTimeSelf = selfTimer['step_time'];
       _gameTimeSelf = selfTimer['game_time'];
 
-      _stepTimeOppo = oppoTimer['step_time'];
-      _gameTimeOppo = oppoTimer['game_time'];
+      _stepTimeOpponent = opponentTimer['step_time'];
+      _gameTimeOpponent = opponentTimer['game_time'];
     } catch (_) {}
 
     if (notify) notifyListeners();
