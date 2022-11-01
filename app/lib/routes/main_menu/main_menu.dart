@@ -27,7 +27,7 @@ class MainMenu extends StatefulWidget {
 }
 
 class MainMenuState extends State<MainMenu>
-    with TickerProviderStateMixin, FlowersMinix {
+    with TickerProviderStateMixin, FlowersMixin {
   //
   late AnimationController _inController, _shadowController;
   late Animation _inAnimation, _shadowAnimation;

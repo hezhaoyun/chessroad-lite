@@ -107,7 +107,7 @@ class _OperationBarState extends State<OperationBar> {
     );
   }
 
-  List<Widget> attempChildren() {
+  List<Widget> attemptChildren() {
     //
     final buttons = <TextButton>[];
 
@@ -170,7 +170,7 @@ class _OperationBarState extends State<OperationBar> {
           Expanded(
             key: containerKey,
             child: Row(
-              children: finalLayout ? finalChildren : attempChildren(),
+              children: finalLayout ? finalChildren : attemptChildren(),
             ),
           ),
           IconButton(

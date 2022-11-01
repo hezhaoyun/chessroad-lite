@@ -14,7 +14,7 @@ class Side {
     return of(p1) == of(p2);
   }
 
-  static String oppo(String side) {
+  static String opponent(String side) {
     if (side == red) return black;
     if (side == black) return red;
     return side;
@@ -98,7 +98,7 @@ class Move {
     ty = to ~/ 9;
 
     if (fx < 0 || fx > 8 || fy < 0 || fy > 9) {
-      throw 'Error: Invlid Step (from:$from, to:$to)';
+      throw 'Error: Invalid Step (from:$from, to:$to)';
     }
 
     step = String.fromCharCode('a'.codeUnitAt(0) + fx) + (9 - fy).toString();
@@ -119,7 +119,7 @@ class Move {
       {this.score, this.depth, this.nodes, this.time, this.pv}) {
     //
     if (!validateEngineStep(step)) {
-      throw 'Error: Invlid Step: $step';
+      throw 'Error: Invalid Step: $step';
     }
 
     fx = step[0].codeUnitAt(0) - 'a'.codeUnitAt(0);

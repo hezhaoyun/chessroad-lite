@@ -9,12 +9,12 @@ class ReviewPanel {
     final InAppReview inAppReview = InAppReview.instance;
 
     DateTime? lastInvite = DateTime.tryParse(
-      LocalData().lastReivewInvite.value,
+      LocalData().lastReviewInvite.value,
     );
 
     if (lastInvite == null) {
       lastInvite = DateTime.now().subtract(const Duration(days: 28));
-      LocalData().lastReivewInvite.value = lastInvite.toString();
+      LocalData().lastReviewInvite.value = lastInvite.toString();
       LocalData().save();
     }
 
@@ -23,7 +23,7 @@ class ReviewPanel {
 
     if (await inAppReview.isAvailable() && timeOk) {
       await inAppReview.requestReview();
-      LocalData().lastReivewInvite.value = DateTime.now().toString();
+      LocalData().lastReviewInvite.value = DateTime.now().toString();
       LocalData().save();
     }
   }
