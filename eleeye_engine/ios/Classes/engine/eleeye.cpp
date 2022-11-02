@@ -36,7 +36,7 @@ int SearchDepth = 64;
 
 const int INTERRUPT_COUNT = 4096; // 搜索若干结点后调用中断
 
-void PrintLn(const char *sz, ...) {
+void eleeyeOut(const char *sz, ...) {
 
     va_list args;
 
@@ -47,7 +47,7 @@ void PrintLn(const char *sz, ...) {
 
     va_end(args);
 
-    CommandChannel *channel = CommandChannel::getInstance();
+    EleeyeChannel *channel = EleeyeChannel::getInstance();
     while (!channel->pushResponse(buffer)) Idle();
 }
 
@@ -74,35 +74,35 @@ int eleeyeMain() {
     Search.nCountMask = INTERRUPT_COUNT - 1;
     Search.nRandomMask = 0;
     Search.rc4Random.InitRand();
-    PrintLn("id name ElephantEye");
-    PrintLn("id version 3.31");
-    PrintLn("id copyright 2004-2016 www.xqbase.com");
-    PrintLn("id author ElephantEye Development Team");
-    PrintLn("id user ElephantEye Test Team");
-    PrintLn("option usemillisec type check default true");
-    PrintLn("option promotion type check default false");
-    PrintLn("option batch type check default false");
-    PrintLn("option debug type check default false");
-    PrintLn("option ponder type check default false");
-    PrintLn("option usehash type check default true");
-    PrintLn("option usebook type check default true");
-    PrintLn("option bookfiles type string default %s\n", Search.szBookFile);
-    PrintLn("option hashsize type spin min 16 max 1024 default 16");
-    PrintLn("option idle type combo var none var small var medium var large default none");
-    PrintLn("option pruning type combo var none var small var medium var large default large");
-    PrintLn("option knowledge type combo var none var small var medium var large default large");
-    PrintLn("option randomness type combo var none var tiny var small var medium var large var huge default none");
-    PrintLn("option newgame type button");
-    PrintLn("ucciok");
+    eleeyeOut("id name ElephantEye");
+    eleeyeOut("id version 3.31");
+    eleeyeOut("id copyright 2004-2016 www.xqbase.com");
+    eleeyeOut("id author ElephantEye Development Team");
+    eleeyeOut("id user ElephantEye Test Team");
+    eleeyeOut("option usemillisec type check default true");
+    eleeyeOut("option promotion type check default false");
+    eleeyeOut("option batch type check default false");
+    eleeyeOut("option debug type check default false");
+    eleeyeOut("option ponder type check default false");
+    eleeyeOut("option usehash type check default true");
+    eleeyeOut("option usebook type check default true");
+    eleeyeOut("option bookfiles type string default %s\n", Search.szBookFile);
+    eleeyeOut("option hashsize type spin min 16 max 1024 default 16");
+    eleeyeOut("option idle type combo var none var small var medium var large default none");
+    eleeyeOut("option pruning type combo var none var small var medium var large default large");
+    eleeyeOut("option knowledge type combo var none var small var medium var large default large");
+    eleeyeOut("option randomness type combo var none var tiny var small var medium var large var huge default none");
+    eleeyeOut("option newgame type button");
+    eleeyeOut("ucciok");
     
     // 以下是接收指令和提供对策的循环体
     while (!Search.bQuit) {
         switch (IdleLine(UcciComm, Search.bDebug)) {
             case UCCI_COMM_ISREADY:
-                PrintLn("readyok");
+                eleeyeOut("readyok");
                 break;
             case UCCI_COMM_STOP:
-                PrintLn("nobestmove");
+                eleeyeOut("nobestmove");
                 break;
             case UCCI_COMM_POSITION:
                 BuildPos(Search.pos, UcciComm);
@@ -258,6 +258,6 @@ int eleeyeMain() {
         }
     }
     DelHash();
-    PrintLn("bye");
+    eleeyeOut("bye");
     return 0;
 }

@@ -105,7 +105,7 @@ static bool Interrupt(void) {
   switch (BusyLine(UcciComm, Search.bDebug)) {
   case UCCI_COMM_ISREADY:
     // "isready"指令实际上没有意义
-    PrintLn("readyok\n");
+    eleeyeOut("readyok\n");
     return false;
   case UCCI_COMM_PONDERHIT:
     // "ponderhit"指令启动计时功能，如果"SearchMain()"例程认为已经搜索了足够的时间， 那么发出中止信号
@@ -158,7 +158,7 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
     return;
   }
   // 输出时间和搜索结点数
-  PrintLn("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
+  eleeyeOut("info time %d nodes %d\n", (int) (GetTime() - Search2.llTime), Search2.nAllNodes);
   if (nDepth == 0) {
     // 如果是搜索结束后的输出，并且已经输出过，那么不必再输出
     if (Search2.nPopDepth == 0) {
@@ -171,14 +171,14 @@ static void PopPvLine(int nDepth = 0, int vl = 0) {
     // 达到需要输出的深度，那么以后不必再输出
     Search2.nPopDepth = Search2.vlPopValue = 0;
   }
-  PrintLn("info depth %d score %d pv", nDepth, vl);
+  eleeyeOut("info depth %d score %d pv", nDepth, vl);
   lpwmv = Search2.wmvPvLine;
   while (*lpwmv != 0) {
     dwMoveStr = MOVE_COORD(*lpwmv);
-    PrintLn(" %.4s", (const char *) &dwMoveStr);
+    eleeyeOut(" %.4s", (const char *) &dwMoveStr);
     lpwmv ++;
   }
-  PrintLn("\n");
+  eleeyeOut("\n");
 }
 
 #endif
@@ -310,7 +310,7 @@ void PopLeaf(PositionStruct &pos) {
   int vl;
   Search2.nAllNodes = 0;
   vl = SearchQuiesc(pos, -MATE_VALUE, MATE_VALUE);
-  PrintLn("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
+  eleeyeOut("pophash lowerbound %d depth 0 upperbound %d depth 0\n", vl, vl);
 }
 
 #endif
@@ -595,7 +595,7 @@ static int SearchRoot(int nDepth) {
       if (Search2.bPopCurrMove || Search.bDebug) {
         dwMoveStr = MOVE_COORD(mv);
         nCurrMove ++;
-        PrintLn("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
+        eleeyeOut("info currmove %.4s currmovenumber %d\n", (const char *) &dwMoveStr, nCurrMove);
       }
 #endif
 
@@ -679,7 +679,7 @@ void SearchMain(int nDepth) {
   // 1. 遇到和棋则直接返回
   if (Search.pos.IsDraw() || Search.pos.RepStatus(3) > 0) {
 #ifndef CCHESS_A3800
-    PrintLn("nobestmove\n");
+    eleeyeOut("nobestmove\n");
 #endif
     return;    
   }
@@ -694,7 +694,7 @@ void SearchMain(int nDepth) {
       for (i = 0; i < nBookMoves; i ++) {
         vl += bks[i].wvl;
         dwMoveStr = MOVE_COORD(bks[i].wmv);
-        PrintLn("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
+        eleeyeOut("info depth 0 score %d pv %.4s\n", bks[i].wvl, (const char *) &dwMoveStr);
       }
       // b. 根据权重随机选择一个走法
       vl = Search.rc4Random.NextLong() % (uint32_t) vl;
@@ -710,15 +710,15 @@ void SearchMain(int nDepth) {
       Search.pos.MakeMove(bks[i].wmv);
       if (Search.pos.RepStatus(3) == 0) {
         dwMoveStr = MOVE_COORD(bks[i].wmv);
-        PrintLn("bestmove %.4s", (const char *) &dwMoveStr);
+        eleeyeOut("bestmove %.4s", (const char *) &dwMoveStr);
         // d. 给出后台思考的着法(开局库中第一个即权重最大的后续着法)
         nBookMoves = GetBookMoves(Search.pos, Search.szBookFile, bks);
         Search.pos.UndoMakeMove();
         if (nBookMoves > 0) {
           dwMoveStr = MOVE_COORD(bks[0].wmv);
-          PrintLn(" ponder %.4s", (const char *) &dwMoveStr);
+          eleeyeOut(" ponder %.4s", (const char *) &dwMoveStr);
         }
-        PrintLn("\n");
+        eleeyeOut("\n");
         return;
       }
       Search.pos.UndoMakeMove();
@@ -729,8 +729,8 @@ void SearchMain(int nDepth) {
   // 3. 如果深度为零则返回静态搜索值
   if (nDepth == 0) {
 #ifndef CCHESS_A3800
-    PrintLn("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
-    PrintLn("nobestmove\n");
+    eleeyeOut("info depth 0 score %d\n", SearchQuiesc(Search.pos, -MATE_VALUE, MATE_VALUE));
+    eleeyeOut("nobestmove\n");
 #endif
     return;
   }
@@ -762,7 +762,7 @@ void SearchMain(int nDepth) {
     // 需要输出主要变例时，第一个"info depth n"是不输出的
 #ifndef CCHESS_A3800
     if (Search2.bPopPv || Search.bDebug) {
-      PrintLn("info depth %d\n", i);
+      eleeyeOut("info depth %d\n", i);
     }
 
     // 7. 根据搜索的时间决定，是否需要输出主要变例和当前思考的着法
@@ -828,23 +828,23 @@ void SearchMain(int nDepth) {
   if (Search2.wmvPvLine[0] != 0) {
     PopPvLine();
     dwMoveStr = MOVE_COORD(Search2.wmvPvLine[0]);
-    PrintLn("bestmove %.4s", (const char *) &dwMoveStr);
+    eleeyeOut("bestmove %.4s", (const char *) &dwMoveStr);
     if (Search2.wmvPvLine[1] != 0) {
       dwMoveStr = MOVE_COORD(Search2.wmvPvLine[1]);
-      PrintLn(" ponder %.4s", (const char *) &dwMoveStr);
+      eleeyeOut(" ponder %.4s", (const char *) &dwMoveStr);
     }
 
     // 13. 判断是否认输或提和，但是经过唯一着法检验的不适合认输或提和(因为搜索深度不够)
     if (!bUnique) {
       if (vlLast > -WIN_VALUE && vlLast < -RESIGN_VALUE) {
-        PrintLn(" resign");
+        eleeyeOut(" resign");
       } else if (Search.bDraw && !Search.pos.NullSafe() && vlLast < DRAW_OFFER_VALUE * 2) {
-        PrintLn(" draw");
+        eleeyeOut(" draw");
       }
     }
   } else {
-    PrintLn("nobestmove");
+    eleeyeOut("nobestmove");
   }
-  PrintLn("\n");
+  eleeyeOut("\n");
 #endif
 }

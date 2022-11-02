@@ -99,7 +99,7 @@ namespace {
     Eval::NNUE::verify();
 
     // sync_cout << "\n" << Eval::trace(p) << sync_endl;
-    PrintLn(Eval::trace(p).c_str());
+    pikafishOut(Eval::trace(p).c_str());
   }
 
 
@@ -127,7 +127,7 @@ namespace {
     else
     {
         // sync_cout << "No such option: " << name << sync_endl;
-        PrintLn("No such option: %s", name.c_str());
+        pikafishOut("No such option: %s", name.c_str());
     }
   }
 
@@ -255,7 +255,7 @@ void UCI::loop(int argc, char* argv[]) {
       cmd += std::string(argv[i]) + " ";
 
   char line_str[8192];
-  CommandChannel *channel = CommandChannel::getInstance();
+  PikafishChannel *channel = PikafishChannel::getInstance();
 
   do {
       // if (argc == 1 && !getline(cin, cmd)) // Wait for an input or an end-of-file (EOF) indication
@@ -283,8 +283,8 @@ void UCI::loop(int argc, char* argv[]) {
       else if (token == "ucci")
       {
         // sync_cout << "id name " << engine_info(true) << "\n" << Options << "\nuciok" << sync_endl;
-        PrintLn("id name %s", engine_info(true).c_str());
-        PrintLn("ucciok");
+        pikafishOut("id name %s", engine_info(true).c_str());
+        pikafishOut("ucciok");
       }
 
       else if (token == "setoption")  setoption(is);
@@ -298,7 +298,7 @@ void UCI::loop(int argc, char* argv[]) {
       else if (token == "isready")
       {
         // sync_cout << "readyok" << sync_endl;
-        PrintLn("readyok");
+        pikafishOut("readyok");
       }
 
       // Add custom non-UCI commands, mainly for debugging purposes.
@@ -308,13 +308,13 @@ void UCI::loop(int argc, char* argv[]) {
       else if (token == "d")
       {
         // sync_cout << pos << sync_endl;
-        PrintLn(pos.fen().c_str());
+        pikafishOut(pos.fen().c_str());
       }
       else if (token == "eval")     trace_eval(pos);
       else if (token == "compiler")
       {
         // sync_cout << compiler_info() << sync_endl;
-        PrintLn(compiler_info().c_str());
+        pikafishOut(compiler_info().c_str());
       }
       else if (token == "export_net")
       {
@@ -333,7 +333,7 @@ void UCI::loop(int argc, char* argv[]) {
         //     "\nFor any further information, visit https://github.com/PikaCat-OuO/Pikafish#readme"
         //     "\nor read the corresponding README.md and Copying.txt files distributed along with this program.\n"
         //     << sync_endl;
-        PrintLn("Pikafish is a powerful xiangqi engine for playing and analyzing."
+        pikafishOut("Pikafish is a powerful xiangqi engine for playing and analyzing."
             "\nIt is released as free software licensed under the GNU GPLv3 License."
             "\nPikafish is normally used with a graphical user interface (GUI) and implements"
             "\nthe Universal Chess Interface (UCI) protocol to communicate with a GUI, an API, etc."
@@ -343,12 +343,12 @@ void UCI::loop(int argc, char* argv[]) {
       else if (!token.empty() && token[0] != '#')
       {
         // sync_cout << "Unknown command: '" << cmd << "'. Type help for more information." << sync_endl;
-        PrintLn("Unknown command: '%s'. Type help for more information.", cmd.c_str());
+        pikafishOut("Unknown command: '%s'. Type help for more information.", cmd.c_str());
       }
 
   } while (token != "quit" && argc == 1); // The command-line arguments are one-shot
 
-  PrintLn("bye");
+  pikafishOut("bye");
 }
 
 

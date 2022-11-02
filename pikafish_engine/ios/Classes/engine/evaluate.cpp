@@ -86,16 +86,16 @@ namespace Eval {
         // sync_cout << "info string ERROR: " << msg3 << sync_endl;
         // sync_cout << "info string ERROR: " << msg4 << sync_endl;
 
-        PrintLn("info string ERROR: %s", msg1.c_str());
-        PrintLn("info string ERROR: %s", msg2.c_str());
-        PrintLn("info string ERROR: %s", msg3.c_str());
-        PrintLn("info string ERROR: %s", msg4.c_str());
+        pikafishOut("info string ERROR: %s", msg1.c_str());
+        pikafishOut("info string ERROR: %s", msg2.c_str());
+        pikafishOut("info string ERROR: %s", msg3.c_str());
+        pikafishOut("info string ERROR: %s", msg4.c_str());
 
         exit(EXIT_FAILURE);
     }
 
     // sync_cout << "info string NNUE evaluation using " << eval_file << " enabled" << sync_endl;
-    PrintLn("info string NNUE evaluation using %s enabled", eval_file.c_str());
+    pikafishOut("info string NNUE evaluation using %s enabled", eval_file.c_str());
   }
 }
 

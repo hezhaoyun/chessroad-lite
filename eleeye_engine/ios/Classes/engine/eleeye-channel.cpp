@@ -9,30 +9,30 @@
 #include "eleeye-queue.h"
 #include "eleeye-channel.h"
 
-CommandChannel *CommandChannel::instance = NULL;
+EleeyeChannel *EleeyeChannel::instance = NULL;
 
-CommandChannel::CommandChannel() {
-    commandQueue = new CommandQueue();
-    responseQueue = new CommandQueue();
+EleeyeChannel::EleeyeChannel() {
+    commandQueue = new EleeyeQueue();
+    responseQueue = new EleeyeQueue();
 }
 
-CommandChannel *CommandChannel::getInstance() {
+EleeyeChannel *EleeyeChannel::getInstance() {
     
     if (instance == NULL) {
-        instance = new CommandChannel();
+        instance = new EleeyeChannel();
     }
 
     return instance;
 }
 
-void CommandChannel::release() {
+void EleeyeChannel::release() {
     if (instance != NULL) {
         delete instance;
         instance = NULL;
     }
 }
 
-CommandChannel::~CommandChannel() {
+EleeyeChannel::~EleeyeChannel() {
     if (commandQueue != NULL) {
         delete commandQueue;
         commandQueue = NULL;
@@ -44,18 +44,18 @@ CommandChannel::~CommandChannel() {
     }
 }
 
-bool CommandChannel::pushCommand(const char *cmd) {
+bool EleeyeChannel::pushCommand(const char *cmd) {
     return commandQueue->write(cmd);
 }
 
-bool CommandChannel::popupCommand(char *buffer) {
+bool EleeyeChannel::popupCommand(char *buffer) {
     return commandQueue->read(buffer);
 }
 
-bool CommandChannel::pushResponse(const char *resp) {
+bool EleeyeChannel::pushResponse(const char *resp) {
     return responseQueue->write(resp);
 }
 
-bool CommandChannel::popupResponse(char *buffer) {
+bool EleeyeChannel::popupResponse(char *buffer) {
     return responseQueue->read(buffer);
 }

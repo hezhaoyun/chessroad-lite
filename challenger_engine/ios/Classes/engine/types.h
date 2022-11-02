@@ -35,10 +35,10 @@
 ///               | only in 64-bit mode. For compiling requires hardware with
 ///               | popcnt support.
 
-//#include <cassert>
-//#include <cctype>
-//#include <climits>
-//#include <cstdlib>
+#include <cassert>
+#include <cctype>
+#include <climits>
+#include <cstdlib>
 
 #include "platform.h"
 #include "boardtype.h"

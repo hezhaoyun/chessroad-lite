@@ -79,7 +79,9 @@ class SettingsPageState extends State<SettingsPage> {
 
       final engineName = NativeEngine.kEngineNames[engineIndex];
       setState(() => LocalData().engineName.value = engineName);
+
       await BattleAgent.shared.nativeEngineChanged();
+
       LocalData().save();
     }
 

@@ -45,7 +45,7 @@ extern "C" {
         printf("<<< %s\n", "#####22222");
 
         // getInstance() 有并发问题，这里首先主动建立实例，避免后续创建重复
-        CommandChannel::getInstance();
+        EleeyeChannel::getInstance();
 
         usleep(10);
 
@@ -80,7 +80,7 @@ extern "C" {
 
         if (pCommand[0] == 'g' && pCommand[1] == 'o') state = Thinking;
 
-        CommandChannel *channel = CommandChannel::getInstance();
+        EleeyeChannel *channel = EleeyeChannel::getInstance();
 
         bool success = channel->pushCommand(pCommand);
         if (success) printf(">>> %s\n", pCommand);
@@ -95,7 +95,7 @@ extern "C" {
 
         char line[4096] = {0};
 
-        CommandChannel *channel = CommandChannel::getInstance();
+        EleeyeChannel *channel = EleeyeChannel::getInstance();
         bool got_response = channel->popupResponse(line);
 
         if (!got_response) return nullptr;

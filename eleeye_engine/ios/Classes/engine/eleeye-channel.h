@@ -8,17 +8,17 @@
 #ifndef eleeye_channel_h
 #define eleeye_channel_h
 
-class CommandQueue;
+class EleeyeQueue;
 
-class CommandChannel {
+class EleeyeChannel {
 
-    CommandChannel();
+    EleeyeChannel();
 
 public:
-    static CommandChannel *getInstance();
+    static EleeyeChannel *getInstance();
     static void release();
     
-    virtual ~CommandChannel();
+    virtual ~EleeyeChannel();
 
     bool pushCommand(const char *cmd);
     bool popupCommand(char *buffer);
@@ -26,10 +26,10 @@ public:
     bool popupResponse(char *buffer);
 
 private:
-    static CommandChannel *instance;
+    static EleeyeChannel *instance;
 
-    CommandQueue *commandQueue;
-    CommandQueue *responseQueue;
+    EleeyeQueue *commandQueue;
+    EleeyeQueue *responseQueue;
 };
 
 #endif /* eleeye_channel_h */

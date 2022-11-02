@@ -286,19 +286,19 @@ bool PopHash(const PositionStruct &pos) {
   for (i = 0; i < HASH_LAYERS; i ++) {
     hsh = HASH_ITEM(pos, i);
     if (HASH_POS_EQUAL(hsh, pos)) {
-      PrintLn("pophash");
+      eleeyeOut("pophash");
       if (hsh.wmv != 0) {
         __ASSERT(pos.LegalMove(hsh.wmv));
         dwMoveStr = MOVE_COORD(hsh.wmv);
-        PrintLn(" bestmove %.4s", (const char *) &dwMoveStr);
+        eleeyeOut(" bestmove %.4s", (const char *) &dwMoveStr);
       }
       if (hsh.ucBetaDepth > 0) {
-        PrintLn(" lowerbound %d depth %d", hsh.svlBeta, hsh.ucBetaDepth);
+        eleeyeOut(" lowerbound %d depth %d", hsh.svlBeta, hsh.ucBetaDepth);
       }
       if (hsh.ucAlphaDepth > 0) {
-        PrintLn(" upperbound %d depth %d", hsh.svlAlpha, hsh.ucAlphaDepth);
+        eleeyeOut(" upperbound %d depth %d", hsh.svlAlpha, hsh.ucAlphaDepth);
       }
-      PrintLn("\n");
+      eleeyeOut("\n");
       return true;
     }
   }

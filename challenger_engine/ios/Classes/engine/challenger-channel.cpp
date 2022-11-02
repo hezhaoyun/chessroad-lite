@@ -20,7 +20,7 @@ static void idle() { Sleep(1); }
 static void idle() { usleep(1000); }
 #endif
 
-void PrintLn(const char *sz, ...) {
+void challengerOut(const char *sz, ...) {
 
     va_list args;
     va_start(args, sz);
@@ -30,34 +30,34 @@ void PrintLn(const char *sz, ...) {
 
     va_end(args);
 
-    CommandChannel *channel = CommandChannel::getInstance();
+    ChallengeChannel *channel = ChallengeChannel::getInstance();
     while (!channel->pushResponse(buffer)) idle();
 }
 
-CommandChannel *CommandChannel::instance = NULL;
+ChallengeChannel *ChallengeChannel::instance = NULL;
 
-CommandChannel::CommandChannel() {
-    commandQueue = new CommandQueue();
-    responseQueue = new CommandQueue();
+ChallengeChannel::ChallengeChannel() {
+    commandQueue = new ChallengeQueue();
+    responseQueue = new ChallengeQueue();
 }
 
-CommandChannel *CommandChannel::getInstance() {
+ChallengeChannel *ChallengeChannel::getInstance() {
     
     if (instance == NULL) {
-        instance = new CommandChannel();
+        instance = new ChallengeChannel();
     }
 
     return instance;
 }
 
-void CommandChannel::release() {
+void ChallengeChannel::release() {
     if (instance != NULL) {
         delete instance;
         instance = NULL;
     }
 }
 
-CommandChannel::~CommandChannel() {
+ChallengeChannel::~ChallengeChannel() {
     if (commandQueue != NULL) {
         delete commandQueue;
         commandQueue = NULL;
@@ -69,18 +69,18 @@ CommandChannel::~CommandChannel() {
     }
 }
 
-bool CommandChannel::pushCommand(const char *cmd) {
+bool ChallengeChannel::pushCommand(const char *cmd) {
     return commandQueue->write(cmd);
 }
 
-bool CommandChannel::popupCommand(char *buffer) {
+bool ChallengeChannel::popupCommand(char *buffer) {
     return commandQueue->read(buffer);
 }
 
-bool CommandChannel::pushResponse(const char *resp) {
+bool ChallengeChannel::pushResponse(const char *resp) {
     return responseQueue->write(resp);
 }
 
-bool CommandChannel::popupResponse(char *buffer) {
+bool ChallengeChannel::popupResponse(char *buffer) {
     return responseQueue->read(buffer);
 }

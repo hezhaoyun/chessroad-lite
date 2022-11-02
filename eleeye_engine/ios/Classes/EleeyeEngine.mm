@@ -45,7 +45,7 @@
     [operationQueue setMaxConcurrentOperationCount:1];
     
     // getInstance() 有并发问题，这里首先主动建立实例，避免后续创建重复
-    CommandChannel::getInstance();
+    EleeyeChannel::getInstance();
     usleep(10);
     
     [operationQueue addOperation:[[NSInvocationOperation alloc]
@@ -62,7 +62,7 @@
     
     if (depth > 0 && depth <= 64) {
         SearchDepth = depth;
-        PrintLn("SearchDepth: %d", depth);
+        eleeyeOut("SearchDepth: %d", depth);
         return 0;
     }
     
@@ -75,7 +75,7 @@
         state = Thinking;
     }
     
-    CommandChannel *channel = CommandChannel::getInstance();
+    EleeyeChannel *channel = EleeyeChannel::getInstance();
     
     if (channel->pushCommand([command UTF8String])) {
         NSLog(@"===>>> %@\n", command);
@@ -87,7 +87,7 @@
 
 -(NSString *) read {
     
-    CommandChannel *channel = CommandChannel::getInstance();
+    EleeyeChannel *channel = EleeyeChannel::getInstance();
     char buffer[4096] = {0};
     
     bool got_response = channel->popupResponse(buffer);

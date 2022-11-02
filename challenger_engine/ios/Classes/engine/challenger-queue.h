@@ -8,7 +8,7 @@
 #ifndef challenger_queue_h
 #define challenger_queue_h
 
-class CommandQueue {
+class ChallengeQueue {
     
     enum {
         MAX_COMMAND_COUNT = 128,
@@ -19,7 +19,7 @@ class CommandQueue {
     int readIndex, writeIndex;
     
 public:
-    CommandQueue();
+    ChallengeQueue();
     
     bool write(const char *command);
     bool read(char *dest);

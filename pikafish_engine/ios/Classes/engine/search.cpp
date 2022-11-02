@@ -121,7 +121,7 @@ namespace {
         if (Root)
         {
             // sync_cout << UCI::move(m) << ": " << cnt << sync_endl;
-            PrintLn("%s: %ld", UCI::move(m).c_str(), cnt);
+            pikafishOut("%s: %ld", UCI::move(m).c_str(), cnt);
         }
     }
     return nodes;
@@ -160,7 +160,7 @@ void MainThread::search() {
   {
       nodes = perft<true>(rootPos, Limits.perft);
       // sync_cout << "\nNodes searched: " << nodes << "\n" << sync_endl;
-      PrintLn("Nodes searched: %ld", nodes.load());
+      pikafishOut("Nodes searched: %ld", nodes.load());
       return;
   }
 
@@ -174,7 +174,7 @@ void MainThread::search() {
   {
       rootMoves.emplace_back(MOVE_NONE);
       // sync_cout << "info depth 0 score " << UCI::value(-VALUE_MATE) << sync_endl;
-      PrintLn("info depth 0 score %s", UCI::value(-VALUE_MATE).c_str());
+      pikafishOut("info depth 0 score %s", UCI::value(-VALUE_MATE).c_str());
   }
   else
   {
@@ -220,11 +220,11 @@ void MainThread::search() {
   if (bestThread != this)
   {
     // sync_cout << UCI::pv(bestThread->rootPos, bestThread->completedDepth, -VALUE_INFINITE, VALUE_INFINITE) << sync_endl;
-    PrintLn(UCI::pv(bestThread->rootPos, bestThread->completedDepth, -VALUE_INFINITE, VALUE_INFINITE).c_str());
+    pikafishOut(UCI::pv(bestThread->rootPos, bestThread->completedDepth, -VALUE_INFINITE, VALUE_INFINITE).c_str());
   }
 
   // sync_cout << "bestmove " << UCI::move(bestThread->rootMoves[0].pv[0]);
-  PrintLn("bestmove %s", UCI::move(bestThread->rootMoves[0].pv[0]).c_str());
+  pikafishOut("bestmove %s", UCI::move(bestThread->rootMoves[0].pv[0]).c_str());
 
   if (bestThread->rootMoves[0].pv.size() > 1 || bestThread->rootMoves[0].extract_ponder_from_tt(rootPos))
       std::cout << " ponder " << UCI::move(bestThread->rootMoves[0].pv[1]);
@@ -358,7 +358,7 @@ void Thread::search() {
                   && Time.elapsed() > 3000)
                   {
                     // sync_cout << UCI::pv(rootPos, rootDepth, alpha, beta) << sync_endl;
-                    PrintLn(UCI::pv(rootPos, rootDepth, alpha, beta).c_str());
+                    pikafishOut(UCI::pv(rootPos, rootDepth, alpha, beta).c_str());
                   }
 
               // In case of failing low/high increase aspiration window and
@@ -392,7 +392,7 @@ void Thread::search() {
               && (Threads.stop || pvIdx + 1 == multiPV || Time.elapsed() > 3000))
               {
                 // sync_cout << UCI::pv(rootPos, rootDepth, alpha, beta) << sync_endl;
-                PrintLn(UCI::pv(rootPos, rootDepth, alpha, beta).c_str());
+                pikafishOut(UCI::pv(rootPos, rootDepth, alpha, beta).c_str());
               }
       }
 

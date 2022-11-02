@@ -61,7 +61,7 @@ UcciCommEnum BootLine(void) {
     
     char szLineStr[LINE_INPUT_MAX_CHAR];
     
-    CommandChannel *channel = CommandChannel::getInstance();
+    EleeyeChannel *channel = EleeyeChannel::getInstance();
     while (!channel->popupCommand(szLineStr)) Idle();
     
     if (StrEqv(szLineStr, "ucci")) {
@@ -77,12 +77,12 @@ UcciCommEnum IdleLine(UcciCommStruct &UcciComm, bool bDebug) {
     int i;
     bool bGoTime;
 
-    CommandChannel *channel = CommandChannel::getInstance();
+    EleeyeChannel *channel = EleeyeChannel::getInstance();
     while (!channel->popupCommand(szLineStr)) Idle();
 
     lp = szLineStr;
     if (bDebug) {
-        PrintLn("info idleline [%s]\n", lp);
+        eleeyeOut("info idleline [%s]\n", lp);
     }
 
     if (false) {
@@ -366,10 +366,10 @@ UcciCommEnum BusyLine(UcciCommStruct &UcciComm, bool bDebug) {
     char szLineStr[LINE_INPUT_MAX_CHAR];
     char *lp;
     
-    CommandChannel *channel = CommandChannel::getInstance();
+    EleeyeChannel *channel = EleeyeChannel::getInstance();
     if (channel->popupCommand(szLineStr)) {
         if (bDebug) {
-            PrintLn("info busyline [%s]\n", szLineStr);
+            eleeyeOut("info busyline [%s]\n", szLineStr);
         }
         // "BusyLine"只能接收"isready"、"ponderhit"和"stop"这三条指令
         if (false) {

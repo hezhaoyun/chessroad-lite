@@ -19,73 +19,81 @@ class NativeEngineImpl extends NativeEngine {
   static final NativeEngineImpl _instance = NativeEngineImpl._internal();
 
   NativeEngineImpl._internal() {
-    engineChanged();
+    initEngine();
+  }
+
+  NativeEngine? _currentEngine;
+  NativeEngine? _eleeyeEngine, _challengerEngine, _pikafishEngine;
+
+  String? _scoreInfo;
+
+  initEngine() {
+    //
+    final engineName = LocalData().engineName.value;
+
+    if (engineName == NativeEngine.kNameChallenger) {
+      _challengerEngine ??= ChallengerEngineImpl();
+      _currentEngine = _challengerEngine;
+    } else if (engineName == NativeEngine.kNamePikafish) {
+      _pikafishEngine ??= PikafishEngineImpl();
+      _currentEngine = _pikafishEngine;
+    } else {
+      _eleeyeEngine ??= EleeyeEngineImpl();
+      _currentEngine = _eleeyeEngine;
+    }
   }
 
   Future<void> engineChanged() async {
     //
-    await _engine?.shutdown();
-    await waitResponse([], times: 20);
-
-    final engineName = LocalData().engineName.value;
-
-    if (engineName == NativeEngine.kNameChallenger) {
-      _engine = ChallengerEngineImpl();
-    } else if (engineName == NativeEngine.kNamePikafish) {
-      _engine = PikafishEngineImpl();
-    } else {
-      _engine = EleeyeEngineImpl();
+    if (_currentEngine is EleeyeEngineImpl) {
+      _eleeyeEngine!.shutdown();
+      _currentEngine = _eleeyeEngine = null;
+    } else if (_currentEngine is ChallengerEngineImpl) {
+      _challengerEngine!.shutdown();
+      _currentEngine = _challengerEngine = null;
     }
 
-    await _engine?.startup();
-    await waitResponse(['ucciok'], times: 20);
+    initEngine();
 
-    // if (engineName == NativeEngine.kNameChallenger ||
-    //     engineName == NativeEngine.kNamePikafish) {
-    //   //
-    //   await _engine?.send('ucinewgame');
-    //   await waitResponse([], times: 20);
-    // }
+    await startup();
   }
-
-  NativeEngine? _engine;
-  String? _scoreInfo;
 
   @override
   Future<void> startup() async {
-    if (_engine == null) return;
-    await _engine!.startup();
-    await waitResponse(['ucciok'], times: 20);
+    if (_currentEngine == null) return;
+    await _currentEngine!.startup();
+    await waitResponse(['ucciok'], times: 30);
   }
 
   @override
   Future<void> applyConfig(NativeEngineConfig config) async {
-    if (_engine == null) return;
-    await _engine!.applyConfig(config);
+    if (_currentEngine == null) return;
+    await _currentEngine!.applyConfig(config);
     await waitResponse([], times: 20);
   }
 
   @override
   Future<void> send(String command) async {
-    await _engine?.send(command);
+    await _currentEngine?.send(command);
     prt('>>> $command');
   }
 
   @override
   Future<String?> read() async {
-    final data = await _engine?.read();
+    final data = await _currentEngine?.read();
     if (data != null) prt('<<< $data');
     return data;
   }
 
   @override
-  Future<void> shutdown() async => await _engine?.shutdown();
+  Future<void> shutdown() async => await _currentEngine?.shutdown();
 
   @override
-  Future<bool> isReady() async => await _engine?.isReady() ?? false;
+  Future<bool> isReady() async => await _currentEngine?.isReady() ?? false;
 
   @override
-  Future<bool> isThinking() async => await _engine?.isThinking() ?? false;
+  Future<bool> isThinking() async =>
+      await _currentEngine?.isThinking() ?? false;
 
   @override
   Future<EngineResponse> search(
@@ -104,10 +112,11 @@ class NativeEngineImpl extends NativeEngine {
       prt('search.wait-stop-thinking: $response');
     }
 
-    send(_engine!.buildPositionCmd(phase));
-    send(_engine!.buildGoCmd(timeLimit: timeLimit, depth: depth));
+    send(_currentEngine!.buildPositionCmd(phase));
+    send(_currentEngine!.buildGoCmd(timeLimit: timeLimit, depth: depth));
 
-    final waitTimes = _engine!.waitTimes(timeLimit: timeLimit, depth: depth);
+    final waitTimes =
+        _currentEngine!.waitTimes(timeLimit: timeLimit, depth: depth);
 
     final response = await waitResponse(
       [Engine.kBestMove, Engine.kNoBestMove],

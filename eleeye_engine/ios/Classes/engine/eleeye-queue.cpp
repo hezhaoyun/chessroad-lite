@@ -10,7 +10,7 @@
 
 #pragma warning (disable: 4996)
 
-CommandQueue::CommandQueue() {
+EleeyeQueue::EleeyeQueue() {
     
     for (int i = 0; i < MAX_COMMAND_COUNT; i++) {
         strcpy(commands[i], "");
@@ -20,7 +20,7 @@ CommandQueue::CommandQueue() {
     readIndex = -1;
 }
 
-bool CommandQueue::write(const char *command) {
+bool EleeyeQueue::write(const char *command) {
     
     if (strlen(commands[writeIndex]) != 0) {
         return false;
@@ -39,7 +39,7 @@ bool CommandQueue::write(const char *command) {
     return true;
 }
 
-bool CommandQueue::read(char *dest) {
+bool EleeyeQueue::read(char *dest) {
     
     if (readIndex == -1) return false;
 

@@ -384,7 +384,7 @@ bool save_eval(const std::optional<std::string>& filename) {
             msg = "Failed to export a net. A non-embedded net can only be saved if the filename is specified";
             
             // sync_cout << msg << sync_endl;
-            PrintLn(msg.c_str());
+            pikafishOut(msg.c_str());
             
             return false;
         }
@@ -398,7 +398,7 @@ bool save_eval(const std::optional<std::string>& filename) {
     : "Failed to export a net";
     
     // sync_cout << msg << sync_endl;
-    PrintLn(msg.c_str());
+    pikafishOut(msg.c_str());
     
     return saved;
 }

@@ -21,19 +21,19 @@ class BattleAgent {
     _engine = HybridEngine();
     await _engine.startup();
 
-    applyNativeEngineConfig(NativeEngineConfig.current);
+    await applyNativeEngineConfig(NativeEngineConfig.current);
   }
 
   applyNativeEngineConfig(NativeEngineConfig config) async {
-    if (_engine is NativeEngine) {
+    if (_engine is HybridEngine) {
       await (_engine as HybridEngine).applyConfig(config);
     }
   }
 
   nativeEngineChanged() async {
-    if (_engine is NativeEngine) {
+    if (_engine is HybridEngine) {
       await (_engine as HybridEngine).nativeEngineChanged();
-      applyNativeEngineConfig(NativeEngineConfig.current);
+      await applyNativeEngineConfig(NativeEngineConfig.current);
     }
   }
 

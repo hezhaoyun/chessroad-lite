@@ -8,7 +8,7 @@
 #ifndef eleeye_queue_h
 #define eleeye_queue_h
 
-class CommandQueue {
+class EleeyeQueue {
     
     enum {
         MAX_COMMAND_COUNT = 128,
@@ -19,7 +19,7 @@ class CommandQueue {
     int readIndex, writeIndex;
     
 public:
-    CommandQueue();
+    EleeyeQueue();
     
     bool write(const char *command);
     bool read(char *dest);

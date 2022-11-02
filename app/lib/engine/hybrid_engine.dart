@@ -37,7 +37,7 @@ class HybridEngine extends NativeEngine {
   }
 
   nativeEngineChanged() async {
-    _nativeEngine?.engineChanged();
+    await _nativeEngine?.engineChanged();
   }
 
   @override

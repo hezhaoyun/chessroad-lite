@@ -8,19 +8,19 @@
 #ifndef pikafish_channel_h
 #define pikafish_channel_h
 
-void PrintLn(const char *sz, ...);
+void pikafishOut(const char *sz, ...);
 
-class CommandQueue;
+class PikafishQueue;
 
-class CommandChannel {
+class PikafishChannel {
 
-    CommandChannel();
+    PikafishChannel();
 
 public:
-    static CommandChannel *getInstance();
+    static PikafishChannel *getInstance();
     static void release();
     
-    virtual ~CommandChannel();
+    virtual ~PikafishChannel();
 
     bool pushCommand(const char *cmd);
     bool popupCommand(char *buffer);
@@ -28,10 +28,10 @@ public:
     bool popupResponse(char *buffer);
 
 private:
-    static CommandChannel *instance;
+    static PikafishChannel *instance;
 
-    CommandQueue *commandQueue;
-    CommandQueue *responseQueue;
+    PikafishQueue *commandQueue;
+    PikafishQueue *responseQueue;
 };
 
 #endif /* pikafish_channel_h */

@@ -71,7 +71,7 @@ void UCI::loop(const string &args)
     do
     {
         char line_str[8192];
-        CommandChannel *channel = CommandChannel::getInstance();
+        ChallengeChannel *channel = ChallengeChannel::getInstance();
         while (!channel->popupCommand(line_str)) idle();
         cmd = line_str;
 
@@ -112,9 +112,9 @@ void UCI::loop(const string &args)
             //           << "\nmaterial key: " << setw(16) << pos.material_key()
             //           << "\npawn key:     " << setw(16) << pos.pawn_key()
             //           << dec << sync_endl;
-            PrintLn("position key: %ld", pos.key());
-            PrintLn("material key: %ld", pos.material_key());
-            PrintLn("pawn key: %ld", pos.pawn_key());
+            challengerOut("position key: %ld", pos.key());
+            challengerOut("material key: %ld", pos.material_key());
+            challengerOut("pawn key: %ld", pos.pawn_key());
         }
         else if (token == "ucci")
         {
@@ -123,22 +123,22 @@ void UCI::loop(const string &args)
             //           << Options
             //           << "\nucciok" << sync_endl;
 
-            PrintLn("id name %s", engine_info(true).c_str());
+            challengerOut("id name %s", engine_info(true).c_str());
 
             char buffer[8192];
             std::stringstream ss;
             ss << Options;
             ss >> buffer;
 
-            PrintLn(buffer);
+            challengerOut(buffer);
 
-            PrintLn("ucciok");
+            challengerOut("ucciok");
         }
         else if (token == "eval")
         {
             Search::RootColor = pos.side_to_move(); // Ensure it is set
             // sync_cout << Eval::trace(pos) << sync_endl;
-            PrintLn(Eval::trace(pos).c_str());
+            challengerOut(Eval::trace(pos).c_str());
         }
         else if (token == "ucinewgame")
             TT.clear();
@@ -155,22 +155,22 @@ void UCI::loop(const string &args)
         else if (token == "d")
         {
             // sync_cout << pos.pretty() << sync_endl;
-            PrintLn(pos.pretty().c_str());
+            challengerOut(pos.pretty().c_str());
         }
         else if (token == "isready")
         {
             // sync_cout << "readyok" << sync_endl;
-            PrintLn("readyok");
+            challengerOut("readyok");
         }
         else
         {
             // sync_cout << "Unknown command: " << cmd << sync_endl;
-            PrintLn("Unknown command: %s", cmd.c_str());
+            challengerOut("Unknown command: %s", cmd.c_str());
         }
 
     } while (token != "quit" && args.empty()); // Args have one-shot behaviour
 
-    PrintLn("bye");
+    challengerOut("bye");
 
     Threads.wait_for_think_finished(); // Cannot quit while search is running
 }
@@ -244,7 +244,7 @@ namespace
         else
         {
             // sync_cout << "No such option: " << name << sync_endl;
-            PrintLn("No such option: %s", name.c_str());
+            challengerOut("No such option: %s", name.c_str());
         }
     }
 

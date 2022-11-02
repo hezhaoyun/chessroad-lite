@@ -11,7 +11,7 @@
 
 extern int SearchDepth;
 
-void PrintLn(const char *sz, ...);
+void eleeyeOut(const char *sz, ...);
 
 int eleeyeMain();
 

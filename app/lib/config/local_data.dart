@@ -45,9 +45,6 @@ class LocalData {
     bgmEnabled = DataItem(_profile, 'bgm_enabled', false);
     toneEnabled = DataItem(_profile, 'tone_enabled', true);
     highContrast = DataItem(_profile, 'high_contrast', false);
-
-    // TODO: 暂时禁用引擎切换，只保留皮卡鱼
-    engineName.value = NativeEngine.kNamePikafish;
   }
 
   Future<bool> save() => _profile.save();

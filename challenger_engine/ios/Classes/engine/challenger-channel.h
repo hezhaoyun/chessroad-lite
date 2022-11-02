@@ -8,19 +8,19 @@
 #ifndef challenger_channel_h
 #define challenger_channel_h
 
-void PrintLn(const char *sz, ...);
+void challengerOut(const char *sz, ...);
 
-class CommandQueue;
+class ChallengeQueue;
 
-class CommandChannel {
+class ChallengeChannel {
 
-    CommandChannel();
+    ChallengeChannel();
 
 public:
-    static CommandChannel *getInstance();
+    static ChallengeChannel *getInstance();
     static void release();
     
-    virtual ~CommandChannel();
+    virtual ~ChallengeChannel();
 
     bool pushCommand(const char *cmd);
     bool popupCommand(char *buffer);
@@ -28,10 +28,10 @@ public:
     bool popupResponse(char *buffer);
 
 private:
-    static CommandChannel *instance;
+    static ChallengeChannel *instance;
 
-    CommandQueue *commandQueue;
-    CommandQueue *responseQueue;
+    ChallengeQueue *commandQueue;
+    ChallengeQueue *responseQueue;
 };
 
 #endif /* challenger_channel_h */

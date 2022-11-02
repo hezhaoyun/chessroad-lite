@@ -213,7 +213,7 @@ void Search::think()
         // sync_cout << "info depth 0 score "
         //           << score_to_uci(RootPos.checkers() ? -VALUE_MATE : VALUE_DRAW)
         //           << sync_endl;
-        PrintLn(
+        challengerOut(
             "info depth 0 score %s",
             score_to_uci(RootPos.checkers() ? -VALUE_MATE : VALUE_DRAW).c_str());
 
@@ -300,7 +300,7 @@ goto_flag:
     // When search is stopped this info is not printed
     // sync_cout << "info nodes " << RootPos.nodes_searched()
     //           << " time " << Time::now() - SearchTime + 1 << sync_endl;
-    PrintLn(
+    challengerOut(
         "info nodes %ld time %ld",
         RootPos.nodes_searched(), Time::now() - SearchTime + 1);
 
@@ -319,7 +319,7 @@ goto_flag:
     // sync_cout << "bestmove " << move_to_uci(RootMoves[0].pv[0], RootPos.is_chess960())
     //           << " ponder " << move_to_uci(RootMoves[0].pv[1], RootPos.is_chess960())
     //           << sync_endl;
-    PrintLn(
+    challengerOut(
         "bestmove %s ponder %s",
         move_to_uci(RootMoves[0].pv[0], RootPos.is_chess960()).c_str(),
         move_to_uci(RootMoves[0].pv[1], RootPos.is_chess960()).c_str());
@@ -417,7 +417,7 @@ namespace
                     if ((bestValue <= alpha || bestValue >= beta) && Time::now() - SearchTime > 3000)
                     {
                         // sync_cout << uci_pv(pos, depth, alpha, beta) << sync_endl;
-                        PrintLn(uci_pv(pos, depth, alpha, beta).c_str());
+                        challengerOut(uci_pv(pos, depth, alpha, beta).c_str());
                     }
 
                     // In case of failing low/high increase aspiration window and
@@ -446,7 +446,7 @@ namespace
                 if (PVIdx + 1 == PVSize || Time::now() - SearchTime > 3000)
                 {
                     // sync_cout << uci_pv(pos, depth, alpha, beta) << sync_endl;
-                    PrintLn(uci_pv(pos, depth, alpha, beta).c_str());
+                    challengerOut(uci_pv(pos, depth, alpha, beta).c_str());
                 }
             }
 
@@ -821,7 +821,7 @@ namespace
                     // sync_cout << "info depth " << depth / ONE_PLY
                     //           << " currmove " << move_to_uci(move, pos.is_chess960())
                     //           << " currmovenumber " << moveCount + PVIdx << sync_endl;
-                    PrintLn(
+                    challengerOut(
                         "info depth %d currmove %s currmovenumber %d",
                         depth / ONE_PLY,
                         move_to_uci(move, pos.is_chess960()).c_str(),
