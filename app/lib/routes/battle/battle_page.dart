@@ -447,7 +447,9 @@ class BattlePageState extends State<BattlePage>
         //
         case BattleResult.pending:
           if (step.score != null) {
-            final engine = (searchResult.engine == Engine.kCloud) ? '云库' : 'AI';
+            final engine = (searchResult.engine == Engine.kCloud)
+                ? '云库'
+                : LocalData().engineName.value;
             _pageState.changeStatus(
               sprintf(
                 '%s 评估 %d 分，%s',
