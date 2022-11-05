@@ -64,7 +64,5 @@ abstract class NativeEngine extends Engine {
     return 'go time $timeLimit';
   }
 
-  int waitTimes({int? timeLimit, int? depth}) {
-    return timeLimit! ~/ 10;
-  }
+  int waitTimes({int? timeLimit, int? depth}) => timeLimit! ~/ 10;
 }

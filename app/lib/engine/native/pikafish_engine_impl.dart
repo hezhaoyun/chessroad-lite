@@ -10,13 +10,9 @@ class PikafishEngineImpl extends NativeEngine {
   //
   static final engine = PikafishEngine();
 
-  bool _started = false;
-
   @override
   Future<void> startup() async {
     //
-    if (_started) return;
-
     await engine.startup();
 
     final appDocDir = await getApplicationDocumentsDirectory();
@@ -29,8 +25,6 @@ class PikafishEngineImpl extends NativeEngine {
     }
 
     await send('setoption name EvalFile value ${nnueFile.path}');
-
-    _started = true;
   }
 
   @override

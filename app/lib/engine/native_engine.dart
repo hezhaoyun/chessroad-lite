@@ -19,49 +19,50 @@ class NativeEngineImpl extends NativeEngine {
   static final NativeEngineImpl _instance = NativeEngineImpl._internal();
 
   NativeEngineImpl._internal() {
-    initEngine();
+    setupEngine();
   }
 
-  NativeEngine? _currentEngine;
-  NativeEngine? _eleeyeEngine, _challengerEngine, _pikafishEngine;
-
   String? _scoreInfo;
+  NativeEngine? _currentEngine;
 
-  initEngine() {
+  setupEngine() {
     //
     final engineName = LocalData().engineName.value;
 
     if (engineName == NativeEngine.kNameChallenger) {
-      _challengerEngine ??= ChallengerEngineImpl();
-      _currentEngine = _challengerEngine;
+      _currentEngine = ChallengerEngineImpl();
     } else if (engineName == NativeEngine.kNamePikafish) {
-      _pikafishEngine ??= PikafishEngineImpl();
-      _currentEngine = _pikafishEngine;
+      _currentEngine = PikafishEngineImpl();
     } else {
-      _eleeyeEngine ??= EleeyeEngineImpl();
-      _currentEngine = _eleeyeEngine;
+      _currentEngine = EleeyeEngineImpl();
     }
   }
 
   Future<void> engineChanged() async {
     //
-    if (_currentEngine is EleeyeEngineImpl) {
-      _eleeyeEngine!.shutdown();
-      _currentEngine = _eleeyeEngine = null;
-    } else if (_currentEngine is ChallengerEngineImpl) {
-      _challengerEngine!.shutdown();
-      _currentEngine = _challengerEngine = null;
-    }
+    await shutdown();
 
-    initEngine();
+    setupEngine();
 
     await startup();
   }
 
   @override
   Future<void> startup() async {
+    //
     if (_currentEngine == null) return;
     await _currentEngine!.startup();
+
+    final engineName = LocalData().engineName.value;
+
+    if (engineName == NativeEngine.kNameChallenger) {
+      await _currentEngine!.send('ucinewgame');
+    } else if (engineName == NativeEngine.kNamePikafish) {
+      await _currentEngine!.send('ucinewgame');
+    } else {
+      await _currentEngine!.send('newgame');
+    }
+
     await waitResponse(['ucciok'], times: 30);
   }
 
@@ -86,14 +87,20 @@ class NativeEngineImpl extends NativeEngine {
   }
 
   @override
-  Future<void> shutdown() async => await _currentEngine?.shutdown();
+  Future<void> shutdown() async {
+    await _currentEngine?.shutdown();
+    await waitResponse([], times: 20);
+  }
 
   @override
-  Future<bool> isReady() async => await _currentEngine?.isReady() ?? false;
+  Future<bool> isReady() async {
+    return await _currentEngine?.isReady() ?? false;
+  }
 
   @override
-  Future<bool> isThinking() async =>
-      await _currentEngine?.isThinking() ?? false;
+  Future<bool> isThinking() async {
+    return await _currentEngine?.isThinking() ?? false;
+  }
 
   @override
   Future<EngineResponse> search(
@@ -115,8 +122,10 @@ class NativeEngineImpl extends NativeEngine {
     send(_currentEngine!.buildPositionCmd(phase));
     send(_currentEngine!.buildGoCmd(timeLimit: timeLimit, depth: depth));
 
-    final waitTimes =
-        _currentEngine!.waitTimes(timeLimit: timeLimit, depth: depth);
+    final waitTimes = _currentEngine!.waitTimes(
+      timeLimit: timeLimit,
+      depth: depth,
+    );
 
     final response = await waitResponse(
       [Engine.kBestMove, Engine.kNoBestMove],
