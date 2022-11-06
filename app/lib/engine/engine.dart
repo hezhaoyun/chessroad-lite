@@ -1,5 +1,4 @@
 import '../cchess/phase.dart';
-import 'native_engine_config.dart';
 
 class EngineResponse {
   final String type;
@@ -36,8 +35,7 @@ abstract class Engine {
 
   Future<bool> isThinking() async => false;
 
-  Future<EngineResponse> search(Phase phase,
-      {int? timeLimit, int? depth}) async {
+  Future<EngineResponse> search(Phase phase, {int? timeLimit}) async {
     return EngineResponse(kUnknownError, kUnknownError, value: '');
   }
 }
@@ -54,15 +52,15 @@ abstract class NativeEngine extends Engine {
     kNamePikafish,
   ];
 
-  Future<void> applyConfig(NativeEngineConfig config) async {}
+  Future<void> applyConfig() async {}
 
   String buildPositionCmd(Phase phase) {
     return phase.buildPositionCommand();
   }
 
-  String buildGoCmd({int? timeLimit, int? depth}) {
+  String buildGoCmd({int? timeLimit}) {
     return 'go time $timeLimit';
   }
 
-  int waitTimes({int? timeLimit, int? depth}) => timeLimit! ~/ 10;
+  int waitTimes({int? timeLimit}) => timeLimit! ~/ 10;
 }

@@ -10,7 +10,6 @@ class LocalData {
   late final DataItem debugMode;
   late final DataItem acceptedPrivacyPolicy;
   late final DataItem engineName;
-  late final DataItem engineConfig;
   late final DataItem cloudEngineEnabled;
   late final DataItem lastReviewInvite;
   late final DataItem showAdDate;
@@ -35,7 +34,6 @@ class LocalData {
     debugMode = DataItem(_profile, 'debug_mode', false);
     acceptedPrivacyPolicy = DataItem(_profile, 'acepted_privacy_policy', false);
     engineName = DataItem(_profile, 'engine_name', NativeEngine.kNamePikafish);
-    engineConfig = DataItem(_profile, 'engine_config', 3);
     cloudEngineEnabled = DataItem(_profile, 'cloud_engine_enabled', true);
     lastReviewInvite = DataItem(_profile, 'last_review_invite', '');
     showAdDate = DataItem(_profile, 'show_ad_date', '');
@@ -48,4 +46,6 @@ class LocalData {
   }
 
   Future<bool> save() => _profile.save();
+
+  Profile get profile => _profile;
 }

@@ -1,19 +1,20 @@
 import 'dart:async';
 
 import 'package:chessroad/config/local_data.dart';
+import 'package:chessroad/engine/config/challenger_engine_config.dart';
 
 import '../common/prt.dart';
 import '../engine/engine.dart';
+import 'config/eleeye_engine_config.dart';
+import 'config/pikafish_engine_config.dart';
 import 'native_engine.dart';
 import '../cchess/phase.dart';
 import 'cloud_engine.dart';
-import 'native_engine_config.dart';
 
 class HybridEngine extends NativeEngine {
   //
   CloudEngine? _cloudEngine;
   NativeEngineImpl? _nativeEngine;
-  NativeEngineConfig? _lastConfig;
 
   @override
   Future<void> startup() async {
@@ -28,12 +29,8 @@ class HybridEngine extends NativeEngine {
   }
 
   @override
-  Future<void> applyConfig(NativeEngineConfig config) async {
-    //
-    if (_lastConfig == config) return;
-
-    await _nativeEngine!.applyConfig(config);
-    _lastConfig = config;
+  Future<void> applyConfig() async {
+    await _nativeEngine!.applyConfig();
   }
 
   nativeEngineChanged() async {
@@ -55,8 +52,7 @@ class HybridEngine extends NativeEngine {
   }
 
   @override
-  Future<EngineResponse> search(Phase phase,
-      {int? timeLimit, int? depth}) async {
+  Future<EngineResponse> search(Phase phase, {int? timeLimit}) async {
     //
     if (LocalData().cloudEngineEnabled.value) {
       //
@@ -74,10 +70,21 @@ class HybridEngine extends NativeEngine {
       }
     }
 
+    if (timeLimit == null) {
+      final engineName = LocalData().engineName.value;
+
+      if (engineName == NativeEngine.kNameChallenger) {
+        timeLimit = ChallengerEngineConfig(LocalData().profile).timeLimit;
+      } else if (engineName == NativeEngine.kNamePikafish) {
+        timeLimit = PikafishEngineConfig(LocalData().profile).timeLimit;
+      } else {
+        timeLimit = EleeyeEngineConfig(LocalData().profile).timeLimit;
+      }
+    }
+
     final nativeResponse = await _nativeEngine!.search(
       phase,
-      timeLimit: _lastConfig!.timeLimit,
-      depth: _lastConfig!.depth,
+      timeLimit: timeLimit,
     );
     prt('nativeResponse: ${nativeResponse.type}');
 

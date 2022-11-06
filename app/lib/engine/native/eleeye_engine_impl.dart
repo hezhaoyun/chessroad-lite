@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chessroad/config/local_data.dart';
 import 'package:eleeye_engine/eleeye_engine.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
@@ -7,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../cchess/phase.dart';
 import '../../common/prt.dart';
 import '../engine.dart';
-import '../native_engine_config.dart';
+import '../config/eleeye_engine_config.dart';
 
 class EleeyeEngineImpl extends NativeEngine {
   //
@@ -45,7 +46,10 @@ class EleeyeEngineImpl extends NativeEngine {
   }
 
   @override
-  Future<void> applyConfig(NativeEngineConfig config) async {
+  Future<void> applyConfig() async {
+    //
+    final config = EleeyeEngineConfig(LocalData().profile);
+
     await send('setoption knowledge ${config.knowledge}');
     await send('setoption pruning ${config.pruning}');
     await send('setoption randomness ${config.randomness}');

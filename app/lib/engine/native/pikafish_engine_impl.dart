@@ -4,11 +4,24 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pikafish_engine/pikafish_engine.dart';
 
+import '../../config/local_data.dart';
+import '../config/pikafish_engine_config.dart';
 import '../engine.dart';
 
 class PikafishEngineImpl extends NativeEngine {
   //
   static final engine = PikafishEngine();
+
+  @override
+  Future<void> applyConfig() async {
+    //
+    final config = PikafishEngineConfig(LocalData().profile);
+
+    await send('setoption name Threads value ${config.threads}');
+    await send('setoption name Hash value ${config.hashSize}');
+    await send('setoption name Ponder value ${config.ponder}');
+    await send('setoption name Skill Level value ${config.level}');
+  }
 
   @override
   Future<void> startup() async {
@@ -53,7 +66,7 @@ class PikafishEngineImpl extends NativeEngine {
   }
 
   @override
-  String buildGoCmd({int? timeLimit, int? depth}) {
+  String buildGoCmd({int? timeLimit}) {
     return 'go movetime $timeLimit';
   }
 }

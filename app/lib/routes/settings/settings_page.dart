@@ -1,16 +1,19 @@
 import 'dart:io';
 
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
+import 'package:chessroad/routes/settings/challenger_params_page.dart';
 import 'package:chessroad/ui/review_panel.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/local_data.dart';
 import '../../engine/battle_agent.dart';
 import '../../engine/engine.dart';
-import '../../engine/native_engine_config.dart';
 import '../../game/game.dart';
 import '../../services/audios.dart';
 import '../../ui/snack_bar.dart';
+import 'eleeye_params_page.dart';
+import 'pikafish_params_page.dart';
 import 'show_about.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -29,44 +32,24 @@ class SettingsPageState extends State<SettingsPage> {
     if (mounted) setState(() {});
   }
 
-  changeEngineConfig() {
+  changeEngineConfig() async {
     //
-    callback(int? level) async {
-      //
-      Navigator.of(context).pop();
+    final engineName = LocalData().engineName.value;
 
-      final config = NativeEngineConfig.levels[level!];
-
-      setState(() => LocalData().engineConfig.value = config.level);
-      await BattleAgent.shared.applyNativeEngineConfig(config);
-      LocalData().save();
+    final Widget page;
+    if (engineName == NativeEngine.kNameChallenger) {
+      page = const ChallengerParamsPage();
+    } else if (engineName == NativeEngine.kNamePikafish) {
+      page = const PikafishParamsPage();
+    } else {
+      page = const EleeyeParamsPage();
     }
 
-    Widget createListTile(String name, int level) => RadioListTile(
-          activeColor: GameColors.primary,
-          title: Text(name),
-          groupValue: LocalData().engineConfig.value as int,
-          value: level,
-          onChanged: callback,
-        );
-
-    final levels = <Widget>[];
-
-    levels.add(const SizedBox(height: 10));
-
-    for (var l in NativeEngineConfig.levels) {
-      levels.add(createListTile(l.name, l.level));
-      levels.add(const Divider());
-    }
-
-    levels.add(const SizedBox(height: 56));
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) => SingleChildScrollView(
-        child: Column(mainAxisSize: MainAxisSize.min, children: levels),
-      ),
+    await Navigator.of(context).push(
+      CupertinoPageRoute(builder: (context) => page),
     );
+
+    await BattleAgent.shared.applyNativeEngineConfig();
   }
 
   changeNativeEngine() {
@@ -232,21 +215,16 @@ class SettingsPageState extends State<SettingsPage> {
                   SwitchListTile(
                     activeColor: GameColors.primary,
                     value: LocalData().cloudEngineEnabled.value,
-                    title: Text(
-                      '启用云库',
-                      style: itemStyle,
-                    ),
+                    title: Text('启用云库', style: itemStyle),
                     onChanged: switchCloudEngine,
                   ),
+                  _buildDivider(),
                   ListTile(
-                    title: Text(
-                      '本地引擎',
-                      style: itemStyle,
-                    ),
+                    title: Text('本地引擎', style: itemStyle),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Text(NativeEngineConfig.engineName),
+                        Text(LocalData().engineName.value),
                         const Icon(
                           Icons.keyboard_arrow_right,
                           color: GameColors.secondary,
@@ -255,16 +233,14 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                     onTap: changeNativeEngine,
                   ),
+                  _buildDivider(),
                   ListTile(
-                    title: Text(
-                      '难度等级',
-                      style: itemStyle,
-                    ),
+                    title: Text('引擎参数', style: itemStyle),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(NativeEngineConfig.current.name),
-                        const Icon(
+                      children: const <Widget>[
+                        Text('配置'),
+                        Icon(
                           Icons.keyboard_arrow_right,
                           color: GameColors.secondary,
                         ),
@@ -329,10 +305,7 @@ class SettingsPageState extends State<SettingsPage> {
                   SwitchListTile(
                     activeColor: GameColors.primary,
                     value: LocalData().highContrast.value,
-                    title: Text(
-                      '使用强对比色',
-                      style: itemStyle,
-                    ),
+                    title: Text('使用强对比色', style: itemStyle),
                     onChanged: switchHighContrast,
                   )
                 ],
@@ -350,10 +323,7 @@ class SettingsPageState extends State<SettingsPage> {
                 children: <Widget>[
                   if (Platform.isIOS)
                     ListTile(
-                      title: Text(
-                        '五星好评',
-                        style: itemStyle,
-                      ),
+                      title: Text('五星好评', style: itemStyle),
                       trailing: const Icon(
                         Icons.keyboard_arrow_right,
                         color: GameColors.secondary,
@@ -362,10 +332,7 @@ class SettingsPageState extends State<SettingsPage> {
                     ),
                   if (Platform.isIOS) _buildDivider(),
                   ListTile(
-                    title: Text(
-                      '隐私政策',
-                      style: itemStyle,
-                    ),
+                    title: Text('隐私政策', style: itemStyle),
                     trailing: const Icon(
                       Icons.keyboard_arrow_right,
                       color: GameColors.secondary,
@@ -374,10 +341,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),
                   ListTile(
-                    title: Text(
-                      '关于',
-                      style: itemStyle,
-                    ),
+                    title: Text('关于', style: itemStyle),
                     trailing: const Icon(
                       Icons.keyboard_arrow_right,
                       color: GameColors.secondary,

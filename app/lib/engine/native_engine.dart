@@ -4,7 +4,6 @@ import '../common/prt.dart';
 import '../cchess/cc_base.dart';
 import '../cchess/phase.dart';
 import '../config/local_data.dart';
-import 'native_engine_config.dart';
 import 'engine.dart';
 import 'native/eleeye_engine_impl.dart';
 import 'native/challenger_engine_impl.dart';
@@ -67,9 +66,9 @@ class NativeEngineImpl extends NativeEngine {
   }
 
   @override
-  Future<void> applyConfig(NativeEngineConfig config) async {
+  Future<void> applyConfig() async {
     if (_currentEngine == null) return;
-    await _currentEngine!.applyConfig(config);
+    await _currentEngine!.applyConfig();
     await waitResponse([], times: 20);
   }
 
@@ -103,11 +102,7 @@ class NativeEngineImpl extends NativeEngine {
   }
 
   @override
-  Future<EngineResponse> search(
-    Phase phase, {
-    int? timeLimit,
-    int? depth,
-  }) async {
+  Future<EngineResponse> search(Phase phase, {int? timeLimit}) async {
     //
     if (await isThinking()) {
       await send('stop');
@@ -120,12 +115,9 @@ class NativeEngineImpl extends NativeEngine {
     }
 
     send(_currentEngine!.buildPositionCmd(phase));
-    send(_currentEngine!.buildGoCmd(timeLimit: timeLimit, depth: depth));
+    send(_currentEngine!.buildGoCmd(timeLimit: timeLimit));
 
-    final waitTimes = _currentEngine!.waitTimes(
-      timeLimit: timeLimit,
-      depth: depth,
-    );
+    final waitTimes = _currentEngine!.waitTimes(timeLimit: timeLimit);
 
     final response = await waitResponse(
       [Engine.kBestMove, Engine.kNoBestMove],

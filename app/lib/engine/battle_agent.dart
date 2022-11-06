@@ -2,7 +2,6 @@ import '../cchess/cc_base.dart';
 import '../cchess/cc_rules.dart';
 import '../cchess/phase.dart';
 import 'engine.dart';
-import 'native_engine_config.dart';
 import 'hybrid_engine.dart';
 
 class BattleAgent {
@@ -21,19 +20,19 @@ class BattleAgent {
     _engine = HybridEngine();
     await _engine.startup();
 
-    await applyNativeEngineConfig(NativeEngineConfig.current);
+    await applyNativeEngineConfig();
   }
 
-  applyNativeEngineConfig(NativeEngineConfig config) async {
+  applyNativeEngineConfig() async {
     if (_engine is HybridEngine) {
-      await (_engine as HybridEngine).applyConfig(config);
+      await (_engine as HybridEngine).applyConfig();
     }
   }
 
   nativeEngineChanged() async {
     if (_engine is HybridEngine) {
       await (_engine as HybridEngine).nativeEngineChanged();
-      await applyNativeEngineConfig(NativeEngineConfig.current);
+      await applyNativeEngineConfig();
     }
   }
 

@@ -14,8 +14,7 @@ class CloudEngine extends Engine {
   late DateTime _startTime;
 
   @override
-  Future<EngineResponse> search(Phase phase,
-      {int? timeLimit, int? depth}) async {
+  Future<EngineResponse> search(Phase phase, {int? timeLimit}) async {
     //
     final fen = Fen.phaseToFen(phase);
 

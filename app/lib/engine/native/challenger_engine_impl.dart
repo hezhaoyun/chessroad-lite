@@ -37,7 +37,7 @@ class ChallengerEngineImpl extends NativeEngine {
   }
 
   @override
-  String buildGoCmd({int? timeLimit, int? depth}) {
+  String buildGoCmd({int? timeLimit}) {
     return 'go movetime $timeLimit';
   }
 }
