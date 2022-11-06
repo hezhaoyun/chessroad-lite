@@ -71,6 +71,7 @@ class HybridEngine extends NativeEngine {
     }
 
     if (timeLimit == null) {
+      //
       final engineName = LocalData().engineName.value;
 
       if (engineName == NativeEngine.kNameChallenger) {
@@ -80,6 +81,8 @@ class HybridEngine extends NativeEngine {
       } else {
         timeLimit = EleeyeEngineConfig(LocalData().profile).timeLimit;
       }
+
+      if (timeLimit <= 90) timeLimit *= 1000;
     }
 
     final nativeResponse = await _nativeEngine!.search(
