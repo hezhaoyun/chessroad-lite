@@ -1,0 +1,3 @@
+[submodule "flutter_pikafish"]
+	path = flutter_pikafish
+	url = https://github.com/hezhaoyun/flutter_pikafish.git
