@@ -24,17 +24,9 @@ dependencies:
   kplayer: ^0.2.4
   sprintf: ^7.0.0
 
-  eleeye_engine:
-    path: ../eleeye_engine
-  
-  challenger_engine:
-    path: ../challenger_engine
-
   pikafish_engine:
     path: ../pikafish_engine
   
-  # flutter_pangle_ads: ^2.5.0
-
 
 dev_dependencies:
 
@@ -69,7 +61,6 @@ flutter:
     - assets/audios/move.mp3
     - assets/audios/win.mp3
 
-    - assets/eleeye_book.dat
     - assets/pikafish.nnue
 
   fonts:

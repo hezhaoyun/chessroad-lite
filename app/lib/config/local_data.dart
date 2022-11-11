@@ -1,5 +1,3 @@
-import 'package:chessroad/engine/engine.dart';
-
 import 'data_item.dart';
 import 'profile.dart';
 
@@ -9,7 +7,6 @@ class LocalData {
 
   late final DataItem debugMode;
   late final DataItem acceptedPrivacyPolicy;
-  late final DataItem engineName;
   late final DataItem cloudEngineEnabled;
   late final DataItem lastReviewInvite;
   late final DataItem showAdDate;
@@ -32,8 +29,8 @@ class LocalData {
     _profile.backup = await Profile.shared().load();
 
     debugMode = DataItem(_profile, 'debug_mode', false);
-    acceptedPrivacyPolicy = DataItem(_profile, 'acepted_privacy_policy', false);
-    engineName = DataItem(_profile, 'engine_name', NativeEngine.kNamePikafish);
+    // pp -> privacy policy
+    acceptedPrivacyPolicy = DataItem(_profile, 'pp_accepted', false);
     cloudEngineEnabled = DataItem(_profile, 'cloud_engine_enabled', true);
     lastReviewInvite = DataItem(_profile, 'last_review_invite', '');
     showAdDate = DataItem(_profile, 'show_ad_date', '');

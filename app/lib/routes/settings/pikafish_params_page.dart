@@ -1,4 +1,4 @@
-import 'package:chessroad/engine/config/pikafish_engine_config.dart';
+import 'package:chessroad/engine/pikafish_config.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/local_data.dart';
@@ -14,7 +14,7 @@ class PikafishParamsPage extends StatefulWidget {
 
 class PikafishParamsPageState extends State<PikafishParamsPage> {
   //
-  final config = PikafishEngineConfig(LocalData().profile);
+  final config = PikafishConfig(LocalData().profile);
 
   Widget spinnerListTitle(
     BuildContext context, {
@@ -48,7 +48,7 @@ class PikafishParamsPageState extends State<PikafishParamsPage> {
   }
 
   switchPonder(bool value) {
-    setState(() => config.profile[PikafishEngineConfig.kPonder] = value);
+    setState(() => config.profile[PikafishConfig.kPonder] = value);
   }
 
   @override

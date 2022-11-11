@@ -1,96 +1,55 @@
 import 'dart:async';
 
 import 'package:chessroad/config/local_data.dart';
-import 'package:chessroad/engine/config/challenger_engine_config.dart';
 
-import '../common/prt.dart';
 import '../engine/engine.dart';
-import 'config/eleeye_engine_config.dart';
-import 'config/pikafish_engine_config.dart';
-import 'native_engine.dart';
+import 'pikafish_engine.dart';
 import '../cchess/phase.dart';
 import 'cloud_engine.dart';
 
-class HybridEngine extends NativeEngine {
+class HybridEngine extends Engine {
   //
-  CloudEngine? _cloudEngine;
-  NativeEngineImpl? _nativeEngine;
+  late CloudEngine _cloudEngine;
+  late PikafishEngine _nativeEngine;
+  EngineCallback? callback;
 
   @override
   Future<void> startup() async {
     //
-    await shutdown();
-
     _cloudEngine = CloudEngine();
-    await _cloudEngine!.startup();
+    await _cloudEngine.startup();
 
-    _nativeEngine = NativeEngineImpl();
-    await _nativeEngine!.startup();
+    _nativeEngine = PikafishEngine();
+    await _nativeEngine.startup();
   }
 
   @override
   Future<void> applyConfig() async {
-    await _nativeEngine!.applyConfig();
-  }
-
-  nativeEngineChanged() async {
-    await _nativeEngine?.engineChanged();
+    await _nativeEngine.applyConfig();
   }
 
   @override
   Future<void> shutdown() async {
-    //
-    if (_cloudEngine != null) {
-      await _cloudEngine!.shutdown();
-      _cloudEngine = null;
-    }
-
-    if (_nativeEngine != null) {
-      await _nativeEngine!.shutdown();
-      _nativeEngine = null;
-    }
+    await _cloudEngine.shutdown();
+    await _nativeEngine.shutdown();
   }
 
   @override
-  Future<EngineResponse> search(Phase phase, {int? timeLimit}) async {
+  Future<bool> search(Phase phase, EngineCallback callback,
+      {String? ponder}) async {
     //
+    this.callback = callback;
+
     if (LocalData().cloudEngineEnabled.value) {
       //
-      final response = await Future.any([
-        _cloudEngine!.search(phase),
-        Future.delayed(Duration(seconds: timeLimit ?? 4), () {
-          return EngineResponse(Engine.kTimeout, Engine.kCloud);
-        }),
+      final result = await Future.any([
+        _cloudEngine.search(phase, callback),
+        Future.delayed(const Duration(seconds: 4), () => false),
       ]);
 
-      prt('cloudResponse: ${response.type}');
-
-      if (response.type == Engine.kMove) {
-        return response;
-      }
+      if (result) return true;
     }
 
-    if (timeLimit == null) {
-      //
-      final engineName = LocalData().engineName.value;
-
-      if (engineName == NativeEngine.kNameChallenger) {
-        timeLimit = ChallengerEngineConfig(LocalData().profile).timeLimit;
-      } else if (engineName == NativeEngine.kNamePikafish) {
-        timeLimit = PikafishEngineConfig(LocalData().profile).timeLimit;
-      } else {
-        timeLimit = EleeyeEngineConfig(LocalData().profile).timeLimit;
-      }
-
-      if (timeLimit <= 90) timeLimit *= 1000;
-    }
-
-    final nativeResponse = await _nativeEngine!.search(
-      phase,
-      timeLimit: timeLimit,
-    );
-    prt('nativeResponse: ${nativeResponse.type}');
-
-    return nativeResponse;
+    return _nativeEngine.search(phase, callback);
   }
 }

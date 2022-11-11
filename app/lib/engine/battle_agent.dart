@@ -24,20 +24,11 @@ class BattleAgent {
   }
 
   applyNativeEngineConfig() async {
-    if (_engine is HybridEngine) {
-      await (_engine as HybridEngine).applyConfig();
-    }
+    await _engine.applyConfig();
   }
 
-  nativeEngineChanged() async {
-    if (_engine is HybridEngine) {
-      await (_engine as HybridEngine).nativeEngineChanged();
-      await applyNativeEngineConfig();
-    }
-  }
-
-  Future<EngineResponse> engineThink(Phase phase) async {
-    return await _engine.search(phase);
+  Future<bool> engineThink(Phase phase, EngineCallback callback) async {
+    return await _engine.search(phase, callback);
   }
 
   Future<void> shutdownEngine() async {

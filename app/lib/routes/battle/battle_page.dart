@@ -192,9 +192,10 @@ class BattlePageState extends State<BattlePage>
     try {
       final result = await CloudEngine.analysis(_boardState.phase);
 
-      if (result.type == 'analysis') {
+      if (result.response is Analysis) {
         //
-        List<AnalysisItem> items = result.value;
+        List<AnalysisItem> items = (result.response as Analysis).items;
+
         for (var item in items) {
           item.stepName = StepName.translate(
             _boardState.phase,
@@ -204,11 +205,11 @@ class BattlePageState extends State<BattlePage>
         if (mounted) {
           showAnalysisItems(
             context,
-            items: result.value,
+            items: items,
             callback: (index) => Navigator.of(context).pop(),
           );
         }
-      } else if (result.type == 'no-result') {
+      } else if (result.response is Error) {
         if (mounted) showSnackBar(context, '已请求服务器计算，请稍后查看！');
       } else {
         if (mounted) {
@@ -261,63 +262,6 @@ class BattlePageState extends State<BattlePage>
         child: Column(mainAxisSize: MainAxisSize.min, children: children),
       ),
     );
-  }
-
-  askEngineHint() async {
-    //
-    if (AdTrigger.battle.checkAdChance(AdAction.requestHint, context)) return;
-
-    if (_working) return;
-
-    _working = true;
-    _pageState.changeStatus('引擎思考提示着法...');
-
-    final EngineResponse searchResult;
-    try {
-      searchResult = await BattleAgent.shared.engineThink(
-        _boardState.phase,
-      );
-    } finally {
-      _working = false;
-    }
-
-    if (searchResult.type == Engine.kMove) {
-      //
-      final step = searchResult.value;
-
-      _boardState.move(step);
-      startPieceAnimation();
-
-      final result = BattleAgent.shared.scanBattleResult(
-        _boardState.phase,
-        _boardState.playerSide,
-      );
-
-      switch (result) {
-        case BattleResult.pending:
-          if (_boardState.isOpponentTurn && !_opponentHuman) {
-            Future.delayed(const Duration(seconds: 1), () => askEngineGo());
-          }
-          break;
-        case BattleResult.win:
-          gotWin();
-          break;
-        case BattleResult.lose:
-          gotLose();
-          break;
-        case BattleResult.draw:
-          gotDraw();
-          break;
-      }
-
-      //
-    } else if (searchResult.type == Engine.kNoBestMove) {
-      _pageState.changeStatus('引擎无可用招法！');
-    } else if (searchResult.type == Engine.kNetworkError) {
-      _pageState.changeStatus('网络错误，请重试！');
-    } else {
-      _pageState.changeStatus('Error: ${searchResult.type}');
-    }
   }
 
   swapPhase() {
@@ -407,35 +351,16 @@ class BattlePageState extends State<BattlePage>
     }
   }
 
-  askEngineGo() async {
+  engineCallback(EngineResponse er) {
     //
-    if (_working) return;
-
-    _working = true;
-    _pageState.changeStatus('对方思考中...');
-
-    final EngineResponse searchResult;
-    try {
-      searchResult = await BattleAgent.shared.engineThink(
-        _boardState.phase,
-      );
-    } finally {
-      _working = false;
-    }
-
-    if (searchResult.type == Engine.kMove) {
+    final resp = er.response;
+    if (resp is EngineInfo) {
+      // TODO:
+    } else if (resp is Bestmove) {
       //
-      final Move step = searchResult.value;
+      final step = Move.fromEngineStep(resp.bestmove);
+
       _boardState.move(step);
-
-      if (_boardState.phase.appearRepeatPhase()) {
-        final recorder = _boardState.phase.recorder;
-        final lastRoundStep = recorder.stepAt(recorder.historyLength - 3);
-        CloudEngine.banMoves = 'move:${step.step}|move:${lastRoundStep.step}';
-      } else {
-        CloudEngine.banMoves = null;
-      }
-
       startPieceAnimation();
 
       final result = BattleAgent.shared.scanBattleResult(
@@ -447,9 +372,7 @@ class BattlePageState extends State<BattlePage>
         //
         case BattleResult.pending:
           if (step.score != null) {
-            final engine = (searchResult.engine == Engine.kCloud)
-                ? '云库'
-                : LocalData().engineName.value;
+            final engine = (er.type == EngineType.cloudLibrary) ? '云库' : '皮卡鱼';
             _pageState.changeStatus(
               sprintf(
                 '%s 评估 %d 分，%s',
@@ -474,35 +397,83 @@ class BattlePageState extends State<BattlePage>
           gotDraw();
           break;
       }
-
-      //
-    } else if (searchResult.type == Engine.kNoBestMove) {
-      //
+    } else if (resp is NoBestmove) {
       gotWin();
-      //
-    } else if (searchResult.type == Engine.kNetworkError) {
-      //
-      // 撤销人走的一步棋，下次人重新走棋时，还可以重新请求引擎
-      _boardState.regret(GameScene.battle, steps: 1);
-      if (mounted) showSnackBar(context, '网络错误，请重试！');
-      _pageState.changeStatus('网络错误，请重试！');
+    } else if (resp is Error) {
+      if (mounted) showSnackBar(context, resp.message);
+      _pageState.changeStatus(resp.message);
+    }
+  }
 
-      //
-    } else if (searchResult.type == Engine.kTimeout) {
-      //
-      // 撤销人走的一步棋，下次人重新走棋时，还可以重新请求引擎
-      _boardState.regret(GameScene.battle, steps: 1);
+  askEngineGo() async {
+    //
+    if (_working) return;
 
-      if (mounted) showSnackBar(context, '引擎超时未回复，请重试一次！');
-      _pageState.changeStatus('引擎超时未回复，请重试一次！');
+    _working = true;
+    _pageState.changeStatus('对方思考中...');
 
+    try {
+      await BattleAgent.shared.engineThink(_boardState.phase, engineCallback);
+    } finally {
+      _working = false;
+    }
+  }
+
+  hintCallback(EngineResponse er) {
+    //
+    final resp = er.response;
+    if (resp is EngineInfo) {
+      // TODO:
+    } else if (resp is Bestmove) {
       //
-    } else {
-      // 撤销人走的一步棋，下次人重新走棋时，还可以重新请求引擎
-      _boardState.regret(GameScene.battle, steps: 1);
+      final step = Move.fromEngineStep(resp.bestmove);
 
-      if (mounted) showSnackBar(context, searchResult.type);
-      _pageState.changeStatus(searchResult.type);
+      _boardState.move(step);
+      startPieceAnimation();
+
+      final result = BattleAgent.shared.scanBattleResult(
+        _boardState.phase,
+        _boardState.playerSide,
+      );
+
+      switch (result) {
+        //
+        case BattleResult.pending:
+          if (_boardState.isOpponentTurn && !_opponentHuman) {
+            Future.delayed(const Duration(seconds: 1), () => askEngineGo());
+          }
+          break;
+        case BattleResult.win:
+          gotWin();
+          break;
+        case BattleResult.lose:
+          gotLose();
+          break;
+        case BattleResult.draw:
+          gotDraw();
+          break;
+      }
+    } else if (resp is NoBestmove) {
+      gotLose();
+    } else if (resp is Error) {
+      if (mounted) showSnackBar(context, resp.message);
+      _pageState.changeStatus(resp.message);
+    }
+  }
+
+  askEngineHint() async {
+    //
+    if (AdTrigger.battle.checkAdChance(AdAction.requestHint, context)) return;
+
+    if (_working) return;
+
+    _working = true;
+    _pageState.changeStatus('引擎思考提示着法...');
+
+    try {
+      await BattleAgent.shared.engineThink(_boardState.phase, hintCallback);
+    } finally {
+      _working = false;
     }
   }
 

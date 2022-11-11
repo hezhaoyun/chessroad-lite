@@ -1,4 +1,0 @@
-example 编译前进行以下设置:
-
- - 选择 Ruuner / Project - Ruuner
- - 选择 Apple Clang - Language / Compile Sources As -> Objective-C++

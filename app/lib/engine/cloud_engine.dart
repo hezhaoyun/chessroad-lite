@@ -1,9 +1,11 @@
 import 'dart:math';
+
+import 'package:chessroad/cchess/cc_base.dart';
+
 import '../common/prt.dart';
 import '../engine/analysis.dart';
 import '../engine/engine.dart';
 import 'chess_db.dart';
-import '../cchess/cc_base.dart';
 import '../cchess/cc_fen.dart';
 import '../cchess/phase.dart';
 
@@ -11,92 +13,35 @@ class CloudEngine extends Engine {
   //
   static String? banMoves;
 
-  late DateTime _startTime;
+  EngineCallback? callback;
 
   @override
-  Future<EngineResponse> search(Phase phase, {int? timeLimit}) async {
+  Future<bool> search(Phase phase, EngineCallback callback,
+      {String? ponder}) async {
     //
+    this.callback = callback;
+
     final fen = Fen.phaseToFen(phase);
 
     final response = await ChessDB.query(fen, banMoves: banMoves);
     if (response == null) {
-      return EngineResponse(Engine.kNetworkError, Engine.kCloud);
+      callback(EngineResponse(EngineType.cloudLibrary, Error('Network Error')));
+      return false;
     }
 
-    if (response.startsWith(Engine.kMove)) {
+    if (response.startsWith('move')) {
       //
-      final step = randomStep(response);
+      final move = randomMove(response);
 
-      if (step != null) {
-        if (Move.validateEngineStep(step[Engine.kMove])) {
-          return EngineResponse(
-            Engine.kMove,
-            Engine.kCloud,
-            value: Move.fromEngineStep(
-              step[Engine.kMove],
-              score: int.parse(step[Engine.kScore]),
-            ),
-          );
-        }
-      }
-
-      prt('data-error: $response');
-
-      return EngineResponse(Engine.kDataError, Engine.kCloud);
-    }
-
-    prt('ChessDB.query: $response\n');
-    return EngineResponse(Engine.kUnknownError, Engine.kCloud);
-  }
-
-  Future<EngineResponse> think(Phase phase, {bool byUser = true}) async {
-    //
-    if (byUser) {
-      _startTime = DateTime.now();
-    } else {
-      final current = DateTime.now();
-      if (current.difference(_startTime).inSeconds > 90) {
-        return EngineResponse(Engine.kTimeout, Engine.kCloud);
+      if (move != null) {
+        callback(
+          EngineResponse(EngineType.cloudLibrary, Bestmove(move['move'])),
+        );
+        return true;
       }
     }
 
-    final fen = Fen.phaseToFen(phase);
-
-    var response = await ChessDB.query(fen);
-    if (response == null) {
-      return EngineResponse(Engine.kNetworkError, Engine.kCloud);
-    }
-
-    if (response.startsWith(Engine.kMove)) {
-      //
-      final step = randomStep(response);
-
-      if (step != null) {
-        //
-        if (Move.validateEngineStep(step[Engine.kMove])) {
-          return EngineResponse(
-            Engine.kMove,
-            Engine.kCloud,
-            value: Move.fromEngineStep(
-              step[Engine.kMove],
-              score: int.parse(step[Engine.kScore]),
-            ),
-          );
-        }
-      } else {
-        //
-        if (byUser) {
-          response = await ChessDB.requestComputeBackground(fen);
-          prt('ChessDB.requestComputeBackground: $response\n');
-        }
-
-        return Future<EngineResponse>.delayed(
-            const Duration(seconds: 5), () => think(phase, byUser: false));
-      }
-    }
-
-    prt('ChessDB.query: $response\n');
-    return EngineResponse(Engine.kUnknownError, Engine.kCloud);
+    return false;
   }
 
   static Future<EngineResponse> analysis(Phase phase) async {
@@ -105,24 +50,29 @@ class CloudEngine extends Engine {
     var response = await ChessDB.query(fen);
 
     if (response == null) {
-      return EngineResponse(Engine.kNetworkError, Engine.kCloud);
+      return EngineResponse(EngineType.cloudLibrary, Error('Network error'));
     }
 
-    if (response.startsWith(Engine.kMove)) {
+    if (response.startsWith('move')) {
+      //
       final items = AnalysisFetcher.fetch(response);
-      if (items.isEmpty) return EngineResponse('no-result', Engine.kCloud);
-      return EngineResponse('analysis', Engine.kCloud, value: items);
+
+      if (items.isEmpty) {
+        return EngineResponse(EngineType.cloudLibrary, Error('no-result'));
+      }
+
+      return EngineResponse(EngineType.cloudLibrary, Analysis(items));
     }
 
     prt('ChessDB.query: $response\n');
-    return EngineResponse(Engine.kUnknownError, Engine.kCloud);
+    return EngineResponse(EngineType.cloudLibrary, Error('Unknown error'));
   }
 
-  static Map<String, dynamic>? randomStep(String response) {
+  static Map<String, dynamic>? randomMove(String response) {
     ///
     /// ove:b2a2,score:-236,rank:0,note:? (00-00),winrate:32.85
     ///
-    final steps = <Map<String, dynamic>>[];
+    final moves = <Map<String, dynamic>>[];
 
     final segments = response.split('|');
     var minScore = -0xFFFF;
@@ -131,15 +81,15 @@ class CloudEngine extends Engine {
       //
       final kvps = fetchResponseTokens(segments[i]);
 
-      final score = int.tryParse(kvps[Engine.kScore]!) ?? minScore;
+      final score = int.tryParse(kvps['score']!) ?? minScore;
       if (score <= minScore) break;
 
       minScore = score;
-      steps.add(kvps);
+      moves.add(kvps);
     }
 
-    if (steps.isNotEmpty) {
-      return steps[Random().nextInt(steps.length)];
+    if (moves.isNotEmpty) {
+      return moves[Random().nextInt(moves.length)];
     }
 
     return null;
@@ -158,7 +108,7 @@ class CloudEngine extends Engine {
         final key = kv[0];
         String value = kv[1];
 
-        if (key == Engine.kScore) {
+        if (key == 'score') {
           final pos = value.indexOf(' (');
           if (pos > -1) value = value.substring(0, pos);
         }

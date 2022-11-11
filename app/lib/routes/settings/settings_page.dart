@@ -1,18 +1,15 @@
 import 'dart:io';
 
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
-import 'package:chessroad/routes/settings/challenger_params_page.dart';
 import 'package:chessroad/ui/review_panel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/local_data.dart';
 import '../../engine/battle_agent.dart';
-import '../../engine/engine.dart';
 import '../../game/game.dart';
 import '../../services/audios.dart';
 import '../../ui/snack_bar.dart';
-import 'eleeye_params_page.dart';
 import 'pikafish_params_page.dart';
 import 'show_about.dart';
 
@@ -34,72 +31,11 @@ class SettingsPageState extends State<SettingsPage> {
 
   changeEngineConfig() async {
     //
-    final engineName = LocalData().engineName.value;
-
-    final Widget page;
-    if (engineName == NativeEngine.kNameChallenger) {
-      page = const ChallengerParamsPage();
-    } else if (engineName == NativeEngine.kNamePikafish) {
-      page = const PikafishParamsPage();
-    } else {
-      page = const EleeyeParamsPage();
-    }
-
     await Navigator.of(context).push(
-      CupertinoPageRoute(builder: (context) => page),
+      CupertinoPageRoute(builder: (context) => const PikafishParamsPage()),
     );
 
     await BattleAgent.shared.applyNativeEngineConfig();
-  }
-
-  changeNativeEngine() {
-    //
-    callback(int? engineIndex) async {
-      //
-      Navigator.of(context).pop();
-
-      if (engineIndex == null) return;
-
-      final engineName = NativeEngine.kEngineNames[engineIndex];
-      setState(() => LocalData().engineName.value = engineName);
-
-      await BattleAgent.shared.nativeEngineChanged();
-
-      LocalData().save();
-    }
-
-    var index = NativeEngine.kEngineNames.indexOf(
-      LocalData().engineName.value,
-    );
-
-    index = index < 0 ? 0 : index;
-
-    Widget createListTile(String name, int level) => RadioListTile(
-          activeColor: GameColors.primary,
-          title: Text(name),
-          groupValue: index,
-          value: level,
-          onChanged: callback,
-        );
-
-    final names = <Widget>[];
-
-    names.add(const SizedBox(height: 10));
-
-    for (var i = 0; i < NativeEngine.kEngineNames.length; i++) {
-      final name = NativeEngine.kEngineNames[i];
-      names.add(createListTile(name, i));
-      names.add(const Divider());
-    }
-
-    names.add(const SizedBox(height: 56));
-
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) => SingleChildScrollView(
-        child: Column(mainAxisSize: MainAxisSize.min, children: names),
-      ),
-    );
   }
 
   switchCloudEngine(bool value) async {
@@ -217,21 +153,6 @@ class SettingsPageState extends State<SettingsPage> {
                     value: LocalData().cloudEngineEnabled.value,
                     title: Text('启用云库', style: itemStyle),
                     onChanged: switchCloudEngine,
-                  ),
-                  _buildDivider(),
-                  ListTile(
-                    title: Text('本地引擎', style: itemStyle),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(LocalData().engineName.value),
-                        const Icon(
-                          Icons.keyboard_arrow_right,
-                          color: GameColors.secondary,
-                        ),
-                      ],
-                    ),
-                    onTap: changeNativeEngine,
                   ),
                   _buildDivider(),
                   ListTile(
