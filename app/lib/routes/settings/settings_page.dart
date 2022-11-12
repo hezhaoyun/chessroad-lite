@@ -44,6 +44,12 @@ class SettingsPageState extends State<SettingsPage> {
     LocalData().save();
   }
 
+  switchThinkingArrow(bool value) async {
+    //
+    setState(() => LocalData().thinkingArrowEnabled.value = value);
+    LocalData().save();
+  }
+
   switchMusic(bool value) async {
     //
     setState(() => LocalData().bgmEnabled.value = value);
@@ -156,7 +162,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildDivider(),
                   ListTile(
-                    title: Text('引擎参数', style: itemStyle),
+                    title: Text('皮卡鱼参数', style: itemStyle),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: const <Widget>[
@@ -168,6 +174,13 @@ class SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                     onTap: changeEngineConfig,
+                  ),
+                  _buildDivider(),
+                  SwitchListTile(
+                    activeColor: GameColors.primary,
+                    value: LocalData().thinkingArrowEnabled.value,
+                    title: Text('引擎思考剪头', style: itemStyle),
+                    onChanged: switchThinkingArrow,
                   ),
                 ],
               ),

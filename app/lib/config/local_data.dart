@@ -8,6 +8,7 @@ class LocalData {
   late final DataItem debugMode;
   late final DataItem acceptedPrivacyPolicy;
   late final DataItem cloudEngineEnabled;
+  late final DataItem thinkingArrowEnabled;
   late final DataItem lastReviewInvite;
   late final DataItem showAdDate;
   late final DataItem showAdTimes;
@@ -32,6 +33,7 @@ class LocalData {
     // pp -> privacy policy
     acceptedPrivacyPolicy = DataItem(_profile, 'pp_accepted', false);
     cloudEngineEnabled = DataItem(_profile, 'cloud_engine_enabled', true);
+    thinkingArrowEnabled = DataItem(_profile, 'thinking_arrow_enabled', true);
     lastReviewInvite = DataItem(_profile, 'last_review_invite', '');
     showAdDate = DataItem(_profile, 'show_ad_date', '');
     showAdTimes = DataItem(_profile, 'show_ad_times', 0);

@@ -1,4 +1,5 @@
 import 'package:chessroad/cchess/cc_base.dart';
+import 'package:chessroad/config/local_data.dart';
 import 'package:chessroad/engine/engine.dart';
 import 'package:chessroad/ui/thinking_board_painter.dart';
 import 'package:flutter/material.dart';
@@ -41,9 +42,10 @@ class _PiecesLayoutState extends State<ThinkingBoardLayout> {
 
     return Stack(children: [
       layout,
-      CustomPaint(
-        painter: ThinkingBoardPainter(moves, widget.layoutParams),
-      )
+      if (LocalData().thinkingArrowEnabled.value)
+        CustomPaint(
+          painter: ThinkingBoardPainter(moves, widget.layoutParams),
+        )
     ]);
   }
 }
