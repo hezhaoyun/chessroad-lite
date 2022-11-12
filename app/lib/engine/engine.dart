@@ -121,7 +121,7 @@ class EngineInfo extends Response {
     return stepNames;
   }
 
-  String? score(BoardState boardState) {
+  String? score(BoardState boardState, bool negative) {
     //
     final phase = boardState.phase;
     final playerSide = boardState.playerSide;
@@ -130,8 +130,7 @@ class EngineInfo extends Response {
     if (score == null) return null;
 
     final base = (phase.side == playerSide) ? 1 : -1;
-
-    score = score * base;
+    score = score * base * (negative ? -1 : 1);
 
     final judge = score == 0
         ? '均势'
@@ -148,9 +147,9 @@ class EngineInfo extends Response {
     if (score == null) return null;
 
     var result = ''
-        '深度：${tokens['depth']} '
-        '节点：${tokens['nodes']} '
-        '时间：${tokens['time']}\n';
+        '深度 ${tokens['depth']} '
+        '节点 ${tokens['nodes']} '
+        '时间 ${tokens['time']}\n';
 
     final phase = boardState.phase;
     result += followingSteps(phase, includeFirst);

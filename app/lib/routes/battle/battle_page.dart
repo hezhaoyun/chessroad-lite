@@ -162,7 +162,11 @@ class BattlePageState extends State<BattlePage>
 
     _boardState.load(Fen.defaultPhase, notify: true);
 
-    if (opponentFirst && !_opponentHuman) askEngineGo();
+    if (opponentFirst && !_opponentHuman) {
+      askEngineGo();
+    } else {
+      _pageState.changeStatus(BattlePage.yourTurn);
+    }
 
     setState(() {});
 
@@ -344,7 +348,7 @@ class BattlePageState extends State<BattlePage>
       _boardState.thinkingInfo = resp;
 
       if (_boardState.thinkingInfo != null) {
-        final score = _boardState.thinkingInfo!.score(_boardState);
+        final score = _boardState.thinkingInfo!.score(_boardState, false);
         if (score != null) _pageState.changeStatus(score);
       }
     } else {
@@ -367,13 +371,15 @@ class BattlePageState extends State<BattlePage>
         switch (result) {
           //
           case BattleResult.pending:
+            //
             if (lastState == PlayState.thinking) {
               //
               if (_boardState.thinkingInfo != null) {
                 //
-                var score = _boardState.thinkingInfo?.score(_boardState);
-                if (score != null) score *= -1;
-
+                final score = _boardState.thinkingInfo?.score(
+                  _boardState,
+                  true,
+                );
                 _pageState.changeStatus('$score，${BattlePage.yourTurn}');
               } else {
                 _pageState.changeStatus(BattlePage.yourTurn);
