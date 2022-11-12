@@ -93,20 +93,8 @@ class MoveRecorder {
     //
     var manualText = '';
 
-    for (var i = 0; i < _history.length; i += 2) {
-      //
-      final n = (i / 2 + 1).toInt();
-      final np = '${n < 10 ? ' ' : ''}$n';
-
-      manualText += '$np. ${_history[i].stepName}';
-
-      if (i + 1 < _history.length) {
-        manualText += '　${_history[i + 1].stepName}\n';
-      }
-    }
-
-    if (manualText.isEmpty) {
-      manualText = '';
+    for (var i = 0; i < _history.length; i++) {
+      manualText += '${_history[i].stepName} ';
     }
 
     return manualText;

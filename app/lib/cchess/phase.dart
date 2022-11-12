@@ -264,13 +264,8 @@ class Phase {
     //
     final String? phase, moves;
 
-    // if (forEleeye) {
     phase = lastCapturedPhase;
     moves = movesAfterLastCaptured;
-    // } else {
-    //   phase = Fen.phaseToFen(this);
-    //   moves = allMoves;
-    // }
 
     if (moves == '') return 'position fen $phase';
     return 'position fen $phase moves $moves';

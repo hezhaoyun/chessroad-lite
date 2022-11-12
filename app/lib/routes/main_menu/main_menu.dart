@@ -148,10 +148,8 @@ class MainMenuState extends State<MainMenu>
         title: Text('棋路 Lite 版', style: GameFonts.uicp()),
         content: Linkify(
           text: '这是棋路的「开源精简」版！\n\n'
-              '集成了多个开源象棋引擎，包括：\n\n'
-              ' - 象眼\n'
-              ' - 挑战者\n'
-              ' - 皮卡鱼\n\n'
+              '使用了目前棋力最强的开源引擎 - 皮卡鱼！\n\n'
+              '完整版本的棋路，已为棋友提供了全面的象棋学习、训练资源！\n'
               '请从以下地址下载棋路完整版：\n\n'
               ' - https://mdevs.cn',
           style: GameFonts.uicp(fontSize: 16),
