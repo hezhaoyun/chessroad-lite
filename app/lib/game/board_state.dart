@@ -13,7 +13,7 @@ class BoardState with ChangeNotifier {
   late int _focusIndex, _blurIndex;
   late double _pieceAnimationValue;
 
-  EngineInfo? _thinkingInfo;
+  EngineInfo? _engineInfo;
 
   BoardState() {
     _phase = Phase.defaultPhase();
@@ -156,10 +156,10 @@ class BoardState with ChangeNotifier {
     return captured ?? Piece.empty;
   }
 
-  EngineInfo? get thinkingInfo => _thinkingInfo;
+  EngineInfo? get engineInfo => _engineInfo;
 
-  set thinkingInfo(EngineInfo? engineInfo) {
-    _thinkingInfo = engineInfo;
+  set engineInfo(EngineInfo? engineInfo) {
+    _engineInfo = engineInfo;
     notifyListeners();
   }
 

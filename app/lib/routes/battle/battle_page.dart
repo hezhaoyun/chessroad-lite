@@ -156,8 +156,6 @@ class BattlePageState extends State<BattlePage>
     //
     if (AdTrigger.battle.checkAdChance(AdAction.start, context)) return;
 
-    _boardState.thinkingInfo = null;
-
     _boardState.inverseBoard(opponentFirst);
 
     _boardState.load(Fen.defaultPhase, notify: true);
@@ -168,7 +166,7 @@ class BattlePageState extends State<BattlePage>
       _pageState.changeStatus(BattlePage.yourTurn);
     }
 
-    setState(() {});
+    setState(() => _boardState.engineInfo = null);
 
     ReviewPanel.popRequest();
   }
@@ -177,7 +175,7 @@ class BattlePageState extends State<BattlePage>
     //
     if (AdTrigger.battle.checkAdChance(AdAction.regret, context)) return;
 
-    _boardState.thinkingInfo = null;
+    _boardState.engineInfo = null;
     _boardState.regret(GameScene.battle, steps: 2);
   }
 
@@ -345,10 +343,10 @@ class BattlePageState extends State<BattlePage>
 
     if (resp is EngineInfo) {
       //
-      _boardState.thinkingInfo = resp;
+      _boardState.engineInfo = resp;
 
-      if (_boardState.thinkingInfo != null) {
-        final score = _boardState.thinkingInfo!.score(_boardState, false);
+      if (_boardState.engineInfo != null) {
+        final score = _boardState.engineInfo!.score(_boardState, false);
         if (score != null) _pageState.changeStatus(score);
       }
     } else {
@@ -374,9 +372,9 @@ class BattlePageState extends State<BattlePage>
             //
             if (lastState == PlayState.thinking) {
               //
-              if (_boardState.thinkingInfo != null) {
+              if (_boardState.engineInfo != null) {
                 //
-                final score = _boardState.thinkingInfo?.score(
+                final score = _boardState.engineInfo?.score(
                   _boardState,
                   true,
                 );
@@ -574,8 +572,8 @@ class BattlePageState extends State<BattlePage>
     //
     String? content;
 
-    if (_boardState.thinkingInfo != null) {
-      content = _boardState.thinkingInfo!.info(
+    if (_boardState.engineInfo != null) {
+      content = _boardState.engineInfo!.info(
         _boardState,
         _state != PlayState.ready,
       );
