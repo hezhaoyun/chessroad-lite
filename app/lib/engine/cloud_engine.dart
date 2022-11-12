@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:chessroad/cchess/cc_base.dart';
-
 import '../common/prt.dart';
 import '../engine/analysis.dart';
 import '../engine/engine.dart';

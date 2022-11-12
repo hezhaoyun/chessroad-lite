@@ -81,9 +81,6 @@ class Move {
   // 这一步走完后的 FEN 记数，用于悔棋时恢复 FEN 步数 Counter
   String counterMarks = '';
 
-  int? score, depth, nodes, time;
-  String? pv;
-
   Move(
     this.from,
     this.to, {
@@ -115,8 +112,7 @@ class Move {
     step += String.fromCharCode('a'.codeUnitAt(0) + tx) + (9 - ty).toString();
   }
 
-  Move.fromEngineStep(this.step,
-      {this.score, this.depth, this.nodes, this.time, this.pv}) {
+  Move.fromEngineStep(this.step) {
     //
     if (!validateEngineStep(step)) {
       throw 'Error: Invalid Step: $step';

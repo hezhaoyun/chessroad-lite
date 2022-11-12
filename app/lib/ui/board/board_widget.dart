@@ -89,12 +89,15 @@ class BoardWidget extends StatelessWidget {
   Widget buildPiecesLayer(BoardState board, {bool opponentHuman = false}) {
     //
     return PiecesLayer(
-      PiecesLayout(width, board.phase,
-          focusIndex: board.focusIndex,
-          blurIndex: board.blurIndex,
-          boardInversed: board.boardInversed,
-          pieceAnimationValue: board.pieceAnimationValue,
-          opponentHuman: opponentHuman),
+      PiecesLayout(
+        width,
+        board.phase,
+        focusIndex: board.focusIndex,
+        blurIndex: board.blurIndex,
+        boardInversed: board.boardInversed,
+        pieceAnimationValue: board.pieceAnimationValue,
+        opponentHuman: opponentHuman,
+      ),
     );
   }
 }

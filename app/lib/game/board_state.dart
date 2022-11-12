@@ -1,3 +1,4 @@
+import 'package:chessroad/engine/engine.dart';
 import 'package:flutter/material.dart';
 import '../cchess/cc_base.dart';
 import '../cchess/cc_fen.dart';
@@ -11,6 +12,8 @@ class BoardState with ChangeNotifier {
   late Phase _phase;
   late int _focusIndex, _blurIndex;
   late double _pieceAnimationValue;
+
+  EngineInfo? _thinkingInfo;
 
   BoardState() {
     _phase = Phase.defaultPhase();
@@ -26,14 +29,14 @@ class BoardState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  bool tBoardInverse = false;
-  bool get boardInversed => tBoardInverse;
+  bool _boardInverse = false;
+  bool get boardInversed => _boardInverse;
 
   bool _sitUnderside = true;
 
   inverseBoard(bool inverse, {notify = true, swapSite = false}) {
     //
-    tBoardInverse = inverse;
+    _boardInverse = inverse;
 
     if (swapSite) {
       _sitUnderside = !_sitUnderside;
@@ -43,8 +46,8 @@ class BoardState with ChangeNotifier {
   }
 
   String get playerSide {
-    if (_sitUnderside) return tBoardInverse ? Side.black : Side.red;
-    return tBoardInverse ? Side.red : Side.black;
+    if (_sitUnderside) return _boardInverse ? Side.black : Side.red;
+    return _boardInverse ? Side.red : Side.black;
   }
 
   String get oppositeSide => playerSide == Side.red ? Side.black : Side.red;
@@ -151,6 +154,13 @@ class BoardState with ChangeNotifier {
     final lastMove = _phase.lastMove;
     final captured = lastMove?.captured;
     return captured ?? Piece.empty;
+  }
+
+  EngineInfo? get thinkingInfo => _thinkingInfo;
+
+  set thinkingInfo(EngineInfo? engineInfo) {
+    _thinkingInfo = engineInfo;
+    notifyListeners();
   }
 
   Phase get phase => _phase;

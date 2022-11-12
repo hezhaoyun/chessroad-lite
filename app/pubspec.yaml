@@ -22,7 +22,6 @@ dependencies:
   wakelock: ^0.6.1+2
   flutter_easyloading: ^3.0.5
   kplayer: ^0.2.4
-  sprintf: ^7.0.0
 
   pikafish_engine:
     path: ../pikafish_engine

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../game/game.dart';
 import '../game/page_state.dart';
 import '../routes/settings/settings_page.dart';
-import 'board/board_widget.dart';
+import 'board/thinking_board_widget.dart';
 import 'ruler.dart';
 
 const _paddingH = 10.0;
@@ -100,7 +100,7 @@ Widget createChessBoard(BuildContext context, GameScene scene,
     _additionPaddingH = (windowSize.width - width) / 2 + Ruler.kBoardMargin;
   }
 
-  final boardWidget = BoardWidget(
+  final boardWidget = ThinkingBoardWidget(
     width - _paddingH * 2,
     onBoardTap,
     opponentHuman: opponentHuman,

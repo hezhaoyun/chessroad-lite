@@ -1,7 +1,6 @@
 import 'package:chessroad/config/local_data.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
-import 'package:sprintf/sprintf.dart';
 
 import '../game/game.dart';
 import '../ui/snack_bar.dart';
@@ -69,10 +68,7 @@ class AdTrigger {
     //
     final item = limitedItem(context, action);
 
-    final message = sprintf(
-      '看条广告，可额外获得%s（每天最多 3 条广告）！',
-      [item],
-    );
+    final message = '看条广告，可额外获得$item（每天最多 3 条广告）！';
 
     showDialog(
       context: context,
@@ -152,10 +148,7 @@ class AdTrigger {
       case AdAction.start:
         switch (scene) {
           case GameScene.battle:
-            return sprintf(
-              ' %d 次对局机会',
-              [AdActionLimits.battleTimes],
-            );
+            return ' ${AdActionLimits.battleTimes} 次对局机会';
           default:
             return '';
         }
@@ -163,10 +156,7 @@ class AdTrigger {
       case AdAction.regret:
         switch (scene) {
           case GameScene.battle:
-            return sprintf(
-              ' %d 次悔棋机会',
-              [AdActionLimits.battleRegretTimes],
-            );
+            return ' ${AdActionLimits.battleRegretTimes} 次悔棋机会';
           default:
             return '';
         }
@@ -174,10 +164,7 @@ class AdTrigger {
       case AdAction.requestHint:
         switch (scene) {
           case GameScene.battle:
-            return sprintf(
-              ' %d 次提示机会',
-              [AdActionLimits.battleHintTimes],
-            );
+            return ' ${AdActionLimits.battleHintTimes} 次提示机会';
 
           default:
             return '';
@@ -186,10 +173,7 @@ class AdTrigger {
       case AdAction.requestAnalysis:
         switch (scene) {
           case GameScene.battle:
-            return sprintf(
-              ' %d 次分析机会',
-              [AdActionLimits.battleAnalysisTimes],
-            );
+            return ' ${AdActionLimits.battleAnalysisTimes} 次分析机会';
 
           default:
             return '';

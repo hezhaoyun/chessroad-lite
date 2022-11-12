@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sprintf/sprintf.dart';
 
 import '../../ad/trigger.dart';
 import '../../cchess/cc_base.dart';
@@ -35,10 +34,12 @@ class BattlePage extends StatefulWidget {
   BattlePageState createState() => BattlePageState();
 }
 
+enum PlayState { ready, analyzing, thinking, hinting }
+
 class BattlePageState extends State<BattlePage>
     with PieceAnimationMixIn, TickerProviderStateMixin {
   //
-  bool _working = false;
+  PlayState _state = PlayState.ready;
   bool _opponentHuman = false;
 
   late BoardState _boardState;
@@ -46,7 +47,6 @@ class BattlePageState extends State<BattlePage>
 
   @override
   void initState() {
-    //
     super.initState();
     initGame();
   }
@@ -156,6 +156,8 @@ class BattlePageState extends State<BattlePage>
     //
     if (AdTrigger.battle.checkAdChance(AdAction.start, context)) return;
 
+    _boardState.thinkingInfo = null;
+
     _boardState.inverseBoard(opponentFirst);
 
     _boardState.load(Fen.defaultPhase, notify: true);
@@ -171,6 +173,7 @@ class BattlePageState extends State<BattlePage>
     //
     if (AdTrigger.battle.checkAdChance(AdAction.regret, context)) return;
 
+    _boardState.thinkingInfo = null;
     _boardState.regret(GameScene.battle, steps: 2);
   }
 
@@ -180,14 +183,10 @@ class BattlePageState extends State<BattlePage>
       return;
     }
 
-    if (_working) return;
+    if (_state != PlayState.ready) return;
+    _state = PlayState.analyzing;
 
-    _working = true;
-    showSnackBar(
-      context,
-      '正在分析局面...',
-      shortDuration: true,
-    );
+    showSnackBar(context, '正在分析局面...', shortDuration: true);
 
     try {
       final result = await CloudEngine.analysis(_boardState.phase);
@@ -213,19 +212,13 @@ class BattlePageState extends State<BattlePage>
         if (mounted) showSnackBar(context, '已请求服务器计算，请稍后查看！');
       } else {
         if (mounted) {
-          showSnackBar(
-            context,
-            sprintf('错误：%s', [result.type]),
-          );
+          showSnackBar(context, '错误：${result.type}');
         }
       }
     } catch (e) {
-      showSnackBar(
-        context,
-        sprintf('错误：%s', [e.toString()]),
-      );
+      showSnackBar(context, '错误：$e');
     } finally {
-      _working = false;
+      _state = PlayState.ready;
     }
   }
 
@@ -241,12 +234,8 @@ class BattlePageState extends State<BattlePage>
       children.add(
         ListTile(
           title: Text(item.stepName!, style: GameFonts.ui(fontSize: 18)),
-          subtitle: Text(
-            sprintf('获胜机率：%.2f%', [item.winrate]),
-          ),
-          trailing: Text(
-            sprintf('局面评分：%d', [item.score]),
-          ),
+          subtitle: Text('获胜机率：${item.winrate}%'),
+          trailing: Text('局面评分：${item.score}'),
           onTap: () => callback(item),
         ),
       );
@@ -284,12 +273,7 @@ class BattlePageState extends State<BattlePage>
     final success = await _boardState.saveManual(GameScene.battle);
 
     if (!mounted) return;
-
-    if (success) {
-      showSnackBar(context, '保存成功！');
-    } else {
-      showSnackBar(context, '保存失败！');
-    }
+    showSnackBar(context, success ? '保存成功！' : '保存失败！');
   }
 
   onBoardTap(BuildContext context, int index) {
@@ -354,127 +338,103 @@ class BattlePageState extends State<BattlePage>
   engineCallback(EngineResponse er) {
     //
     final resp = er.response;
+
     if (resp is EngineInfo) {
-      // TODO:
-    } else if (resp is Bestmove) {
       //
-      final step = Move.fromEngineStep(resp.bestmove);
+      _boardState.thinkingInfo = resp;
 
-      _boardState.move(step);
-      startPieceAnimation();
-
-      final result = BattleAgent.shared.scanBattleResult(
-        _boardState.phase,
-        _boardState.playerSide,
-      );
-
-      switch (result) {
-        //
-        case BattleResult.pending:
-          if (step.score != null) {
-            final engine = (er.type == EngineType.cloudLibrary) ? '云库' : '皮卡鱼';
-            _pageState.changeStatus(
-              sprintf(
-                '%s 评估 %d 分，%s',
-                [engine, (step.score ?? 0) * -1, BattlePage.yourTurn],
-              ),
-            );
-          } else {
-            _pageState.changeStatus(BattlePage.yourTurn);
-          }
-          // debug
-          if (LocalData().debugMode.value && mounted) {
-            Future.delayed(const Duration(seconds: 1), () => askEngineHint());
-          }
-          break;
-        case BattleResult.win:
-          gotWin();
-          break;
-        case BattleResult.lose:
-          gotLose();
-          break;
-        case BattleResult.draw:
-          gotDraw();
-          break;
+      if (_boardState.thinkingInfo != null) {
+        final score = _boardState.thinkingInfo!.score(_boardState);
+        if (score != null) _pageState.changeStatus(score);
       }
-    } else if (resp is NoBestmove) {
-      gotWin();
-    } else if (resp is Error) {
-      if (mounted) showSnackBar(context, resp.message);
-      _pageState.changeStatus(resp.message);
+    } else {
+      //
+      final lastState = _state;
+      _state = PlayState.ready;
+
+      if (resp is Bestmove) {
+        //
+        final step = Move.fromEngineStep(resp.bestmove);
+
+        _boardState.move(step);
+        startPieceAnimation();
+
+        final result = BattleAgent.shared.scanBattleResult(
+          _boardState.phase,
+          _boardState.playerSide,
+        );
+
+        switch (result) {
+          //
+          case BattleResult.pending:
+            if (lastState == PlayState.thinking) {
+              //
+              if (_boardState.thinkingInfo != null) {
+                //
+                var score = _boardState.thinkingInfo?.score(_boardState);
+                if (score != null) score *= -1;
+
+                _pageState.changeStatus('$score，${BattlePage.yourTurn}');
+              } else {
+                _pageState.changeStatus(BattlePage.yourTurn);
+              }
+
+              // debug
+              if (LocalData().debugMode.value && mounted) {
+                Future.delayed(
+                  const Duration(seconds: 1),
+                  () => askEngineHint(),
+                );
+              }
+            } else {
+              if (_boardState.isOpponentTurn && !_opponentHuman) {
+                Future.delayed(const Duration(seconds: 1), () => askEngineGo());
+              }
+            }
+            break;
+          case BattleResult.win:
+            gotWin();
+            break;
+          case BattleResult.lose:
+            gotLose();
+            break;
+          case BattleResult.draw:
+            gotDraw();
+            break;
+        }
+      } else if (resp is NoBestmove) {
+        if (lastState == PlayState.thinking) {
+          gotWin();
+        } else {
+          gotLose();
+        }
+      } else if (resp is Error) {
+        if (mounted) showSnackBar(context, resp.message);
+        _pageState.changeStatus(resp.message);
+      }
     }
   }
 
   askEngineGo() async {
     //
-    if (_working) return;
+    if (_state != PlayState.ready) return;
 
-    _working = true;
+    _state = PlayState.thinking;
     _pageState.changeStatus('对方思考中...');
 
-    try {
-      await BattleAgent.shared.engineThink(_boardState.phase, engineCallback);
-    } finally {
-      _working = false;
-    }
-  }
-
-  hintCallback(EngineResponse er) {
-    //
-    final resp = er.response;
-    if (resp is EngineInfo) {
-      // TODO:
-    } else if (resp is Bestmove) {
-      //
-      final step = Move.fromEngineStep(resp.bestmove);
-
-      _boardState.move(step);
-      startPieceAnimation();
-
-      final result = BattleAgent.shared.scanBattleResult(
-        _boardState.phase,
-        _boardState.playerSide,
-      );
-
-      switch (result) {
-        //
-        case BattleResult.pending:
-          if (_boardState.isOpponentTurn && !_opponentHuman) {
-            Future.delayed(const Duration(seconds: 1), () => askEngineGo());
-          }
-          break;
-        case BattleResult.win:
-          gotWin();
-          break;
-        case BattleResult.lose:
-          gotLose();
-          break;
-        case BattleResult.draw:
-          gotDraw();
-          break;
-      }
-    } else if (resp is NoBestmove) {
-      gotLose();
-    } else if (resp is Error) {
-      if (mounted) showSnackBar(context, resp.message);
-      _pageState.changeStatus(resp.message);
-    }
+    await BattleAgent.shared.engineThink(_boardState.phase, engineCallback);
   }
 
   askEngineHint() async {
     //
     if (AdTrigger.battle.checkAdChance(AdAction.requestHint, context)) return;
 
-    if (_working) return;
+    if (_state != PlayState.ready) return;
 
-    _working = true;
+    _state = PlayState.hinting;
     _pageState.changeStatus('引擎思考提示着法...');
 
-    try {
-      await BattleAgent.shared.engineThink(_boardState.phase, hintCallback);
-    } finally {
-      _working = false;
-    }
+    await BattleAgent.shared.engineThink(_boardState.phase, engineCallback);
   }
 
   gotWin() async {
@@ -606,13 +566,22 @@ class BattlePageState extends State<BattlePage>
 
   Widget buildFooter() {
     //
-    final content = _boardState.phase.infoText;
+    String? content;
+
+    if (_boardState.thinkingInfo != null) {
+      content = _boardState.thinkingInfo!.info(
+        _boardState,
+        _state != PlayState.ready,
+      );
+    }
+
+    content ??= _boardState.phase.manualText;
 
     if (Ruler.isLongScreen(context)) {
       return buildInfoPanel(content);
     }
 
-    return buildExpandableManualPanel(context, content);
+    return buildExpandablePanel(context, content);
   }
 
   Widget buildInfoPanel(String text) {
@@ -625,13 +594,14 @@ class BattlePageState extends State<BattlePage>
 
     return Expanded(
       child: Container(
+        width: double.infinity,
         margin: const EdgeInsets.all(16),
         child: SingleChildScrollView(child: Text(text, style: manualStyle)),
       ),
     );
   }
 
-  Widget buildExpandableManualPanel(BuildContext context, String text) {
+  Widget buildExpandablePanel(BuildContext context, String text) {
     //
     final manualStyle = GameFonts.ui(fontSize: 18, height: 1.5);
 
@@ -660,9 +630,7 @@ class BattlePageState extends State<BattlePage>
 
   @override
   void dispose() {
-    //
     saveBattle().then((_) => _boardState.inverseBoard(false, notify: false));
-
     super.dispose();
   }
 }
