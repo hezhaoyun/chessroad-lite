@@ -179,7 +179,7 @@ class SettingsPageState extends State<SettingsPage> {
                   SwitchListTile(
                     activeColor: GameColors.primary,
                     value: LocalData().thinkingArrowEnabled.value,
-                    title: Text('引擎思考剪头', style: itemStyle),
+                    title: Text('引擎思考箭头', style: itemStyle),
                     onChanged: switchThinkingArrow,
                   ),
                 ],
