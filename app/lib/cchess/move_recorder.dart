@@ -106,7 +106,7 @@ class MoveRecorder {
     }
 
     if (manualText.isEmpty) {
-      manualText = '--';
+      manualText = '';
     }
 
     return manualText;

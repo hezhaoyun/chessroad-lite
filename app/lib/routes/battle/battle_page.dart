@@ -307,6 +307,8 @@ class BattlePageState extends State<BattlePage>
       // 现在点击的棋子和上一次选择棋子不同边，要么是吃子，要么是移动棋子到空白处
       if (_boardState.move(Move(_boardState.focusIndex, index))) {
         //
+        _boardState.engineInfo = null;
+
         startPieceAnimation();
 
         final result = BattleAgent.shared.scanBattleResult(

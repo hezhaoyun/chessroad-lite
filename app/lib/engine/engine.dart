@@ -78,8 +78,11 @@ class EngineInfo extends Response {
     // info depth 13 seldepth 16 multipv 1 score cp -30 upperbound
     // nodes 69433 nps 21691 hashfull 31 tbhits 0 time 3201 pv h9g7 h0g2
 
+    // info depth 14 seldepth 19 multipv 1 score cp -18 lowerbound
+    // nodes 97595 nps 22915 hashfull 45 tbhits 0 time 4259 pv b9c7
+
     final regx = RegExp(
-      r'info depth (\d+) seldepth (\d+) multipv (\d+) score cp (-?\d+) [upperbound ]*'
+      r'info depth (\d+) seldepth (\d+) multipv (\d+) score cp (-?\d+) [upperbound lowerbound]*'
       r'nodes (\d+) nps (\d+) hashfull (\d+) tbhits (\d+) time (\d+) pv (.*)',
     );
     final match = regx.firstMatch(line);
@@ -138,7 +141,7 @@ class EngineInfo extends Response {
             ? '优势'
             : '劣势';
 
-    return '局面：$score ($judge)';
+    return '局面 $score ($judge)';
   }
 
   String? info(BoardState boardState, bool includeFirst) {
@@ -147,8 +150,8 @@ class EngineInfo extends Response {
     if (score == null) return null;
 
     var result = ''
-        '深度 ${tokens['depth']} '
-        '节点 ${tokens['nodes']} '
+        '深度 ${tokens['depth']}，'
+        '节点 ${tokens['nodes']}，'
         '时间 ${tokens['time']}\n';
 
     final phase = boardState.phase;
