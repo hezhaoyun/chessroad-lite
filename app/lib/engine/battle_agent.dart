@@ -27,9 +27,14 @@ class BattleAgent {
     await _engine.applyConfig();
   }
 
-  Future<bool> engineThink(Phase phase, EngineCallback callback) async {
-    return await _engine.search(phase, callback);
+  Future<bool> engineThink(Phase phase, EngineCallback callback,
+      {String? ponder}) async {
+    return await _engine.search(phase, callback, ponder: ponder);
   }
+
+  Future<void> ponderhit() async => await _engine.ponderhit();
+
+  Future<void> missPonder() async => await _engine.missPonder();
 
   Future<void> shutdownEngine() async {
     await _engine.shutdown();

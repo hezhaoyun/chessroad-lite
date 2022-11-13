@@ -50,6 +50,12 @@ class HybridEngine extends Engine {
       if (result) return true;
     }
 
-    return _nativeEngine.search(phase, callback);
+    return _nativeEngine.search(phase, callback, ponder: ponder);
   }
+
+  @override
+  Future<void> ponderhit() async => await _nativeEngine.ponderhit();
+
+  @override
+  Future<void> missPonder() async => await _nativeEngine.missPonder();
 }

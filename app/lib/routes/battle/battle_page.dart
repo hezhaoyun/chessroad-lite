@@ -1,3 +1,4 @@
+import 'package:chessroad/engine/pikafish_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,13 +35,14 @@ class BattlePage extends StatefulWidget {
   BattlePageState createState() => BattlePageState();
 }
 
-enum PlayState { ready, analyzing, thinking, hinting }
+enum PlayState { ready, analyzing, thinking, hinting, pondering }
 
 class BattlePageState extends State<BattlePage>
     with PieceAnimationMixIn, TickerProviderStateMixin {
   //
   PlayState _state = PlayState.ready;
   bool _opponentHuman = false;
+  String? ponderMove;
 
   late BoardState _boardState;
   late PageState _pageState;
@@ -278,7 +280,7 @@ class BattlePageState extends State<BattlePage>
     showSnackBar(context, success ? '保存成功！' : '保存失败！');
   }
 
-  onBoardTap(BuildContext context, int index) {
+  onBoardTap(BuildContext context, int index) async {
     //
     if (_boardState.boardInversed) index = 89 - index;
 
@@ -318,8 +320,23 @@ class BattlePageState extends State<BattlePage>
 
         switch (result) {
           case BattleResult.pending:
-            if (!_opponentHuman) {
-              Future.delayed(const Duration(seconds: 1), () => askEngineGo());
+            //
+            final move = _boardState.phase.lastMove!.asEngineStep();
+
+            if (ponderMove != null &&
+                PikafishConfig(LocalData().profile).ponder &&
+                move == ponderMove) {
+              //
+              _state = PlayState.pondering;
+              await BattleAgent.shared.ponderhit();
+              //
+            } else {
+              //
+              await BattleAgent.shared.missPonder();
+
+              if (!_opponentHuman) {
+                Future.delayed(const Duration(seconds: 1), () => askEngineGo());
+              }
             }
             break;
           case BattleResult.win:
@@ -339,7 +356,7 @@ class BattlePageState extends State<BattlePage>
     }
   }
 
-  engineCallback(EngineResponse er) {
+  engineCallback(EngineResponse er) async {
     //
     final resp = er.response;
 
@@ -372,8 +389,21 @@ class BattlePageState extends State<BattlePage>
           //
           case BattleResult.pending:
             //
-            if (lastState == PlayState.thinking) {
+            if (lastState == PlayState.thinking ||
+                lastState == PlayState.pondering) {
               //
+              ponderMove = (er.response as Bestmove).ponder;
+
+              if (ponderMove != null &&
+                  PikafishConfig(LocalData().profile).ponder) {
+                //
+                await BattleAgent.shared.engineThink(
+                  _boardState.phase,
+                  engineCallback,
+                  ponder: ponderMove,
+                );
+              }
+
               if (_boardState.engineInfo != null) {
                 //
                 final score = _boardState.engineInfo?.score(

@@ -101,7 +101,7 @@ class PikafishEngine extends Engine {
     if (moves != '') pos += ' moves $moves';
 
     if (ponder != null) {
-      pos += ponder;
+      pos += ' $ponder';
       go = 'go ponder infinite';
     } else {
       var timeLimit = PikafishConfig(LocalData().profile).timeLimit;
@@ -116,22 +116,22 @@ class PikafishEngine extends Engine {
   }
 
   @override
-  void ponderhit() {
+  Future<void> ponderhit() async {
     //
     _engine.stdin = 'ponderhit';
 
     final timeLimit = PikafishConfig(LocalData().profile).timeLimit;
-    scheduleStop(Duration(microseconds: timeLimit));
+
+    await Future.delayed(
+      Duration(seconds: timeLimit),
+      () => _engine.stdin = 'stop',
+    );
   }
 
   @override
-  void scheduleStop(Duration? duration) {
-    //
-    if (duration == null) {
-      _engine.stdin = 'stop';
-    } else {
-      Future.delayed(duration, () => _engine.stdin = 'stop');
-    }
+  Future<void> missPonder() async {
+    callback = null;
+    _engine.stdin = 'stop';
   }
 
   @override

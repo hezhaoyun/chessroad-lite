@@ -8,18 +8,18 @@ import 'ruler.dart';
 class ThinkingBoardPainter extends CustomPainter {
   //
   static const pathColors = [
-    Color(0x7FFF0000),
-    Color(0x7F0000FF),
-    Color(0x7F00AA00),
-    Color(0x7FFF00FF),
-    Color(0x7F00AAFF),
+    Color(0x77777777),
+    Color(0x77777777),
+    Color(0x77777777),
+    Color(0x77777777),
+    Color(0x77777777),
   ];
   static const indicatorColors = [
-    Color(0xAAFF0000),
-    Color(0xAA0000FF),
-    Color(0xAA00AA00),
-    Color(0xAAFF00FF),
-    Color(0xAA00AAFF),
+    Color(0x77777777),
+    Color(0x77777777),
+    Color(0x77777777),
+    Color(0x77777777),
+    Color(0x77777777),
   ];
 
   final List<Move> moves;

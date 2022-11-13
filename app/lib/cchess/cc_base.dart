@@ -129,6 +129,11 @@ class Move {
     captured = Piece.empty;
   }
 
+  String asEngineStep() {
+    return '${String.fromCharCode('a'.codeUnitAt(0) + fx)}${9 - fy}'
+        '${String.fromCharCode('a'.codeUnitAt(0) + tx)}${9 - ty}';
+  }
+
   static bool validateEngineStep(String step) {
     //
     if (step.length < 4) return false;

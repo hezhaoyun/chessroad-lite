@@ -14,13 +14,14 @@ abstract class Engine {
 
   Future<void> applyConfig() async {}
 
-  Future<bool> search(Phase phase, Function(EngineResponse) callback) async {
+  Future<bool> search(Phase phase, Function(EngineResponse) callback,
+      {String? ponder}) async {
     return false;
   }
 
-  void ponderhit() async {}
+  Future<void> ponderhit() async {}
 
-  void scheduleStop(Duration? duration) async {}
+  Future<void> missPonder() async {}
 
   Future<void> shutdown() async {}
 }

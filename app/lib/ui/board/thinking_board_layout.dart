@@ -29,9 +29,10 @@ class _PiecesLayoutState extends State<ThinkingBoardLayout> {
       //
       var pvs = widget.engineInfo!.pvs;
 
-      if (pvs.length > 4) {
+      /* if (pvs.length > 4) {
         pvs = pvs.sublist(0, 4);
-      } else if (pvs.length > 2) {
+      } else */
+      if (pvs.length > 2) {
         pvs = pvs.sublist(0, 2);
       }
 
