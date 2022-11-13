@@ -2,44 +2,43 @@ import 'dart:async';
 
 import 'package:chessroad/config/local_data.dart';
 
+import '../cchess/cc_base.dart';
+import '../cchess/cc_rules.dart';
 import '../engine/engine.dart';
 import 'pikafish_engine.dart';
 import '../cchess/phase.dart';
 import 'cloud_engine.dart';
 
-class HybridEngine extends Engine {
+class HybridEngine {
   //
-  late CloudEngine _cloudEngine;
-  late PikafishEngine _nativeEngine;
-  EngineCallback? callback;
+  late final CloudEngine _cloudEngine;
+  late final PikafishEngine _pikafishEngine;
 
-  @override
-  Future<void> startup() async {
-    //
+  factory HybridEngine() => _instance;
+
+  static final HybridEngine _instance = HybridEngine._();
+
+  HybridEngine._() {
     _cloudEngine = CloudEngine();
-    await _cloudEngine.startup();
-
-    _nativeEngine = PikafishEngine();
-    await _nativeEngine.startup();
+    _pikafishEngine = PikafishEngine();
   }
 
-  @override
+  Future<void> startup() async {
+    await _pikafishEngine.startup();
+    await _pikafishEngine.applyConfig();
+  }
+
+  applyNativeEngineConfig() async {
+    await _pikafishEngine.applyConfig();
+  }
+
   Future<void> applyConfig() async {
-    await _nativeEngine.applyConfig();
+    await _pikafishEngine.applyConfig();
   }
 
-  @override
-  Future<void> shutdown() async {
-    await _cloudEngine.shutdown();
-    await _nativeEngine.shutdown();
-  }
-
-  @override
   Future<bool> search(Phase phase, EngineCallback callback,
       {String? ponder}) async {
     //
-    this.callback = callback;
-
     if (LocalData().cloudEngineEnabled.value) {
       //
       final result = await Future.any([
@@ -50,12 +49,30 @@ class HybridEngine extends Engine {
       if (result) return true;
     }
 
-    return _nativeEngine.search(phase, callback, ponder: ponder);
+    return _pikafishEngine.search(phase, callback, ponder: ponder);
   }
 
-  @override
-  Future<void> ponderhit() async => await _nativeEngine.ponderhit();
+  Future<void> ponderhit() async => _pikafishEngine.ponderhit();
 
-  @override
-  Future<void> missPonder() async => await _nativeEngine.missPonder();
+  Future<void> missPonder() async => _pikafishEngine.missPonder();
+
+  Future<void> shutdown() async {
+    await _pikafishEngine.shutdown();
+  }
+
+  BattleResult scanBattleResult(Phase phase, String playerSide) {
+    //
+    final turnForPerson = (phase.side == playerSide);
+
+    if (phase.isLongCheck()) {
+      // born 'repeat' phase by oppo
+      return turnForPerson ? BattleResult.win : BattleResult.lose;
+    }
+
+    if (ChessRules.beKilled(phase)) {
+      return turnForPerson ? BattleResult.lose : BattleResult.win;
+    }
+
+    return (phase.halfMove > 120) ? BattleResult.draw : BattleResult.pending;
+  }
 }

@@ -8,24 +8,6 @@ import 'analysis.dart';
 
 enum EngineType { cloudLibrary, pikafish }
 
-abstract class Engine {
-  //
-  Future<void> startup() async {}
-
-  Future<void> applyConfig() async {}
-
-  Future<bool> search(Phase phase, Function(EngineResponse) callback,
-      {String? ponder}) async {
-    return false;
-  }
-
-  Future<void> ponderhit() async {}
-
-  Future<void> missPonder() async {}
-
-  Future<void> shutdown() async {}
-}
-
 abstract class Response {
   // empty
 }

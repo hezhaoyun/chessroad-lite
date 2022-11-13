@@ -14,6 +14,7 @@ class BoardState with ChangeNotifier {
   late double _pieceAnimationValue;
 
   EngineInfo? _engineInfo;
+  String? ponder;
 
   BoardState() {
     _phase = Phase.defaultPhase();

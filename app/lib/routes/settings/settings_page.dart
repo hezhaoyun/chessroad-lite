@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
 import 'package:chessroad/ui/review_panel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../config/local_data.dart';
-import '../../engine/battle_agent.dart';
 import '../../game/game.dart';
 import '../../services/audios.dart';
 import '../../ui/snack_bar.dart';
@@ -35,7 +35,7 @@ class SettingsPageState extends State<SettingsPage> {
       CupertinoPageRoute(builder: (context) => const PikafishParamsPage()),
     );
 
-    await BattleAgent.shared.applyNativeEngineConfig();
+    await HybridEngine().applyNativeEngineConfig();
   }
 
   switchCloudEngine(bool value) async {

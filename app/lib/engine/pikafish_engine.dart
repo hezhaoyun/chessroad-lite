@@ -11,15 +11,15 @@ import '../config/local_data.dart';
 import 'engine.dart';
 import 'pikafish_config.dart';
 
-class PikafishEngine extends Engine {
+class PikafishEngine {
   //
   static const kInfoPrefix = 'info ';
   static const kScoreIndicator = 'score ';
 
   factory PikafishEngine() => _instance;
-  static final PikafishEngine _instance = PikafishEngine._internal();
+  static final PikafishEngine _instance = PikafishEngine._();
 
-  PikafishEngine._internal() {
+  PikafishEngine._() {
     _setupEngine();
   }
 
@@ -28,30 +28,6 @@ class PikafishEngine extends Engine {
 
   EngineCallback? callback;
 
-  _setupEngine() {
-    _engine = Pikafish();
-    _subscriber();
-  }
-
-  void _subscriber() {
-    //
-    _subscription = _engine.stdout.listen((line) {
-      //
-      prt('engine=> $line');
-
-      if (callback == null) return;
-
-      if (line.startsWith('info')) {
-        callback!(EngineResponse(EngineType.pikafish, EngineInfo.parse(line)));
-      } else if (line.startsWith('bestmove')) {
-        callback!(EngineResponse(EngineType.pikafish, Bestmove.parse(line)));
-      } else if (line.startsWith('nobestmove')) {
-        callback!(EngineResponse(EngineType.pikafish, NoBestmove()));
-      }
-    });
-  }
-
-  @override
   Future<void> startup() async {
     //
     while (_engine.state.value == PikafishState.starting) {
@@ -63,21 +39,6 @@ class PikafishEngine extends Engine {
     await _setupNnue();
   }
 
-  _setupNnue() async {
-    //
-    final appDocDir = await getApplicationDocumentsDirectory();
-    final nnueFile = File('${appDocDir.path}/pikafish.nnue');
-
-    if (!(await nnueFile.exists())) {
-      await nnueFile.create(recursive: true);
-      final bytes = await rootBundle.load('assets/pikafish.nnue');
-      await nnueFile.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
-    }
-
-    _engine.stdin = 'setoption name EvalFile value ${nnueFile.path}';
-  }
-
-  @override
   Future<void> applyConfig() async {
     //
     final config = PikafishConfig(LocalData().profile);
@@ -88,7 +49,6 @@ class PikafishEngine extends Engine {
     _engine.stdin = 'setoption name Skill Level value ${config.level}';
   }
 
-  @override
   Future<bool> search(Phase phase, EngineCallback callback,
       {String? ponder}) async {
     //
@@ -115,7 +75,6 @@ class PikafishEngine extends Engine {
     return true;
   }
 
-  @override
   Future<void> ponderhit() async {
     //
     _engine.stdin = 'ponderhit';
@@ -128,15 +87,50 @@ class PikafishEngine extends Engine {
     );
   }
 
-  @override
   Future<void> missPonder() async {
     callback = null;
     _engine.stdin = 'stop';
   }
 
-  @override
   Future<void> shutdown() async {
     _engine.dispose();
     _subscription.cancel();
+  }
+
+  _setupEngine() {
+    _engine = Pikafish();
+    _subscriber();
+  }
+
+  void _subscriber() {
+    //
+    _subscription = _engine.stdout.listen((line) {
+      //
+      prt('engine=> $line');
+
+      if (callback == null) return;
+
+      if (line.startsWith('info')) {
+        callback!(EngineResponse(EngineType.pikafish, EngineInfo.parse(line)));
+      } else if (line.startsWith('bestmove')) {
+        callback!(EngineResponse(EngineType.pikafish, Bestmove.parse(line)));
+      } else if (line.startsWith('nobestmove')) {
+        callback!(EngineResponse(EngineType.pikafish, NoBestmove()));
+      }
+    });
+  }
+
+  _setupNnue() async {
+    //
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final nnueFile = File('${appDocDir.path}/pikafish.nnue');
+
+    if (!(await nnueFile.exists())) {
+      await nnueFile.create(recursive: true);
+      final bytes = await rootBundle.load('assets/pikafish.nnue');
+      await nnueFile.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
+    }
+
+    _engine.stdin = 'setoption name EvalFile value ${nnueFile.path}';
   }
 }

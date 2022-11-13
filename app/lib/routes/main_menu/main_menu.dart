@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chessroad/config/local_data.dart';
+import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../ad/ad.dart';
-import '../../engine/battle_agent.dart';
 import '../../game/game.dart';
 import '../../services/audios.dart';
 import '../../ui/ruler.dart';
@@ -93,7 +93,7 @@ class MainMenuState extends State<MainMenu>
 
     Audios.init();
 
-    await BattleAgent.shared.startupEngine();
+    await HybridEngine().startup();
 
     setState(() => _waitingInit = false);
 

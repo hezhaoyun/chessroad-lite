@@ -1,3 +1,4 @@
+import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/engine/pikafish_config.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,6 @@ import '../../common/prt.dart';
 import '../../config/local_data.dart';
 import '../../config/profile.dart';
 import '../../engine/analysis.dart';
-import '../../engine/battle_agent.dart';
 import '../../engine/cloud_engine.dart';
 import '../../engine/engine.dart';
 import '../../game/board_state.dart';
@@ -42,7 +42,6 @@ class BattlePageState extends State<BattlePage>
   //
   PlayState _state = PlayState.ready;
   bool _opponentHuman = false;
-  String? ponderMove;
 
   late BoardState _boardState;
   late PageState _pageState;
@@ -193,7 +192,7 @@ class BattlePageState extends State<BattlePage>
     showSnackBar(context, '正在分析局面...', shortDuration: true);
 
     try {
-      final result = await CloudEngine.analysis(_boardState.phase);
+      final result = await CloudEngine().analysis(_boardState.phase);
 
       if (result.response is Analysis) {
         //
@@ -313,7 +312,7 @@ class BattlePageState extends State<BattlePage>
 
         startPieceAnimation();
 
-        final result = BattleAgent.shared.scanBattleResult(
+        final result = HybridEngine().scanBattleResult(
           _boardState.phase,
           _boardState.playerSide,
         );
@@ -323,16 +322,16 @@ class BattlePageState extends State<BattlePage>
             //
             final move = _boardState.phase.lastMove!.asEngineStep();
 
-            if (ponderMove != null &&
+            if (_boardState.ponder != null &&
                 PikafishConfig(LocalData().profile).ponder &&
-                move == ponderMove) {
+                move == _boardState.ponder) {
               //
               _state = PlayState.pondering;
-              await BattleAgent.shared.ponderhit();
+              await HybridEngine().ponderhit();
               //
             } else {
               //
-              await BattleAgent.shared.missPonder();
+              await HybridEngine().missPonder();
 
               if (!_opponentHuman) {
                 Future.delayed(const Duration(seconds: 1), () => askEngineGo());
@@ -364,7 +363,7 @@ class BattlePageState extends State<BattlePage>
       //
       _boardState.engineInfo = resp;
 
-      if (_boardState.engineInfo != null) {
+      if (_boardState.engineInfo != null && _state != PlayState.pondering) {
         final score = _boardState.engineInfo!.score(_boardState, false);
         if (score != null) _pageState.changeStatus(score);
       }
@@ -380,7 +379,7 @@ class BattlePageState extends State<BattlePage>
         _boardState.move(step);
         startPieceAnimation();
 
-        final result = BattleAgent.shared.scanBattleResult(
+        final result = HybridEngine().scanBattleResult(
           _boardState.phase,
           _boardState.playerSide,
         );
@@ -392,19 +391,20 @@ class BattlePageState extends State<BattlePage>
             if (lastState == PlayState.thinking ||
                 lastState == PlayState.pondering) {
               //
-              ponderMove = (er.response as Bestmove).ponder;
+              _boardState.ponder = (er.response as Bestmove).ponder;
 
-              if (ponderMove != null &&
+              if (_boardState.ponder != null &&
                   PikafishConfig(LocalData().profile).ponder) {
                 //
-                await BattleAgent.shared.engineThink(
+                await HybridEngine().search(
                   _boardState.phase,
                   engineCallback,
-                  ponder: ponderMove,
+                  ponder: _boardState.ponder,
                 );
               }
 
-              if (_boardState.engineInfo != null) {
+              if (_boardState.engineInfo != null &&
+                  _state != PlayState.pondering) {
                 //
                 final score = _boardState.engineInfo?.score(
                   _boardState,
@@ -458,7 +458,7 @@ class BattlePageState extends State<BattlePage>
     _state = PlayState.thinking;
     _pageState.changeStatus('对方思考中...');
 
-    await BattleAgent.shared.engineThink(_boardState.phase, engineCallback);
+    await HybridEngine().search(_boardState.phase, engineCallback);
   }
 
   askEngineHint() async {
@@ -470,7 +470,7 @@ class BattlePageState extends State<BattlePage>
     _state = PlayState.hinting;
     _pageState.changeStatus('引擎思考提示着法...');
 
-    await BattleAgent.shared.engineThink(_boardState.phase, engineCallback);
+    await HybridEngine().search(_boardState.phase, engineCallback);
   }
 
   gotWin() async {
@@ -577,7 +577,7 @@ class BattlePageState extends State<BattlePage>
       ActionItem(name: '新局', callback: confirmNewGame),
       ActionItem(name: '悔棋', callback: regret),
       ActionItem(name: '提示', callback: askEngineHint),
-      ActionItem(name: '分析', callback: analysisPhase),
+      ActionItem(name: '云库', callback: analysisPhase),
       ActionItem(name: '交换局面', callback: swapPhase),
       ActionItem(name: '翻转棋盘', callback: inverseBoard),
       ActionItem(name: '保存棋谱', callback: saveManual),
@@ -604,7 +604,7 @@ class BattlePageState extends State<BattlePage>
     //
     String? content;
 
-    if (_boardState.engineInfo != null) {
+    if (_boardState.engineInfo != null && _state != PlayState.pondering) {
       content = _boardState.engineInfo!.info(
         _boardState,
         _state != PlayState.ready,

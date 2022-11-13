@@ -1,12 +1,12 @@
 import 'dart:io';
 
+import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:wakelock/wakelock.dart';
 
-import 'engine/battle_agent.dart';
 import 'game/board_state.dart';
 import 'game/page_state.dart';
 import 'routes/main_menu/main_menu.dart';
@@ -91,7 +91,7 @@ class ChessRoadAppState extends State<ChessRoadApp>
       case AppLifecycleState.detached:
         Audios.release();
         Wakelock.disable();
-        BattleAgent.shared.shutdownEngine();
+        HybridEngine().shutdown();
         break;
     }
   }

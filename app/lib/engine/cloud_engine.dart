@@ -7,15 +7,18 @@ import 'chess_db.dart';
 import '../cchess/cc_fen.dart';
 import '../cchess/phase.dart';
 
-class CloudEngine extends Engine {
+class CloudEngine {
   //
-  static String? banMoves;
+  factory CloudEngine() => _instance;
+
+  static final CloudEngine _instance = CloudEngine._();
+
+  CloudEngine._();
 
   EngineCallback? callback;
 
-  @override
   Future<bool> search(Phase phase, EngineCallback callback,
-      {String? ponder}) async {
+      {String? ponder, String? banMoves}) async {
     //
     this.callback = callback;
 
@@ -29,7 +32,7 @@ class CloudEngine extends Engine {
 
     if (response.startsWith('move')) {
       //
-      final move = randomMove(response);
+      final move = _randomMove(response);
 
       if (move != null) {
         callback(
@@ -42,7 +45,7 @@ class CloudEngine extends Engine {
     return false;
   }
 
-  static Future<EngineResponse> analysis(Phase phase) async {
+  Future<EngineResponse> analysis(Phase phase) async {
     //
     final fen = Fen.phaseToFen(phase);
     var response = await ChessDB.query(fen);
@@ -66,9 +69,9 @@ class CloudEngine extends Engine {
     return EngineResponse(EngineType.cloudLibrary, Error('Unknown error'));
   }
 
-  static Map<String, dynamic>? randomMove(String response) {
+  Map<String, dynamic>? _randomMove(String response) {
     ///
-    /// ove:b2a2,score:-236,rank:0,note:? (00-00),winrate:32.85
+    /// move:b2a2,score:-236,rank:0,note:? (00-00),winrate:32.85
     ///
     final moves = <Map<String, dynamic>>[];
 
@@ -77,7 +80,7 @@ class CloudEngine extends Engine {
 
     for (var i = 0; i < segments.length; i++) {
       //
-      final kvps = fetchResponseTokens(segments[i]);
+      final kvps = _fetchResponseTokens(segments[i]);
 
       final score = int.tryParse(kvps['score']!) ?? minScore;
       if (score <= minScore) break;
@@ -93,7 +96,7 @@ class CloudEngine extends Engine {
     return null;
   }
 
-  static Map<String, String> fetchResponseTokens(String step) {
+  Map<String, String> _fetchResponseTokens(String step) {
     //
     final kvps = <String, String>{};
 
