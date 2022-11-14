@@ -36,7 +36,7 @@ class BattlePage extends StatefulWidget {
   BattlePageState createState() => BattlePageState();
 }
 
-enum PlayState { ready, analyzing, thinking, hinting, pondering }
+enum PlayState { ready, thinking, hinting, pondering }
 
 class BattlePageState extends State<BattlePage>
     with PieceAnimationMixIn, TickerProviderStateMixin {
@@ -184,7 +184,7 @@ class BattlePageState extends State<BattlePage>
     if (AdTrigger.battle.checkAdChance(AdAction.regret, context)) return;
 
     _boardState.engineInfo = null;
-    HybridEngine().stop();
+    HybridEngine().missPonder();
 
     _boardState.regret(GameScene.battle, moves: 2);
   }
@@ -194,9 +194,6 @@ class BattlePageState extends State<BattlePage>
     if (AdTrigger.battle.checkAdChance(AdAction.requestAnalysis, context)) {
       return;
     }
-
-    if (_state != PlayState.ready) return;
-    _state = PlayState.analyzing;
 
     showSnackBar(context, '正在分析局面...', shortDuration: true);
 
@@ -229,8 +226,6 @@ class BattlePageState extends State<BattlePage>
       }
     } catch (e) {
       showSnackBar(context, '错误：$e');
-    } finally {
-      _state = PlayState.ready;
     }
   }
 
@@ -326,6 +321,7 @@ class BattlePageState extends State<BattlePage>
         );
 
         switch (result) {
+          //
           case GameResult.pending:
             //
             final move = _boardState.position.lastMove!.asEngineMove();
@@ -335,13 +331,12 @@ class BattlePageState extends State<BattlePage>
                 move == _boardState.ponder) {
               //
               _state = PlayState.thinking;
-              prt('_state = PlayState.thinking');
 
               await HybridEngine().ponderhit();
               //
             } else {
               //
-              await HybridEngine().stop();
+              await HybridEngine().missPonder();
 
               if (!_opponentHuman) {
                 Future.delayed(const Duration(seconds: 1), () => askEngineGo());
@@ -382,7 +377,6 @@ class BattlePageState extends State<BattlePage>
       //
       final lastState = _state;
       _state = PlayState.ready;
-      prt('_state = PlayState.ready');
 
       if (resp is Bestmove) {
         //
@@ -409,7 +403,6 @@ class BattlePageState extends State<BattlePage>
                   PikafishConfig(LocalData().profile).ponder) {
                 //
                 _state = PlayState.pondering;
-                prt('_state = PlayState.pondering');
 
                 await HybridEngine().search(
                   _boardState.position,
@@ -467,10 +460,10 @@ class BattlePageState extends State<BattlePage>
 
   askEngineGo() async {
     //
-    if (_state != PlayState.ready) return;
+    if (_state == PlayState.thinking || _state == PlayState.hinting) return;
 
     _state = PlayState.thinking;
-    prt('_state = PlayState.thinking');
+
     _pageState.changeStatus('对方思考中...');
 
     await HybridEngine().search(_boardState.position, engineCallback);
@@ -480,10 +473,12 @@ class BattlePageState extends State<BattlePage>
     //
     if (AdTrigger.battle.checkAdChance(AdAction.requestHint, context)) return;
 
-    if (_state != PlayState.ready) return;
+    if (_state == PlayState.thinking || _state == PlayState.hinting) return;
+
+    HybridEngine().missPonder();
 
     _state = PlayState.hinting;
-    prt('_state = PlayState.hinting');
+
     _pageState.changeStatus('引擎思考提示着法...');
 
     await HybridEngine().search(_boardState.position, engineCallback);
@@ -688,7 +683,7 @@ class BattlePageState extends State<BattlePage>
   @override
   void dispose() {
     saveBattle().then((_) => _boardState.inverseBoard(false, notify: false));
-    HybridEngine().stop();
+    HybridEngine().missPonder();
     super.dispose();
   }
 }

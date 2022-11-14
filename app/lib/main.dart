@@ -86,7 +86,7 @@ class ChessRoadAppState extends State<ChessRoadApp>
         break;
       case AppLifecycleState.paused:
         Audios.stopBgm();
-        HybridEngine().stop();
+        HybridEngine().missPonder();
         Wakelock.disable();
         break;
       case AppLifecycleState.detached:

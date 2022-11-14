@@ -54,7 +54,7 @@ class HybridEngine {
 
   Future<void> ponderhit() async => _pikafishEngine.ponderhit();
 
-  Future<void> stop() async => _pikafishEngine.stop();
+  Future<void> missPonder() async => _pikafishEngine.missPonder();
 
   Future<void> shutdown() async {
     await _pikafishEngine.shutdown();

@@ -88,7 +88,7 @@ class PikafishEngine {
     );
   }
 
-  Future<void> stop() async {
+  Future<void> missPonder() async {
     callback = null;
     _engine.stdin = 'stop';
   }
