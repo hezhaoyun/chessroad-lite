@@ -1,8 +1,8 @@
-import 'package:chessroad/cchess/step_name.dart';
+import 'package:chessroad/cchess/move_name.dart';
 import 'package:chessroad/game/board_state.dart';
 
 import '../cchess/cc_base.dart';
-import '../cchess/phase.dart';
+import '../cchess/position.dart';
 import '../common/prt.dart';
 import 'analysis.dart';
 
@@ -89,33 +89,33 @@ class EngineInfo extends Response {
     }
   }
 
-  String followingSteps(Phase phase, bool includeFirst) {
+  String followingMoves(Position position, bool includeFirst) {
     //
-    final tempPhase = Phase.clone(phase);
+    final tempPosition = Position.clone(position);
 
-    String stepNames = '';
+    String names = '';
 
     for (var i = includeFirst ? 0 : 1; i < pvs.length; i++) {
       //
-      var move = Move.fromEngineStep(pvs[i]);
-      final stepName = StepName.translate(tempPhase, move);
-      tempPhase.move(move);
+      var move = Move.fromEngineMove(pvs[i]);
+      final name = MoveName.translate(tempPosition, move);
+      tempPosition.move(move);
 
-      stepNames += '$stepName ';
+      names += '$name ';
     }
 
-    return stepNames;
+    return names;
   }
 
   String? score(BoardState boardState, bool negative) {
     //
-    final phase = boardState.phase;
+    final position = boardState.position;
     final playerSide = boardState.playerSide;
 
     var score = tokens['score'];
     if (score == null) return null;
 
-    final base = (phase.side == playerSide) ? 1 : -1;
+    final base = (position.sideToMove == playerSide) ? 1 : -1;
     score = score * base * (negative ? -1 : 1);
 
     final judge = score == 0
@@ -137,8 +137,8 @@ class EngineInfo extends Response {
         '节点 ${tokens['nodes']}，'
         '时间 ${tokens['time']}\n';
 
-    final phase = boardState.phase;
-    result += followingSteps(phase, includeFirst);
+    final position = boardState.position;
+    result += followingMoves(position, includeFirst);
 
     return result;
   }

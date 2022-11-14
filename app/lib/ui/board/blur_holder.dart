@@ -25,7 +25,7 @@ class BlurHolder extends StatelessWidget {
       height: diameter,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(diameter / 2),
-        color: theme.blurPosition,
+        color: theme.blurPoint,
       ),
     );
   }

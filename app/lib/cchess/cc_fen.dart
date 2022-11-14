@@ -1,4 +1,4 @@
-import 'phase.dart';
+import 'position.dart';
 import 'cc_base.dart';
 import 'move_recorder.dart';
 
@@ -7,22 +7,22 @@ class Fen {
   static const fenChars = 'RNBAKCPrnbakcp';
   static const defaultLayout =
       'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR';
-  static const defaultPhase =
+  static const defaultPosition =
       'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1';
 
-  static String phaseToFen(Phase phase) {
+  static String positionToFen(Position position) {
     //
     var fen = '';
 
-    for (var row = 0; row < 10; row++) {
+    for (var rank = 0; rank < 10; rank++) {
       //
       var emptyCounter = 0;
 
-      for (var column = 0; column < 9; column++) {
+      for (var file = 0; file < 9; file++) {
         //
-        final piece = phase.pieceAt(row * 9 + column);
+        final piece = position.pieceAt(rank * 9 + file);
 
-        if (piece == Piece.empty) {
+        if (piece == Piece.noPiece) {
           //
           emptyCounter++;
           //
@@ -39,37 +39,37 @@ class Fen {
 
       if (emptyCounter > 0) fen += emptyCounter.toString();
 
-      if (row < 9) fen += '/';
+      if (rank < 9) fen += '/';
     }
 
-    fen += ' ${phase.side}';
+    fen += ' ${position.sideToMove}';
 
     // 王车易位和吃过路兵标志
     fen += ' - - ';
 
-    // step counter
-    fen += phase.stepCount; // ?? '0 1';
+    // move counter
+    fen += position.moveCount; // ?? '0 1';
 
     return fen;
   }
 
   static String toFen(
     List<String> pieces, {
-    String side = Side.red,
-    String? stepCounter,
+    String sideToMove = PieceColor.red,
+    String? moveCounter,
   }) {
     //
     var fen = '';
 
-    for (var row = 0; row < 10; row++) {
+    for (var rank = 0; rank < 10; rank++) {
       //
       var emptyCounter = 0;
 
-      for (var column = 0; column < 9; column++) {
+      for (var file = 0; file < 9; file++) {
         //
-        final piece = pieces[row * 9 + column];
+        final piece = pieces[rank * 9 + file];
 
-        if (piece == Piece.empty) {
+        if (piece == Piece.noPiece) {
           //
           emptyCounter++;
           //
@@ -86,16 +86,16 @@ class Fen {
 
       if (emptyCounter > 0) fen += emptyCounter.toString();
 
-      if (row < 9) fen += '/';
+      if (rank < 9) fen += '/';
     }
 
-    fen += ' $side';
+    fen += ' $sideToMove';
 
     // 王车易位和吃过路兵标志
     fen += ' - - ';
 
-    // step counter
-    fen += stepCounter ?? '0 1';
+    // move counter
+    fen += moveCounter ?? '0 1';
 
     return fen;
   }
@@ -105,7 +105,7 @@ class Fen {
     return (pos < 0) ? fen : fen.substring(0, pos);
   }
 
-  static Phase? phaseFromFen(String fen) {
+  static Position? positionFromFen(String fen) {
     //
     final pos = fen.indexOf(' ');
     final fullFen = pos > 0 && (fen.length - pos) >= ' w - - 0 1'.length;
@@ -114,21 +114,21 @@ class Fen {
     final pieces = loadPieces(layout);
     if (pieces == null) return null;
 
-    final String side; // side: w/b
+    final String sideToMove; // sideToMove: w/b
     final String counterMark; // 无吃子步数和回合数
 
     if (fullFen) {
-      side = fen.substring(pos + 1, pos + 2);
+      sideToMove = fen.substring(pos + 1, pos + 2);
       final flagPos = fen.indexOf(' - - ', pos + 2); // ' - - '，王车易位标志和吃过路兵标志
       counterMark = flagPos > 0 ? fen.substring(flagPos + 5) : '0 1';
     } else {
-      side = Side.red;
+      sideToMove = PieceColor.red;
       counterMark = '0 1';
     }
 
     try {
       final recorder = MoveRecorder.fromCounterMarks(counterMark);
-      return Phase(pieces, side, recorder);
+      return Position(pieces, sideToMove, recorder);
     } catch (e) {
       return null;
     }
@@ -141,16 +141,16 @@ class Fen {
     final endPos = layout.indexOf(' ');
     if (endPos > -1) layout = layout.substring(0, endPos);
 
-    final rows = layout.split('/');
-    if (rows.length != 10) return null;
+    final ranks = layout.split('/');
+    if (ranks.length != 10) return null;
 
     final pieces = List<String>.filled(90, '');
 
-    for (var row = 0; row < 10; row++) {
+    for (var rank = 0; rank < 10; rank++) {
       //
-      final chars = rows[row];
+      final chars = ranks[rank];
 
-      var col = 0, length = chars.length;
+      var file = 0, length = chars.length;
 
       for (var i = 0; i < length; i++) {
         //
@@ -162,19 +162,19 @@ class Fen {
           final count = code - '0'.codeUnitAt(0);
 
           for (var j = 0; j < count; j++) {
-            pieces[row * 9 + col + j] = Piece.empty;
+            pieces[rank * 9 + file + j] = Piece.noPiece;
           }
 
-          col += count;
+          file += count;
         } else if (isFenChar(c)) {
-          pieces[row * 9 + col] = c;
-          col++;
+          pieces[rank * 9 + file] = c;
+          file++;
         } else {
           return null;
         }
       }
 
-      if (col != 9) return null;
+      if (file != 9) return null;
     }
 
     return pieces;
@@ -183,12 +183,12 @@ class Fen {
   static String crManualBoardToFen(String initBoard) {
     //
     if (initBoard == '' || initBoard.length != 64) {
-      return Fen.defaultPhase;
+      return Fen.defaultPosition;
     }
 
     final board = List<String>.filled(90, '');
     for (var i = 0; i < board.length; i++) {
-      board[i] = Piece.empty;
+      board[i] = Piece.noPiece;
     }
 
     const pieces = 'RNBAKABNRCCPPPPPrnbakabnrccppppp';
@@ -199,14 +199,14 @@ class Fen {
       final pos = int.parse(initBoard.substring(i * 2, (i + 1) * 2));
       if (pos == 99) continue; // 不在棋盘上了
 
-      final col = pos ~/ 10, row = pos % 10;
-      board[row * 9 + col] = piece;
+      final file = pos ~/ 10, rank = pos % 10;
+      board[rank * 9 + file] = piece;
     }
 
     return Fen.toFen(board);
   }
 
-  static String phaseToCrManualBoard(Phase origin) {
+  static String positionToCrManualBoard(Position origin) {
     //
     const pieces = 'RNBAKABNRCCPPPPPrnbakabnrccppppp';
 
@@ -223,9 +223,9 @@ class Fen {
       final index = piecesOnBoard.indexOf(pieces[i]);
 
       if (index > -1) {
-        final row = index ~/ 9, col = index % 9;
-        board += '$col$row';
-        piecesOnBoard[index] = Piece.empty;
+        final rank = index ~/ 9, file = index % 9;
+        board += '$file$rank';
+        piecesOnBoard[index] = Piece.noPiece;
       } else {
         board += '99';
       }

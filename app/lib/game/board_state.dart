@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../cchess/cc_base.dart';
 import '../cchess/cc_fen.dart';
 import '../cchess/cc_rules.dart';
-import '../cchess/phase.dart';
+import '../cchess/position.dart';
 import '../services/audios.dart';
 import 'game.dart';
 
 class BoardState with ChangeNotifier {
   //
-  late Phase _phase;
+  late Position _position;
   late int _focusIndex, _blurIndex;
   late double _pieceAnimationValue;
 
@@ -17,14 +17,14 @@ class BoardState with ChangeNotifier {
   String? ponder;
 
   BoardState() {
-    _phase = Phase.defaultPhase();
+    _position = Position.defaultPosition();
     _focusIndex = _blurIndex = Move.invalidIndex;
     _pieceAnimationValue = 1;
   }
 
-  setPhase(Phase phase, {notify = true}) {
+  setPosition(Position position, {notify = true}) {
     //
-    _phase = phase;
+    _position = position;
     _focusIndex = _blurIndex = Move.invalidIndex;
 
     if (notify) notifyListeners();
@@ -47,18 +47,19 @@ class BoardState with ChangeNotifier {
   }
 
   String get playerSide {
-    if (_sitUnderside) return _boardInverse ? Side.black : Side.red;
-    return _boardInverse ? Side.red : Side.black;
+    if (_sitUnderside) return _boardInverse ? PieceColor.black : PieceColor.red;
+    return _boardInverse ? PieceColor.red : PieceColor.black;
   }
 
-  String get oppositeSide => playerSide == Side.red ? Side.black : Side.red;
+  String get oppositeSide =>
+      playerSide == PieceColor.red ? PieceColor.black : PieceColor.red;
 
   load(String fen, {notify = false}) {
     //
-    final phase = Fen.phaseFromFen(fen);
-    if (phase == null) return false;
+    final position = Fen.positionFromFen(fen);
+    if (position == null) return false;
 
-    _phase = phase;
+    _position = position;
     _focusIndex = _blurIndex = Move.invalidIndex;
 
     if (notify) notifyListeners();
@@ -82,7 +83,7 @@ class BoardState with ChangeNotifier {
 
   bool move(Move move) {
     //
-    if (!_phase.move(move)) {
+    if (!_position.move(move)) {
       Audios.playTone('invalid.mp3');
       return false;
     }
@@ -90,11 +91,11 @@ class BoardState with ChangeNotifier {
     _focusIndex = move.to;
     _blurIndex = move.from;
 
-    if (ChessRules.beChecked(_phase)) {
+    if (ChessRules.beChecked(_position)) {
       Audios.playTone('check.mp3');
     } else {
       Audios.playTone(
-        lastMoveCaptured != Piece.empty ? 'capture.mp3' : 'move.mp3',
+        lastMoveCaptured != Piece.noPiece ? 'capture.mp3' : 'move.mp3',
       );
     }
 
@@ -103,7 +104,7 @@ class BoardState with ChangeNotifier {
     return true;
   }
 
-  regret(GameScene scene, {steps = 2}) {
+  regret(GameScene scene, {moves = 2}) {
     //
     // 轮到自己走棋的时候，才能悔棋
     if (isVs(scene) && isOpponentTurn) {
@@ -115,11 +116,11 @@ class BoardState with ChangeNotifier {
 
     /// 悔棋一回合（两步），才能撤回自己上一次的动棋
 
-    for (var i = 0; i < steps; i++) {
+    for (var i = 0; i < moves; i++) {
       //
-      if (!_phase.regret()) break;
+      if (!_position.regret()) break;
 
-      final lastMove = _phase.lastMove;
+      final lastMove = _position.lastMove;
 
       if (lastMove != null) {
         //
@@ -147,14 +148,14 @@ class BoardState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  saveManual(GameScene scene) async => await _phase.saveManual(scene);
+  saveManual(GameScene scene) async => await _position.saveManual(scene);
 
-  buildMoveListForManual() => _phase.buildMoveListForManual();
+  buildMoveListForManual() => _position.buildMoveListForManual();
 
   String get lastMoveCaptured {
-    final lastMove = _phase.lastMove;
+    final lastMove = _position.lastMove;
     final captured = lastMove?.captured;
-    return captured ?? Piece.empty;
+    return captured ?? Piece.noPiece;
   }
 
   EngineInfo? get engineInfo => _engineInfo;
@@ -164,11 +165,11 @@ class BoardState with ChangeNotifier {
     notifyListeners();
   }
 
-  Phase get phase => _phase;
+  Position get position => _position;
   int get focusIndex => _focusIndex;
   int get blurIndex => _blurIndex;
   double get pieceAnimationValue => _pieceAnimationValue;
 
-  bool get isMyTurn => _phase.side == playerSide;
-  bool get isOpponentTurn => _phase.side == oppositeSide;
+  bool get isMyTurn => _position.sideToMove == playerSide;
+  bool get isOpponentTurn => _position.sideToMove == oppositeSide;
 }

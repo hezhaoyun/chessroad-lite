@@ -6,11 +6,11 @@ class PageState with ChangeNotifier {
   String _status = '...';
   String get status => _status;
 
-  double _stepTimeOpponent = 0;
-  double get stepTimeOpponent => _stepTimeOpponent;
+  double _moveTimeOpponent = 0;
+  double get moveTimeOpponent => _moveTimeOpponent;
 
-  double _stepTimeSelf = 0;
-  double get stepTimeSelf => _stepTimeSelf;
+  double _moveTimeSelf = 0;
+  double get moveTimeSelf => _moveTimeSelf;
 
   double _gameTimeOpponent = 0;
   double get gameTimeOpponent => _gameTimeOpponent;
@@ -30,10 +30,10 @@ class PageState with ChangeNotifier {
   }) {
     //
     try {
-      _stepTimeSelf = selfTimer['step_time'];
+      _moveTimeSelf = selfTimer['move_time'];
       _gameTimeSelf = selfTimer['game_time'];
 
-      _stepTimeOpponent = opponentTimer['step_time'];
+      _moveTimeOpponent = opponentTimer['move_time'];
       _gameTimeOpponent = opponentTimer['game_time'];
     } catch (_) {}
 

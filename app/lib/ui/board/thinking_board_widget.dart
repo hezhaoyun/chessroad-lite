@@ -17,9 +17,10 @@ class ThinkingBoardWidget extends BoardWidget {
     //
     return ThinkingBoardLayout(
       board.engineInfo,
+      board.ponder,
       PiecesLayout(
         width,
-        board.phase,
+        board.position,
         focusIndex: board.focusIndex,
         blurIndex: board.blurIndex,
         pieceAnimationValue: board.pieceAnimationValue,

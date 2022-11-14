@@ -48,14 +48,14 @@ class BoardTheme {
     redPieceTextColor: Colors.black,
   );
 
-  final Color focusPosition, blurPosition;
+  final Color focusPoint, blurPoint;
   final Color blackPieceColor, blackPieceBorderColor;
   final Color redPieceColor, redPieceBorderColor;
   final Color blackPieceTextColor, redPieceTextColor;
 
   const BoardTheme({
-    this.focusPosition = const Color(0xCCFF8B00),
-    this.blurPosition = const Color(0xCCFF8B00),
+    this.focusPoint = const Color(0xCCFF8B00),
+    this.blurPoint = const Color(0xCCFF8B00),
     this.blackPieceColor = const Color(0xFF222222),
     this.blackPieceBorderColor = const Color(0xFFFF8B00),
     this.redPieceColor = const Color(0xFF7B0000),

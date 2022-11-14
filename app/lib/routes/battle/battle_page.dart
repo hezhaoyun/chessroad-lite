@@ -1,12 +1,13 @@
 import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/engine/pikafish_config.dart';
 import 'package:flutter/material.dart';
+import 'package:pikafish_engine/pikafish.dart';
 import 'package:provider/provider.dart';
 
 import '../../ad/trigger.dart';
 import '../../cchess/cc_base.dart';
 import '../../cchess/cc_fen.dart';
-import '../../cchess/step_name.dart';
+import '../../cchess/move_name.dart';
 import '../../common/prt.dart';
 import '../../config/local_data.dart';
 import '../../config/profile.dart';
@@ -73,14 +74,14 @@ class BattlePageState extends State<BattlePage>
     //
     final profile = await Profile.local().load();
 
-    final initBoard = profile['battlepage-init-board'] ?? Fen.defaultPhase;
+    final initBoard = profile['battlepage-init-board'] ?? Fen.defaultPosition;
     final moveList = profile['battlepage-move-list'] ?? '';
     final boardInversed = profile['battlepage-board-inversed'] ?? false;
     _opponentHuman = profile['battlepage-oppo-human'] ?? false;
 
     prt('boardInversed: $boardInversed');
 
-    final phase = Fen.phaseFromFen(initBoard)!;
+    final position = Fen.positionFromFen(initBoard)!;
 
     for (var i = 0; i < moveList.length; i += 4) {
       //
@@ -91,11 +92,11 @@ class BattlePageState extends State<BattlePage>
         int.parse(moveList.substring(i + 3, i + 4)),
       );
 
-      phase.move(move);
+      position.move(move);
     }
 
     _boardState.inverseBoard(boardInversed, notify: false);
-    _boardState.setPhase(phase);
+    _boardState.setPosition(position);
   }
 
   Future<bool> saveBattle() async {
@@ -104,7 +105,7 @@ class BattlePageState extends State<BattlePage>
 
     final profile = await Profile.local().load();
 
-    profile['battlepage-init-board'] = Fen.defaultPhase;
+    profile['battlepage-init-board'] = Fen.defaultPosition;
     profile['battlepage-move-list'] = moveList;
     profile['battlepage-board-inversed'] = _boardState.boardInversed;
     profile['battlepage-oppo-human'] = _opponentHuman;
@@ -159,7 +160,9 @@ class BattlePageState extends State<BattlePage>
 
     _boardState.inverseBoard(opponentFirst);
 
-    _boardState.load(Fen.defaultPhase, notify: true);
+    _boardState.load(Fen.defaultPosition, notify: true);
+
+    HybridEngine().newGame();
 
     if (opponentFirst && !_opponentHuman) {
       askEngineGo();
@@ -167,7 +170,11 @@ class BattlePageState extends State<BattlePage>
       _pageState.changeStatus(BattlePage.yourTurn);
     }
 
-    setState(() => _boardState.engineInfo = null);
+    setState(() {
+      _state = PlayState.ready;
+      _boardState.engineInfo = null;
+      _boardState.ponder = null;
+    });
 
     ReviewPanel.popRequest();
   }
@@ -177,10 +184,12 @@ class BattlePageState extends State<BattlePage>
     if (AdTrigger.battle.checkAdChance(AdAction.regret, context)) return;
 
     _boardState.engineInfo = null;
-    _boardState.regret(GameScene.battle, steps: 2);
+    HybridEngine().stop();
+
+    _boardState.regret(GameScene.battle, moves: 2);
   }
 
-  analysisPhase() async {
+  analysisPosition() async {
     //
     if (AdTrigger.battle.checkAdChance(AdAction.requestAnalysis, context)) {
       return;
@@ -192,16 +201,16 @@ class BattlePageState extends State<BattlePage>
     showSnackBar(context, '正在分析局面...', shortDuration: true);
 
     try {
-      final result = await CloudEngine().analysis(_boardState.phase);
+      final result = await CloudEngine().analysis(_boardState.position);
 
       if (result.response is Analysis) {
         //
         List<AnalysisItem> items = (result.response as Analysis).items;
 
         for (var item in items) {
-          item.stepName = StepName.translate(
-            _boardState.phase,
-            Move.fromEngineStep(item.move),
+          item.name = MoveName.translate(
+            _boardState.position,
+            Move.fromEngineMove(item.move),
           );
         }
         if (mounted) {
@@ -236,7 +245,7 @@ class BattlePageState extends State<BattlePage>
     for (var item in items) {
       children.add(
         ListTile(
-          title: Text(item.stepName!, style: GameFonts.ui(fontSize: 18)),
+          title: Text(item.name!, style: GameFonts.ui(fontSize: 18)),
           subtitle: Text('获胜机率：${item.winrate}%'),
           trailing: Text('局面评分：${item.score}'),
           onTap: () => callback(item),
@@ -256,7 +265,7 @@ class BattlePageState extends State<BattlePage>
     );
   }
 
-  swapPhase() {
+  swapPosition() {
     //
     _boardState.inverseBoard(!_boardState.boardInversed);
 
@@ -283,24 +292,25 @@ class BattlePageState extends State<BattlePage>
     //
     if (_boardState.boardInversed) index = 89 - index;
 
-    final phase = _boardState.phase;
+    final position = _boardState.position;
 
-    // 仅 Phase 中的 side 指示一方能动棋
+    // 仅 Position 中的 sideToMove 指示一方能动棋
     if (_boardState.isOpponentTurn && !_opponentHuman) return;
 
-    final tapedPiece = phase.pieceAt(index);
+    final tapedPiece = position.pieceAt(index);
 
     // 之前已经有棋子被选中了
     if (_boardState.focusIndex != Move.invalidIndex &&
-        Side.of(phase.pieceAt(_boardState.focusIndex)) == phase.side) {
+        PieceColor.of(position.pieceAt(_boardState.focusIndex)) ==
+            position.sideToMove) {
       //
       // 当前点击的棋子和之前已经选择的是同一个位置
       if (_boardState.focusIndex == index) return;
 
       // 之前已经选择的棋子和现在点击的棋子是同一边的，说明是选择另外一个棋子
-      final focusPiece = phase.pieceAt(_boardState.focusIndex);
+      final focusPiece = position.pieceAt(_boardState.focusIndex);
 
-      if (Side.sameSide(focusPiece, tapedPiece)) {
+      if (PieceColor.sameColor(focusPiece, tapedPiece)) {
         _boardState.select(index);
         return;
       }
@@ -308,48 +318,49 @@ class BattlePageState extends State<BattlePage>
       // 现在点击的棋子和上一次选择棋子不同边，要么是吃子，要么是移动棋子到空白处
       if (_boardState.move(Move(_boardState.focusIndex, index))) {
         //
-        _boardState.engineInfo = null;
-
         startPieceAnimation();
 
-        final result = HybridEngine().scanBattleResult(
-          _boardState.phase,
+        final result = HybridEngine().scanGameResult(
+          _boardState.position,
           _boardState.playerSide,
         );
 
         switch (result) {
-          case BattleResult.pending:
+          case GameResult.pending:
             //
-            final move = _boardState.phase.lastMove!.asEngineStep();
+            final move = _boardState.position.lastMove!.asEngineMove();
 
             if (_boardState.ponder != null &&
                 PikafishConfig(LocalData().profile).ponder &&
                 move == _boardState.ponder) {
               //
-              _state = PlayState.pondering;
+              _state = PlayState.thinking;
+              prt('_state = PlayState.thinking');
+
               await HybridEngine().ponderhit();
               //
             } else {
               //
-              await HybridEngine().missPonder();
+              await HybridEngine().stop();
 
               if (!_opponentHuman) {
                 Future.delayed(const Duration(seconds: 1), () => askEngineGo());
               }
             }
             break;
-          case BattleResult.win:
+          case GameResult.win:
             gotWin();
             break;
-          case BattleResult.lose:
+          case GameResult.lose:
             gotLose();
             break;
-          case BattleResult.draw:
+          case GameResult.draw:
             gotDraw();
             break;
         }
       }
-    } else if (tapedPiece != Piece.empty && Side.of(tapedPiece) == phase.side) {
+    } else if (tapedPiece != Piece.noPiece &&
+        PieceColor.of(tapedPiece) == position.sideToMove) {
       // 之前未选中棋子，现在点击就是选择棋子
       _boardState.select(index);
     }
@@ -363,7 +374,7 @@ class BattlePageState extends State<BattlePage>
       //
       _boardState.engineInfo = resp;
 
-      if (_boardState.engineInfo != null && _state != PlayState.pondering) {
+      if (_state != PlayState.pondering) {
         final score = _boardState.engineInfo!.score(_boardState, false);
         if (score != null) _pageState.changeStatus(score);
       }
@@ -371,40 +382,43 @@ class BattlePageState extends State<BattlePage>
       //
       final lastState = _state;
       _state = PlayState.ready;
+      prt('_state = PlayState.ready');
 
       if (resp is Bestmove) {
         //
-        final step = Move.fromEngineStep(resp.bestmove);
+        final move = Move.fromEngineMove(resp.bestmove);
 
-        _boardState.move(step);
+        _boardState.ponder = (er.response as Bestmove).ponder;
+
+        _boardState.move(move);
         startPieceAnimation();
 
-        final result = HybridEngine().scanBattleResult(
-          _boardState.phase,
+        final result = HybridEngine().scanGameResult(
+          _boardState.position,
           _boardState.playerSide,
         );
 
         switch (result) {
           //
-          case BattleResult.pending:
+          case GameResult.pending:
             //
             if (lastState == PlayState.thinking ||
                 lastState == PlayState.pondering) {
               //
-              _boardState.ponder = (er.response as Bestmove).ponder;
-
               if (_boardState.ponder != null &&
                   PikafishConfig(LocalData().profile).ponder) {
                 //
+                _state = PlayState.pondering;
+                prt('_state = PlayState.pondering');
+
                 await HybridEngine().search(
-                  _boardState.phase,
+                  _boardState.position,
                   engineCallback,
                   ponder: _boardState.ponder,
                 );
               }
 
-              if (_boardState.engineInfo != null &&
-                  _state != PlayState.pondering) {
+              if (_boardState.engineInfo != null) {
                 //
                 final score = _boardState.engineInfo?.score(
                   _boardState,
@@ -428,13 +442,13 @@ class BattlePageState extends State<BattlePage>
               }
             }
             break;
-          case BattleResult.win:
+          case GameResult.win:
             gotWin();
             break;
-          case BattleResult.lose:
+          case GameResult.lose:
             gotLose();
             break;
-          case BattleResult.draw:
+          case GameResult.draw:
             gotDraw();
             break;
         }
@@ -456,9 +470,10 @@ class BattlePageState extends State<BattlePage>
     if (_state != PlayState.ready) return;
 
     _state = PlayState.thinking;
+    prt('_state = PlayState.thinking');
     _pageState.changeStatus('对方思考中...');
 
-    await HybridEngine().search(_boardState.phase, engineCallback);
+    await HybridEngine().search(_boardState.position, engineCallback);
   }
 
   askEngineHint() async {
@@ -468,9 +483,10 @@ class BattlePageState extends State<BattlePage>
     if (_state != PlayState.ready) return;
 
     _state = PlayState.hinting;
+    prt('_state = PlayState.hinting');
     _pageState.changeStatus('引擎思考提示着法...');
 
-    await HybridEngine().search(_boardState.phase, engineCallback);
+    await HybridEngine().search(_boardState.position, engineCallback);
   }
 
   gotWin() async {
@@ -478,7 +494,7 @@ class BattlePageState extends State<BattlePage>
     await Future.delayed(const Duration(seconds: 1));
 
     Audios.playTone('win.mp3');
-    _boardState.phase.result = BattleResult.win;
+    _boardState.position.result = GameResult.win;
 
     showDialog(
       context: context,
@@ -508,7 +524,7 @@ class BattlePageState extends State<BattlePage>
     await Future.delayed(const Duration(seconds: 1));
 
     Audios.playTone('lose.mp3');
-    _boardState.phase.result = BattleResult.lose;
+    _boardState.position.result = GameResult.lose;
 
     showDialog(
       context: context,
@@ -538,7 +554,7 @@ class BattlePageState extends State<BattlePage>
     await Future.delayed(const Duration(seconds: 1));
 
     Audios.playTone('draw.mp3');
-    _boardState.phase.result = BattleResult.draw;
+    _boardState.position.result = GameResult.draw;
 
     showDialog(
       context: context,
@@ -577,8 +593,8 @@ class BattlePageState extends State<BattlePage>
       ActionItem(name: '新局', callback: confirmNewGame),
       ActionItem(name: '悔棋', callback: regret),
       ActionItem(name: '提示', callback: askEngineHint),
-      ActionItem(name: '云库', callback: analysisPhase),
-      ActionItem(name: '交换局面', callback: swapPhase),
+      ActionItem(name: '云库', callback: analysisPosition),
+      ActionItem(name: '交换局面', callback: swapPosition),
       ActionItem(name: '翻转棋盘', callback: inverseBoard),
       ActionItem(name: '保存棋谱', callback: saveManual),
     ]);
@@ -604,14 +620,19 @@ class BattlePageState extends State<BattlePage>
     //
     String? content;
 
-    if (_boardState.engineInfo != null && _state != PlayState.pondering) {
+    if (_boardState.engineInfo != null) {
+      //
       content = _boardState.engineInfo!.info(
         _boardState,
         _state != PlayState.ready,
       );
+
+      if (_state == PlayState.pondering) {
+        content = '后台思考：\n$content';
+      }
     }
 
-    content ??= _boardState.phase.manualText;
+    content ??= _boardState.position.moveList;
 
     if (Ruler.isLongScreen(context)) {
       return buildInfoPanel(content);
@@ -667,6 +688,7 @@ class BattlePageState extends State<BattlePage>
   @override
   void dispose() {
     saveBattle().then((_) => _boardState.inverseBoard(false, notify: false));
+    HybridEngine().stop();
     super.dispose();
   }
 }

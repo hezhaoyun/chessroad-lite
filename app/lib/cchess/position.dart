@@ -6,53 +6,53 @@ import '../../common/prt.dart';
 import '../../game/game.dart';
 import 'cc_rules.dart';
 import 'cc_base.dart';
-import 'step_name.dart';
+import 'move_name.dart';
 import 'cc_fen.dart';
 import 'move_recorder.dart';
 
-class Phase {
+class Position {
   //
-  BattleResult result = BattleResult.pending;
+  GameResult result = GameResult.pending;
 
-  late String _side;
+  late String _sideToMove;
   late List<String> _pieces; // 10 行，9 列
   late MoveRecorder _recorder;
 
   String _initBoard = '';
-  String? _lastCapturedPhase;
+  String? _lastCapturedPosition;
 
-  static Phase defaultPhase() {
-    return Fen.phaseFromFen(Fen.defaultPhase)!;
+  static Position defaultPosition() {
+    return Fen.positionFromFen(Fen.defaultPosition)!;
   }
 
-  Phase(List<String> pieces, String side, MoveRecorder recorder) {
+  Position(List<String> pieces, String sideToMove, MoveRecorder recorder) {
     //
     _pieces = pieces;
-    _side = side;
+    _sideToMove = sideToMove;
     _recorder = recorder;
 
-    updateInitPhase();
+    updateInitPosition();
   }
 
-  Phase.clone(Phase other) {
+  Position.clone(Position other) {
     deepCopy(other);
   }
 
   String get initBoard => _initBoard;
 
-  void updateInitPhase() {
-    _lastCapturedPhase = Fen.phaseToFen(this);
-    _initBoard = Fen.phaseToCrManualBoard(this);
+  void updateInitPosition() {
+    _lastCapturedPosition = Fen.positionToFen(this);
+    _initBoard = Fen.positionToCrManualBoard(this);
   }
 
-  void deepCopy(Phase other) {
+  void deepCopy(Position other) {
     //
     _pieces = [];
     for (var piece in other._pieces) {
       _pieces.add(piece);
     }
 
-    _side = other._side;
+    _sideToMove = other._sideToMove;
 
     _recorder = MoveRecorder(
       halfMove: other._recorder.halfMove,
@@ -75,19 +75,19 @@ class Phase {
     move.captured = captured;
     move.counterMarks = _recorder.toString();
 
-    StepName.translate(this, move);
-    _recorder.stepIn(move, _side);
+    MoveName.translate(this, move);
+    _recorder.moveIn(move, _sideToMove);
 
     // 修改棋盘
     _pieces[move.to] = _pieces[move.from];
-    _pieces[move.from] = Piece.empty;
+    _pieces[move.from] = Piece.noPiece;
 
     // 交换走棋方
-    _side = Side.opponent(_side);
+    _sideToMove = PieceColor.opponent(_sideToMove);
 
     // 记录最近一个吃子局面的 FEN，UCCI 引擎需要
-    if (captured != Piece.empty) {
-      _lastCapturedPhase = Fen.phaseToFen(this);
+    if (captured != Piece.noPiece) {
+      _lastCapturedPosition = Fen.positionToFen(this);
     }
 
     return true;
@@ -99,10 +99,10 @@ class Phase {
     //
     // 修改棋盘
     _pieces[move.to] = _pieces[move.from];
-    _pieces[move.from] = Piece.empty;
+    _pieces[move.from] = Piece.noPiece;
 
     // 交换走棋方
-    if (turnSide) _side = Side.opponent(_side);
+    if (turnSide) _sideToMove = PieceColor.opponent(_sideToMove);
   }
 
   bool regret() {
@@ -113,30 +113,31 @@ class Phase {
     _pieces[lastMove.from] = _pieces[lastMove.to];
     _pieces[lastMove.to] = lastMove.captured;
 
-    _side = Side.opponent(_side);
+    _sideToMove = PieceColor.opponent(_sideToMove);
 
     final counterMarks = MoveRecorder.fromCounterMarks(lastMove.counterMarks);
     _recorder.halfMove = counterMarks.halfMove;
     _recorder.fullMove = counterMarks.fullMove;
 
-    if (lastMove.captured != Piece.empty) {
+    if (lastMove.captured != Piece.noPiece) {
       //
       // 查找上一个吃子局面（或开局），NativeEngine 需要
-      final tempPhase = Phase.clone(this);
+      final tempPosition = Position.clone(this);
 
       final moves = _recorder.reverseMovesToPrevCapture();
       for (var move in moves) {
         //
-        tempPhase._pieces[move.from] = tempPhase._pieces[move.to];
-        tempPhase._pieces[move.to] = move.captured;
+        tempPosition._pieces[move.from] = tempPosition._pieces[move.to];
+        tempPosition._pieces[move.to] = move.captured;
 
-        tempPhase._side = Side.opponent(tempPhase._side);
+        tempPosition._sideToMove =
+            PieceColor.opponent(tempPosition._sideToMove);
       }
 
-      _lastCapturedPhase = Fen.phaseToFen(tempPhase);
+      _lastCapturedPosition = Fen.positionToFen(tempPosition);
     }
 
-    result = BattleResult.pending;
+    result = GameResult.pending;
 
     return true;
   }
@@ -144,46 +145,46 @@ class Phase {
   bool validateMove(int from, int to) {
     //
     // 移动的棋子的选手，应该是当前方
-    if (Side.of(_pieces[from]) != _side) return false;
+    if (PieceColor.of(_pieces[from]) != _sideToMove) return false;
 
     return (ChessRules.validate(this, Move(from, to)));
   }
 
-  Move last9steps(int index) =>
-      _recorder.stepAt((_recorder.historyLength - 9) + index);
+  Move last9Moves(int index) =>
+      _recorder.moveAt((_recorder.historyLength - 9) + index);
 
   bool isLongCheck() {
     //
-    if (!appearRepeatPhase()) return false;
+    if (!appearRepeatPosition()) return false;
 
-    final tempPhase = Phase.clone(this);
+    final tempPosition = Position.clone(this);
     for (var i = 0; i < 9; i++) {
-      tempPhase.regret();
+      tempPosition.regret();
     }
 
-    tempPhase.move(last9steps(0));
-    if (!ChessRules.beChecked(tempPhase)) return false;
+    tempPosition.move(last9Moves(0));
+    if (!ChessRules.beChecked(tempPosition)) return false;
 
-    tempPhase.move(last9steps(1));
-    tempPhase.move(last9steps(2));
-    if (!ChessRules.beChecked(tempPhase)) return false;
+    tempPosition.move(last9Moves(1));
+    tempPosition.move(last9Moves(2));
+    if (!ChessRules.beChecked(tempPosition)) return false;
 
-    tempPhase.move(last9steps(3));
-    tempPhase.move(last9steps(4));
-    if (!ChessRules.beChecked(tempPhase)) return false;
+    tempPosition.move(last9Moves(3));
+    tempPosition.move(last9Moves(4));
+    if (!ChessRules.beChecked(tempPosition)) return false;
 
-    tempPhase.move(last9steps(5));
-    tempPhase.move(last9steps(6));
-    if (!ChessRules.beChecked(tempPhase)) return false;
+    tempPosition.move(last9Moves(5));
+    tempPosition.move(last9Moves(6));
+    if (!ChessRules.beChecked(tempPosition)) return false;
 
-    tempPhase.move(last9steps(7));
-    tempPhase.move(last9steps(8));
-    if (!ChessRules.beChecked(tempPhase)) return false;
+    tempPosition.move(last9Moves(7));
+    tempPosition.move(last9Moves(8));
+    if (!ChessRules.beChecked(tempPosition)) return false;
 
     return true;
   }
 
-  bool appearRepeatPhase() {
+  bool appearRepeatPosition() {
     //
     if (_recorder.historyLength < 9) return false;
 
@@ -195,10 +196,10 @@ class Phase {
           m1.to == m3.to;
     }
 
-    return same(last9steps(0), last9steps(4), last9steps(8)) &&
-        same(last9steps(1), last9steps(5)) &&
-        same(last9steps(2), last9steps(6)) &&
-        same(last9steps(3), last9steps(7));
+    return same(last9Moves(0), last9Moves(4), last9Moves(8)) &&
+        same(last9Moves(1), last9Moves(5)) &&
+        same(last9Moves(2), last9Moves(6)) &&
+        same(last9Moves(3), last9Moves(7));
   }
 
   Future<bool> saveManual(GameScene scene) async {
@@ -212,20 +213,20 @@ class Phase {
     const clazz = '人机练习';
 
     final moveList = _recorder.buildMoveListForManual();
-    String battleResult;
+    String gameResult;
 
     switch (result) {
-      case BattleResult.pending:
-        battleResult = '未知';
+      case GameResult.pending:
+        gameResult = '未知';
         break;
-      case BattleResult.win:
-        battleResult = '红胜';
+      case GameResult.win:
+        gameResult = '红胜';
         break;
-      case BattleResult.lose:
-        battleResult = '黑胜';
+      case GameResult.lose:
+        gameResult = '黑胜';
         break;
-      case BattleResult.draw:
-        battleResult = '和棋';
+      case GameResult.draw:
+        gameResult = '和棋';
         break;
     }
 
@@ -236,7 +237,7 @@ class Phase {
       'clazz': clazz,
       'red': '',
       'black': black,
-      'result': battleResult,
+      'result': gameResult,
       'init_board': _initBoard,
       'move_list': '[DhtmlXQ_movelist]$moveList[/DhtmlXQ_movelist]',
       'comment_list': '',
@@ -262,16 +263,16 @@ class Phase {
 
   String buildPositionCommand({forEleeye = false}) {
     //
-    final String? phase, moves;
+    final String? position, moves;
 
-    phase = lastCapturedPhase;
+    position = lastCapturedPosition;
     moves = movesAfterLastCaptured;
 
-    if (moves == '') return 'position fen $phase';
-    return 'position fen $phase moves $moves';
+    if (moves == '') return 'position fen $position';
+    return 'position fen $position moves $moves';
   }
 
-  String get manualText => _recorder.buildManualText();
+  String get moveList => _recorder.buildMoveList();
 
   String buildMoveListForManual() => _recorder.buildMoveListForManual();
 
@@ -281,8 +282,8 @@ class Phase {
 
   void setPiece(int index, String piece) => _pieces[index] = piece;
 
-  String get side => _side;
-  void turnSide() => _side = Side.opponent(_side);
+  String get sideToMove => _sideToMove;
+  void turnSide() => _sideToMove = PieceColor.opponent(_sideToMove);
 
   // broken access to recorder outside
 
@@ -291,9 +292,9 @@ class Phase {
   Move? get lastMove => _recorder.last;
   int get halfMove => _recorder.halfMove; // 无吃子步数
   int get fullMove => _recorder.fullMove; // 总回合步数
-  String get stepCount => _recorder.toString();
+  String get moveCount => _recorder.toString();
 
-  String? get lastCapturedPhase => _lastCapturedPhase;
+  String? get lastCapturedPosition => _lastCapturedPosition;
   String get allMoves => _recorder.allMoves();
   String get movesAfterLastCaptured => _recorder.movesAfterLastCaptured();
 }

@@ -72,15 +72,15 @@ class BoardWidget extends StatelessWidget {
         final squareWidth = gridWidth / 8;
 
         final dx = d.localPosition.dx, dy = d.localPosition.dy;
-        final row = (dy - Ruler.kBoardPadding - Ruler.kBoardDigitsHeight) ~/
+        final rank = (dy - Ruler.kBoardPadding - Ruler.kBoardDigitsHeight) ~/
             squareWidth;
-        final column = (dx - Ruler.kBoardPadding) ~/ squareWidth;
+        final file = (dx - Ruler.kBoardPadding) ~/ squareWidth;
 
-        if (row < 0 || row > 9) return;
-        if (column < 0 || column > 8) return;
+        if (rank < 0 || rank > 9) return;
+        if (file < 0 || file > 8) return;
 
         if (onBoardTap != null) {
-          onBoardTap!(context, row * 9 + column);
+          onBoardTap!(context, rank * 9 + file);
         }
       },
     );
@@ -91,7 +91,7 @@ class BoardWidget extends StatelessWidget {
     return PiecesLayer(
       PiecesLayout(
         width,
-        board.phase,
+        board.position,
         focusIndex: board.focusIndex,
         blurIndex: board.blurIndex,
         boardInversed: board.boardInversed,

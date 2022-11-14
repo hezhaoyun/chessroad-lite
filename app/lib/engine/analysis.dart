@@ -4,7 +4,7 @@ class AnalysisItem {
   final int score;
   final double winrate;
 
-  String? stepName;
+  String? name;
 
   AnalysisItem({
     required this.move,
@@ -14,7 +14,7 @@ class AnalysisItem {
 
   @override
   String toString() =>
-      '{move: ${stepName ?? move}, score: $score, winrate: $winrate}';
+      '{move: ${name ?? move}, score: $score, winrate: $winrate}';
 }
 
 class AnalysisFetcher {

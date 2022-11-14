@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../cchess/cc_base.dart';
-import '../../cchess/phase.dart';
+import '../../cchess/position.dart';
 import '../ruler.dart';
 import 'blur_holder.dart';
 import 'piece_stubs.dart';
@@ -9,7 +9,7 @@ import 'piece_widget.dart';
 class PiecesLayout {
   //
   final double width;
-  final Phase phase;
+  final Position position;
   final int focusIndex, blurIndex;
   final bool boardInversed;
 
@@ -18,7 +18,7 @@ class PiecesLayout {
 
   PiecesLayout(
     this.width,
-    this.phase, {
+    this.position, {
     required this.pieceAnimationValue,
     required this.boardInversed,
     this.focusIndex = Move.invalidIndex,
@@ -37,16 +37,16 @@ class PiecesLayout {
 
     final pieces = <PieceLayoutStub>[];
 
-    for (var row = 0; row < 10; row++) {
+    for (var rank = 0; rank < 10; rank++) {
       //
-      for (var column = 0; column < 9; column++) {
+      for (var file = 0; file < 9; file++) {
         //
-        final index = row * 9 + column;
-        final piece = phase.pieceAt(index);
-        if (piece == Piece.empty) continue;
+        final index = rank * 9 + file;
+        final piece = position.pieceAt(index);
+        if (piece == Piece.noPiece) continue;
 
-        final x = boardInversed ? 8 - column : column;
-        final y = boardInversed ? 9 - row : row;
+        final x = boardInversed ? 8 - file : file;
+        final y = boardInversed ? 9 - rank : rank;
 
         var posX = offsetX + squareWidth * x;
         var posY = offsetY + squareWidth * y;
@@ -57,7 +57,7 @@ class PiecesLayout {
             blurIndex != Move.invalidIndex) {
           //
           final fx = blurIndex % 9, fy = blurIndex ~/ 9;
-          final tx = column, ty = row;
+          final tx = file, ty = rank;
           final ax = fx + (tx - fx) * pieceAnimationValue,
               ay = fy + (ty - fy) * pieceAnimationValue;
 
@@ -76,7 +76,8 @@ class PiecesLayout {
             x: posX,
             y: posY,
             rotate: opponentHuman &&
-                Side.of(piece) == (boardInversed ? Side.red : Side.black),
+                PieceColor.of(piece) ==
+                    (boardInversed ? PieceColor.red : PieceColor.black),
           ),
         );
       }

@@ -9,9 +9,12 @@ import 'pieces_layout.dart';
 class ThinkingBoardLayout extends StatefulWidget {
   //
   final EngineInfo? engineInfo;
+  final String? ponder;
+
   final PiecesLayout layoutParams;
 
-  const ThinkingBoardLayout(this.engineInfo, this.layoutParams, {Key? key})
+  const ThinkingBoardLayout(this.engineInfo, this.ponder, this.layoutParams,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -25,7 +28,11 @@ class _PiecesLayoutState extends State<ThinkingBoardLayout> {
     //
     final moves = <Move>[];
 
-    if (widget.engineInfo != null) {
+    if (widget.ponder != null) {
+      //
+      moves.add(Move.fromEngineMove(widget.ponder!));
+      //
+    } else if (widget.engineInfo != null) {
       //
       var pvs = widget.engineInfo!.pvs;
 
@@ -36,7 +43,7 @@ class _PiecesLayoutState extends State<ThinkingBoardLayout> {
         pvs = pvs.sublist(0, 2);
       }
 
-      moves.addAll(pvs.map((move) => Move.fromEngineStep(move)));
+      moves.addAll(pvs.map((move) => Move.fromEngineMove(move)));
     }
 
     final layout = widget.layoutParams.buildPiecesLayout(context);

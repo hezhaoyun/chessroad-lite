@@ -1,53 +1,53 @@
-import 'phase.dart';
+import 'position.dart';
 import 'cc_base.dart';
 
 class ChessRules {
   //
-  static bool beChecked(Phase phase) {
+  static bool beChecked(Position position) {
     //
-    final myKingPos = findKingPos(phase);
+    final myKingPos = findKingPos(position);
 
-    final opponentPhase = Phase.clone(phase);
-    opponentPhase.turnSide();
+    final opponentPosition = Position.clone(position);
+    opponentPosition.turnSide();
 
-    final opponentSteps = enumSteps(opponentPhase);
+    final opponentMoves = enumMoves(opponentPosition);
 
-    for (var step in opponentSteps) {
-      if (step.to == myKingPos) return true;
+    for (var move in opponentMoves) {
+      if (move.to == myKingPos) return true;
     }
 
     return false;
   }
 
-  static bool willBeChecked(Phase phase, Move move) {
+  static bool willBeChecked(Position position, Move move) {
     //
-    final tempPhase = Phase.clone(phase);
-    tempPhase.moveTest(move);
+    final tempPosition = Position.clone(position);
+    tempPosition.moveTest(move);
 
-    return beChecked(tempPhase);
+    return beChecked(tempPosition);
   }
 
-  static bool willKingsMeeting(Phase phase, Move move) {
+  static bool willKingsMeet(Position position, Move move) {
     //
-    final tempPhase = Phase.clone(phase);
-    tempPhase.moveTest(move);
+    final tempPosition = Position.clone(position);
+    tempPosition.moveTest(move);
 
-    for (var col = 3; col < 6; col++) {
+    for (var file = 3; file < 6; file++) {
       //
       var foundKingAlready = false;
 
-      for (var row = 0; row < 10; row++) {
+      for (var rank = 0; rank < 10; rank++) {
         //
-        final piece = tempPhase.pieceAt(row * 9 + col);
+        final piece = tempPosition.pieceAt(rank * 9 + file);
 
         if (!foundKingAlready) {
           if (piece == Piece.redKing || piece == Piece.blackKing) {
             foundKingAlready = true;
           }
-          if (row > 2) break;
+          if (rank > 2) break;
         } else {
           if (piece == Piece.redKing || piece == Piece.blackKing) return true;
-          if (piece != Piece.empty) break;
+          if (piece != Piece.noPiece) break;
         }
       }
     }
@@ -55,91 +55,94 @@ class ChessRules {
     return false;
   }
 
-  static bool beKilled(Phase phase) {
+  static bool beCheckmated(Position position) {
     //
-    final steps = ChessRules.enumSteps(phase);
+    final moves = ChessRules.enumMoves(position);
 
-    for (var step in steps) {
-      if (ChessRules.validate(phase, step)) return false;
+    for (var move in moves) {
+      if (ChessRules.validate(position, move)) return false;
     }
 
     return true;
   }
 
-  static List<Move> enumSteps(Phase phase) {
+  static List<Move> enumMoves(Position position) {
     //
-    final steps = <Move>[];
+    final moves = <Move>[];
 
-    for (var row = 0; row < 10; row++) {
+    for (var rank = 0; rank < 10; rank++) {
       //
-      for (var col = 0; col < 9; col++) {
+      for (var file = 0; file < 9; file++) {
         //
-        final from = row * 9 + col;
-        final piece = phase.pieceAt(from);
+        final from = rank * 9 + file;
+        final piece = position.pieceAt(from);
 
-        if (Side.of(piece) != phase.side) continue;
+        if (PieceColor.of(piece) != position.sideToMove) continue;
 
-        List<Move> pieceSteps;
+        List<Move> pieceMoves;
 
         if (piece == Piece.redKing || piece == Piece.blackKing) {
-          pieceSteps = enumKingSteps(phase, row, col, from);
+          pieceMoves = enumKingMoves(position, rank, file, from);
         } else if (piece == Piece.redAdvisor || piece == Piece.blackAdvisor) {
-          pieceSteps = enumAdvisorSteps(phase, row, col, from);
+          pieceMoves = enumAdvisorMoves(position, rank, file, from);
         } else if (piece == Piece.redBishop || piece == Piece.blackBishop) {
-          pieceSteps = enumBishopSteps(phase, row, col, from);
+          pieceMoves = enumBishopMoves(position, rank, file, from);
         } else if (piece == Piece.redKnight || piece == Piece.blackKnight) {
-          pieceSteps = enumKnightSteps(phase, row, col, from);
+          pieceMoves = enumKnightMoves(position, rank, file, from);
         } else if (piece == Piece.redRook || piece == Piece.blackRook) {
-          pieceSteps = enumRookSteps(phase, row, col, from);
+          pieceMoves = enumRookMoves(position, rank, file, from);
         } else if (piece == Piece.redCanon || piece == Piece.blackCanon) {
-          pieceSteps = enumCanonSteps(phase, row, col, from);
+          pieceMoves = enumCanonMoves(position, rank, file, from);
         } else if (piece == Piece.redPawn || piece == Piece.blackPawn) {
-          pieceSteps = enumPawnSteps(phase, row, col, from);
+          pieceMoves = enumPawnMoves(position, rank, file, from);
         } else {
           continue;
         }
 
-        steps.addAll(pieceSteps);
+        moves.addAll(pieceMoves);
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static bool validate(Phase phase, Move move) {
+  static bool validate(Position position, Move move) {
     //
-    if (Side.of(phase.pieceAt(move.to)) == phase.side) return false;
+    if (PieceColor.of(position.pieceAt(move.to)) == position.sideToMove) {
+      return false;
+    }
 
-    final piece = phase.pieceAt(move.from);
+    final piece = position.pieceAt(move.from);
 
     var valid = false;
 
     if (piece == Piece.redKing || piece == Piece.blackKing) {
-      valid = validateKingStep(phase, move);
+      valid = validateKingMove(position, move);
     } else if (piece == Piece.redAdvisor || piece == Piece.blackAdvisor) {
-      valid = validateAdvisorStep(phase, move);
+      valid = validateAdvisorMove(position, move);
     } else if (piece == Piece.redBishop || piece == Piece.blackBishop) {
-      valid = validateBishopStep(phase, move);
+      valid = validateBishopMove(position, move);
     } else if (piece == Piece.redKnight || piece == Piece.blackKnight) {
-      valid = validateKnightStep(phase, move);
+      valid = validateKnightMove(position, move);
     } else if (piece == Piece.redRook || piece == Piece.blackRook) {
-      valid = validateRookStep(phase, move);
+      valid = validateRookMove(position, move);
     } else if (piece == Piece.redCanon || piece == Piece.blackCanon) {
-      valid = validateCanonStep(phase, move);
+      valid = validateCanonMove(position, move);
     } else if (piece == Piece.redPawn || piece == Piece.blackPawn) {
-      valid = validatePawnStep(phase, move);
+      valid = validatePawnMove(position, move);
     }
 
     if (!valid) return false;
 
-    if (willBeChecked(phase, move)) return false;
+    if (willBeChecked(position, move)) return false;
 
-    if (willKingsMeeting(phase, move)) return false;
+    if (willKingsMeet(position, move)) return false;
 
     return true;
   }
 
-  static List<Move> enumKingSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumKingMoves(
+      Position position, int rank, int file, int from) {
     //
     final offsetList = [
       [-1, 0],
@@ -150,28 +153,31 @@ class ChessRules {
 
     final redRange = [66, 67, 68, 75, 76, 77, 84, 85, 86];
     final blackRange = [3, 4, 5, 12, 13, 14, 21, 22, 23];
-    final range = (phase.side == Side.red ? redRange : blackRange);
+    final range =
+        (position.sideToMove == PieceColor.red ? redRange : blackRange);
 
-    final steps = <Move>[];
+    final moves = <Move>[];
 
     for (var i = 0; i < 4; i++) {
       //
       final offset = offsetList[i];
-      final to = (row + offset[0]) * 9 + col + offset[1];
+      final to = (rank + offset[0]) * 9 + file + offset[1];
 
-      if (!posOnBoard(to) || Side.of(phase.pieceAt(to)) == phase.side) {
+      if (!posOnBoard(to) ||
+          PieceColor.of(position.pieceAt(to)) == position.sideToMove) {
         continue;
       }
 
       if (binarySearch(range, 0, range.length - 1, to) > -1) {
-        steps.add(Move(from, to));
+        moves.add(Move(from, to));
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static List<Move> enumAdvisorSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumAdvisorMoves(
+      Position position, int rank, int file, int from) {
     //
     final offsetList = [
       [-1, -1],
@@ -182,28 +188,30 @@ class ChessRules {
 
     final redRange = [66, 68, 76, 84, 86];
     final blackRange = [3, 5, 13, 21, 23];
-    final range = phase.side == Side.red ? redRange : blackRange;
+    final range = position.sideToMove == PieceColor.red ? redRange : blackRange;
 
-    final steps = <Move>[];
+    final moves = <Move>[];
 
     for (var i = 0; i < 4; i++) {
       //
       final offset = offsetList[i];
-      final to = (row + offset[0]) * 9 + col + offset[1];
+      final to = (rank + offset[0]) * 9 + file + offset[1];
 
-      if (!posOnBoard(to) || Side.of(phase.pieceAt(to)) == phase.side) {
+      if (!posOnBoard(to) ||
+          PieceColor.of(position.pieceAt(to)) == position.sideToMove) {
         continue;
       }
 
       if (binarySearch(range, 0, range.length - 1, to) > -1) {
-        steps.add(Move(from, to));
+        moves.add(Move(from, to));
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static List<Move> enumBishopSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumBishopMoves(
+      Position position, int rank, int file, int from) {
     //
     final heartOffsetList = [
       [-1, -1],
@@ -221,35 +229,37 @@ class ChessRules {
 
     final redRange = [47, 51, 63, 67, 71, 83, 87];
     final blackRange = [2, 6, 18, 22, 26, 38, 42];
-    final range = phase.side == Side.red ? redRange : blackRange;
+    final range = position.sideToMove == PieceColor.red ? redRange : blackRange;
 
-    final steps = <Move>[];
+    final moves = <Move>[];
 
     for (var i = 0; i < 4; i++) {
       //
       final heartOffset = heartOffsetList[i];
-      final heart = (row + heartOffset[0]) * 9 + (col + heartOffset[1]);
+      final heart = (rank + heartOffset[0]) * 9 + (file + heartOffset[1]);
 
-      if (!posOnBoard(heart) || phase.pieceAt(heart) != Piece.empty) {
+      if (!posOnBoard(heart) || position.pieceAt(heart) != Piece.noPiece) {
         continue;
       }
 
       final offset = offsetList[i];
-      final to = (row + offset[0]) * 9 + (col + offset[1]);
+      final to = (rank + offset[0]) * 9 + (file + offset[1]);
 
-      if (!posOnBoard(to) || Side.of(phase.pieceAt(to)) == phase.side) {
+      if (!posOnBoard(to) ||
+          PieceColor.of(position.pieceAt(to)) == position.sideToMove) {
         continue;
       }
 
       if (binarySearch(range, 0, range.length - 1, to) > -1) {
-        steps.add(Move(from, to));
+        moves.add(Move(from, to));
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static List<Move> enumKnightSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumKnightMoves(
+      Position position, int rank, int file, int from) {
     //
     final offsetList = [
       [-2, -1],
@@ -272,121 +282,124 @@ class ChessRules {
       [-1, 0]
     ];
 
-    final steps = <Move>[];
+    final moves = <Move>[];
 
     for (var i = 0; i < 8; i++) {
       //
       final offset = offsetList[i];
-      final nr = row + offset[0], nc = col + offset[1];
+      final nr = rank + offset[0], nc = file + offset[1];
 
       if (nr < 0 || nr > 9 || nc < 0 || nc > 9) continue;
 
       final to = nr * 9 + nc;
-      if (!posOnBoard(to) || Side.of(phase.pieceAt(to)) == phase.side) {
+      if (!posOnBoard(to) ||
+          PieceColor.of(position.pieceAt(to)) == position.sideToMove) {
         continue;
       }
 
       final footOffset = footOffsetList[i];
-      final fr = row + footOffset[0], fc = col + footOffset[1];
+      final fr = rank + footOffset[0], fc = file + footOffset[1];
       final foot = fr * 9 + fc;
 
-      if (!posOnBoard(foot) || phase.pieceAt(foot) != Piece.empty) {
+      if (!posOnBoard(foot) || position.pieceAt(foot) != Piece.noPiece) {
         continue;
       }
 
-      steps.add(Move(from, to));
+      moves.add(Move(from, to));
     }
 
-    return steps;
+    return moves;
   }
 
-  static List<Move> enumRookSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumRookMoves(
+      Position position, int rank, int file, int from) {
     //
-    final steps = <Move>[];
+    final moves = <Move>[];
 
     // to left
-    for (var c = col - 1; c >= 0; c--) {
-      final to = row * 9 + c;
-      final target = phase.pieceAt(to);
+    for (var c = file - 1; c >= 0; c--) {
+      final to = rank * 9 + c;
+      final target = position.pieceAt(to);
 
-      if (target == Piece.empty) {
-        steps.add(Move(from, to));
+      if (target == Piece.noPiece) {
+        moves.add(Move(from, to));
       } else {
-        if (Side.of(target) != phase.side) {
-          steps.add(Move(from, to));
+        if (PieceColor.of(target) != position.sideToMove) {
+          moves.add(Move(from, to));
         }
         break;
       }
     }
 
     // to top
-    for (var r = row - 1; r >= 0; r--) {
-      final to = r * 9 + col;
-      final target = phase.pieceAt(to);
+    for (var r = rank - 1; r >= 0; r--) {
+      final to = r * 9 + file;
+      final target = position.pieceAt(to);
 
-      if (target == Piece.empty) {
-        steps.add(Move(from, to));
+      if (target == Piece.noPiece) {
+        moves.add(Move(from, to));
       } else {
-        if (Side.of(target) != phase.side) {
-          steps.add(Move(from, to));
+        if (PieceColor.of(target) != position.sideToMove) {
+          moves.add(Move(from, to));
         }
         break;
       }
     }
 
     // to right
-    for (var c = col + 1; c < 9; c++) {
-      final to = row * 9 + c;
-      final target = phase.pieceAt(to);
+    for (var c = file + 1; c < 9; c++) {
+      final to = rank * 9 + c;
+      final target = position.pieceAt(to);
 
-      if (target == Piece.empty) {
-        steps.add(Move(from, to));
+      if (target == Piece.noPiece) {
+        moves.add(Move(from, to));
       } else {
-        if (Side.of(target) != phase.side) {
-          steps.add(Move(from, to));
+        if (PieceColor.of(target) != position.sideToMove) {
+          moves.add(Move(from, to));
         }
         break;
       }
     }
 
     // to down
-    for (var r = row + 1; r < 10; r++) {
-      final to = r * 9 + col;
-      final target = phase.pieceAt(to);
+    for (var r = rank + 1; r < 10; r++) {
+      final to = r * 9 + file;
+      final target = position.pieceAt(to);
 
-      if (target == Piece.empty) {
-        steps.add(Move(from, to));
+      if (target == Piece.noPiece) {
+        moves.add(Move(from, to));
       } else {
-        if (Side.of(target) != phase.side) {
-          steps.add(Move(from, to));
+        if (PieceColor.of(target) != position.sideToMove) {
+          moves.add(Move(from, to));
         }
         break;
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static List<Move> enumCanonSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumCanonMoves(
+      Position position, int rank, int file, int from) {
     //
-    final steps = <Move>[];
+    final moves = <Move>[];
     // to left
     var overPiece = false;
 
-    for (var c = col - 1; c >= 0; c--) {
-      final to = row * 9 + c;
-      final target = phase.pieceAt(to);
+    for (var c = file - 1; c >= 0; c--) {
+      final to = rank * 9 + c;
+      final target = position.pieceAt(to);
 
       if (!overPiece) {
-        if (target == Piece.empty) {
-          steps.add(Move(from, to));
+        if (target == Piece.noPiece) {
+          moves.add(Move(from, to));
         } else {
           overPiece = true;
         }
       } else {
-        if (target != Piece.empty) {
-          if (Side.of(target) != phase.side) {
-            steps.add(Move(from, to));
+        if (target != Piece.noPiece) {
+          if (PieceColor.of(target) != position.sideToMove) {
+            moves.add(Move(from, to));
           }
           break;
         }
@@ -396,20 +409,20 @@ class ChessRules {
     // to top
     overPiece = false;
 
-    for (var r = row - 1; r >= 0; r--) {
-      final to = r * 9 + col;
-      final target = phase.pieceAt(to);
+    for (var r = rank - 1; r >= 0; r--) {
+      final to = r * 9 + file;
+      final target = position.pieceAt(to);
 
       if (!overPiece) {
-        if (target == Piece.empty) {
-          steps.add(Move(from, to));
+        if (target == Piece.noPiece) {
+          moves.add(Move(from, to));
         } else {
           overPiece = true;
         }
       } else {
-        if (target != Piece.empty) {
-          if (Side.of(target) != phase.side) {
-            steps.add(Move(from, to));
+        if (target != Piece.noPiece) {
+          if (PieceColor.of(target) != position.sideToMove) {
+            moves.add(Move(from, to));
           }
           break;
         }
@@ -419,20 +432,20 @@ class ChessRules {
     // to right
     overPiece = false;
 
-    for (var c = col + 1; c < 9; c++) {
-      final to = row * 9 + c;
-      final target = phase.pieceAt(to);
+    for (var c = file + 1; c < 9; c++) {
+      final to = rank * 9 + c;
+      final target = position.pieceAt(to);
 
       if (!overPiece) {
-        if (target == Piece.empty) {
-          steps.add(Move(from, to));
+        if (target == Piece.noPiece) {
+          moves.add(Move(from, to));
         } else {
           overPiece = true;
         }
       } else {
-        if (target != Piece.empty) {
-          if (Side.of(target) != phase.side) {
-            steps.add(Move(from, to));
+        if (target != Piece.noPiece) {
+          if (PieceColor.of(target) != position.sideToMove) {
+            moves.add(Move(from, to));
           }
           break;
         }
@@ -442,61 +455,66 @@ class ChessRules {
     // to bottom
     overPiece = false;
 
-    for (var r = row + 1; r < 10; r++) {
-      final to = r * 9 + col;
-      final target = phase.pieceAt(to);
+    for (var r = rank + 1; r < 10; r++) {
+      final to = r * 9 + file;
+      final target = position.pieceAt(to);
 
       if (!overPiece) {
-        if (target == Piece.empty) {
-          steps.add(Move(from, to));
+        if (target == Piece.noPiece) {
+          moves.add(Move(from, to));
         } else {
           overPiece = true;
         }
       } else {
-        if (target != Piece.empty) {
-          if (Side.of(target) != phase.side) {
-            steps.add(Move(from, to));
+        if (target != Piece.noPiece) {
+          if (PieceColor.of(target) != position.sideToMove) {
+            moves.add(Move(from, to));
           }
           break;
         }
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static List<Move> enumPawnSteps(Phase phase, int row, int col, int from) {
+  static List<Move> enumPawnMoves(
+      Position position, int rank, int file, int from) {
     //
-    var to = (row + (phase.side == Side.red ? -1 : 1)) * 9 + col;
+    var to =
+        (rank + (position.sideToMove == PieceColor.red ? -1 : 1)) * 9 + file;
 
-    final steps = <Move>[];
+    final moves = <Move>[];
 
-    if (posOnBoard(to) && Side.of(phase.pieceAt(to)) != phase.side) {
-      steps.add(Move(from, to));
+    if (posOnBoard(to) &&
+        PieceColor.of(position.pieceAt(to)) != position.sideToMove) {
+      moves.add(Move(from, to));
     }
 
-    if ((phase.side == Side.red && row < 5) ||
-        (phase.side == Side.black && row > 4)) {
+    if ((position.sideToMove == PieceColor.red && rank < 5) ||
+        (position.sideToMove == PieceColor.black && rank > 4)) {
       //
-      if (col > 0) {
-        to = row * 9 + col - 1;
-        if (posOnBoard(to) && Side.of(phase.pieceAt(to)) != phase.side) {
-          steps.add(Move(from, to));
+      if (file > 0) {
+        to = rank * 9 + file - 1;
+        if (posOnBoard(to) &&
+            PieceColor.of(position.pieceAt(to)) != position.sideToMove) {
+          moves.add(Move(from, to));
         }
       }
 
-      if (col < 8) {
-        to = row * 9 + col + 1;
-        if (posOnBoard(to) && Side.of(phase.pieceAt(to)) != phase.side) {
-          steps.add(Move(from, to));
+      if (file < 8) {
+        to = rank * 9 + file + 1;
+        if (posOnBoard(to) &&
+            PieceColor.of(position.pieceAt(to)) != position.sideToMove) {
+          moves.add(Move(from, to));
         }
       }
     }
 
-    return steps;
+    return moves;
   }
 
-  static bool validateKingStep(Phase phase, Move move) {
+  static bool validateKingMove(Position position, Move move) {
     //
     final adx = abs(move.tx - move.fx), ady = abs(move.ty - move.fy);
 
@@ -507,24 +525,26 @@ class ChessRules {
 
     final redRange = [66, 67, 68, 75, 76, 77, 84, 85, 86];
     final blackRange = [3, 4, 5, 12, 13, 14, 21, 22, 23];
-    final range = (phase.side == Side.red) ? redRange : blackRange;
+    final range =
+        (position.sideToMove == PieceColor.red) ? redRange : blackRange;
 
     return binarySearch(range, 0, range.length - 1, move.to) >= 0;
   }
 
-  static bool validateAdvisorStep(Phase phase, Move move) {
+  static bool validateAdvisorMove(Position position, Move move) {
     //
     final adx = abs(move.tx - move.fx), ady = abs(move.ty - move.fy);
 
     if (adx != 1 || ady != 1) return false;
 
     final redRange = [66, 68, 76, 84, 86], blackRange = [3, 5, 13, 21, 23];
-    final range = (phase.side == Side.red) ? redRange : blackRange;
+    final range =
+        (position.sideToMove == PieceColor.red) ? redRange : blackRange;
 
     return binarySearch(range, 0, range.length - 1, move.to) >= 0;
   }
 
-  static bool validateBishopStep(Phase phase, Move move) {
+  static bool validateBishopMove(Position position, Move move) {
     //
     final adx = abs(move.tx - move.fx), ady = abs(move.ty - move.fy);
 
@@ -532,32 +552,33 @@ class ChessRules {
 
     final redRange = [47, 51, 63, 67, 71, 83, 87],
         blackRange = [2, 6, 18, 22, 26, 38, 42];
-    final range = (phase.side == Side.red) ? redRange : blackRange;
+    final range =
+        (position.sideToMove == PieceColor.red) ? redRange : blackRange;
 
     if (binarySearch(range, 0, range.length - 1, move.to) < 0) return false;
 
     if (move.tx > move.fx) {
       if (move.ty > move.fy) {
         final heart = (move.fy + 1) * 9 + move.fx + 1;
-        if (phase.pieceAt(heart) != Piece.empty) return false;
+        if (position.pieceAt(heart) != Piece.noPiece) return false;
       } else {
         final heart = (move.fy - 1) * 9 + move.fx + 1;
-        if (phase.pieceAt(heart) != Piece.empty) return false;
+        if (position.pieceAt(heart) != Piece.noPiece) return false;
       }
     } else {
       if (move.ty > move.fy) {
         final heart = (move.fy + 1) * 9 + move.fx - 1;
-        if (phase.pieceAt(heart) != Piece.empty) return false;
+        if (position.pieceAt(heart) != Piece.noPiece) return false;
       } else {
         final heart = (move.fy - 1) * 9 + move.fx - 1;
-        if (phase.pieceAt(heart) != Piece.empty) return false;
+        if (position.pieceAt(heart) != Piece.noPiece) return false;
       }
     }
 
     return true;
   }
 
-  static bool validateKnightStep(Phase phase, Move move) {
+  static bool validateKnightMove(Position position, Move move) {
     //
     final dx = move.tx - move.fx, dy = move.ty - move.fy;
     final adx = abs(dx), ady = abs(dy);
@@ -567,25 +588,25 @@ class ChessRules {
     if (adx > ady) {
       if (dx > 0) {
         final foot = move.fy * 9 + move.fx + 1;
-        if (phase.pieceAt(foot) != Piece.empty) return false;
+        if (position.pieceAt(foot) != Piece.noPiece) return false;
       } else {
         final foot = move.fy * 9 + move.fx - 1;
-        if (phase.pieceAt(foot) != Piece.empty) return false;
+        if (position.pieceAt(foot) != Piece.noPiece) return false;
       }
     } else {
       if (dy > 0) {
         final foot = (move.fy + 1) * 9 + move.fx;
-        if (phase.pieceAt(foot) != Piece.empty) return false;
+        if (position.pieceAt(foot) != Piece.noPiece) return false;
       } else {
         final foot = (move.fy - 1) * 9 + move.fx;
-        if (phase.pieceAt(foot) != Piece.empty) return false;
+        if (position.pieceAt(foot) != Piece.noPiece) return false;
       }
     }
 
     return true;
   }
 
-  static bool validateRookStep(Phase phase, Move move) {
+  static bool validateRookMove(Position position, Move move) {
     //
     final dx = move.tx - move.fx, dy = move.ty - move.fy;
 
@@ -594,21 +615,21 @@ class ChessRules {
     if (dy == 0) {
       if (dx < 0) {
         for (var i = move.fx - 1; i > move.tx; i--) {
-          if (phase.pieceAt(move.fy * 9 + i) != Piece.empty) return false;
+          if (position.pieceAt(move.fy * 9 + i) != Piece.noPiece) return false;
         }
       } else {
         for (var i = move.fx + 1; i < move.tx; i++) {
-          if (phase.pieceAt(move.fy * 9 + i) != Piece.empty) return false;
+          if (position.pieceAt(move.fy * 9 + i) != Piece.noPiece) return false;
         }
       }
     } else {
       if (dy < 0) {
         for (var i = move.fy - 1; i > move.ty; i--) {
-          if (phase.pieceAt(i * 9 + move.fx) != Piece.empty) return false;
+          if (position.pieceAt(i * 9 + move.fx) != Piece.noPiece) return false;
         }
       } else {
         for (var i = move.fy + 1; i < move.ty; i++) {
-          if (phase.pieceAt(i * 9 + move.fx) != Piece.empty) return false;
+          if (position.pieceAt(i * 9 + move.fx) != Piece.noPiece) return false;
         }
       }
     }
@@ -616,7 +637,7 @@ class ChessRules {
     return true;
   }
 
-  static bool validateCanonStep(Phase phase, Move move) {
+  static bool validateCanonMove(Position position, Move move) {
     //
     final dx = move.tx - move.fx, dy = move.ty - move.fy;
 
@@ -630,16 +651,18 @@ class ChessRules {
 
         for (var i = move.fx - 1; i > move.tx; i--) {
           //
-          if (phase.pieceAt(move.fy * 9 + i) != Piece.empty) {
+          if (position.pieceAt(move.fy * 9 + i) != Piece.noPiece) {
             //
             if (overPiece) return false;
 
-            if (phase.pieceAt(move.to) == Piece.empty) return false;
+            if (position.pieceAt(move.to) == Piece.noPiece) return false;
             overPiece = true;
           }
         }
 
-        if (!overPiece && phase.pieceAt(move.to) != Piece.empty) return false;
+        if (!overPiece && position.pieceAt(move.to) != Piece.noPiece) {
+          return false;
+        }
         //
       } else {
         //
@@ -647,16 +670,18 @@ class ChessRules {
 
         for (var i = move.fx + 1; i < move.tx; i++) {
           //
-          if (phase.pieceAt(move.fy * 9 + i) != Piece.empty) {
+          if (position.pieceAt(move.fy * 9 + i) != Piece.noPiece) {
             //
             if (overPiece) return false;
 
-            if (phase.pieceAt(move.to) == Piece.empty) return false;
+            if (position.pieceAt(move.to) == Piece.noPiece) return false;
             overPiece = true;
           }
         }
 
-        if (!overPiece && phase.pieceAt(move.to) != Piece.empty) return false;
+        if (!overPiece && position.pieceAt(move.to) != Piece.noPiece) {
+          return false;
+        }
       }
     } else {
       //
@@ -666,16 +691,18 @@ class ChessRules {
 
         for (var i = move.fy - 1; i > move.ty; i--) {
           //
-          if (phase.pieceAt(i * 9 + move.fx) != Piece.empty) {
+          if (position.pieceAt(i * 9 + move.fx) != Piece.noPiece) {
             //
             if (overPiece) return false;
 
-            if (phase.pieceAt(move.to) == Piece.empty) return false;
+            if (position.pieceAt(move.to) == Piece.noPiece) return false;
             overPiece = true;
           }
         }
 
-        if (!overPiece && phase.pieceAt(move.to) != Piece.empty) return false;
+        if (!overPiece && position.pieceAt(move.to) != Piece.noPiece) {
+          return false;
+        }
         //
       } else {
         //
@@ -683,30 +710,32 @@ class ChessRules {
 
         for (var i = move.fy + 1; i < move.ty; i++) {
           //
-          if (phase.pieceAt(i * 9 + move.fx) != Piece.empty) {
+          if (position.pieceAt(i * 9 + move.fx) != Piece.noPiece) {
             //
             if (overPiece) return false;
 
-            if (phase.pieceAt(move.to) == Piece.empty) return false;
+            if (position.pieceAt(move.to) == Piece.noPiece) return false;
             overPiece = true;
           }
         }
 
-        if (!overPiece && phase.pieceAt(move.to) != Piece.empty) return false;
+        if (!overPiece && position.pieceAt(move.to) != Piece.noPiece) {
+          return false;
+        }
       }
     }
 
     return true;
   }
 
-  static bool validatePawnStep(Phase phase, Move move) {
+  static bool validatePawnMove(Position position, Move move) {
     //
     final dy = move.ty - move.fy;
     final adx = abs(move.tx - move.fx), ady = abs(move.ty - move.fy);
 
     if (adx > 1 || ady > 1 || (adx + ady) > 1) return false;
 
-    if (phase.side == Side.red) {
+    if (position.sideToMove == PieceColor.red) {
       //
       if (move.fy > 4 && adx != 0) return false;
       if (dy > 0) return false;
@@ -724,14 +753,14 @@ class ChessRules {
     return pos > -1 && pos < 90;
   }
 
-  static int findKingPos(Phase phase) {
+  static int findKingPos(Position position) {
     //
     for (var i = 0; i < 90; i++) {
       //
-      final piece = phase.pieceAt(i);
+      final piece = position.pieceAt(i);
 
       if (piece == Piece.redKing || piece == Piece.blackKing) {
-        if (phase.side == Side.of(piece)) return i;
+        if (position.sideToMove == PieceColor.of(piece)) return i;
       }
     }
 

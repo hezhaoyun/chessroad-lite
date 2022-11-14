@@ -1,4 +1,4 @@
-class Side {
+class PieceColor {
   //
   static const unknown = '-';
   static const red = 'w';
@@ -10,20 +10,20 @@ class Side {
     return unknown;
   }
 
-  static bool sameSide(String p1, String p2) {
+  static bool sameColor(String p1, String p2) {
     return of(p1) == of(p2);
   }
 
-  static String opponent(String side) {
-    if (side == red) return black;
-    if (side == black) return red;
-    return side;
+  static String opponent(String color) {
+    if (color == red) return black;
+    if (color == black) return red;
+    return color;
   }
 }
 
 class Piece {
   //
-  static const empty = ' ';
+  static const noPiece = ' ';
   //
   static const redRook = 'R';
   static const redKnight = 'N';
@@ -41,8 +41,8 @@ class Piece {
   static const blackCanon = 'c';
   static const blackPawn = 'p';
 
-  static const names = {
-    empty: '',
+  static const zhName = {
+    noPiece: '',
     //
     redRook: '车',
     redKnight: '马',
@@ -72,11 +72,11 @@ class Move {
 
   late int from, to, fx, fy, tx, ty;
 
-  String captured = Piece.empty;
+  String captured = Piece.noPiece;
 
-  // 'step' is the ucci engine's move-string
-  late String step;
-  String? stepName;
+  // 'move' is the ucci engine's move-string
+  late String move;
+  String? name;
 
   // 这一步走完后的 FEN 记数，用于悔棋时恢复 FEN 步数 Counter
   String counterMarks = '';
@@ -84,7 +84,7 @@ class Move {
   Move(
     this.from,
     this.to, {
-    this.captured = Piece.empty,
+    this.captured = Piece.noPiece,
     this.counterMarks = '',
   }) {
     //
@@ -95,59 +95,59 @@ class Move {
     ty = to ~/ 9;
 
     if (fx < 0 || fx > 8 || fy < 0 || fy > 9) {
-      throw 'Error: Invalid Step (from:$from, to:$to)';
+      throw 'Error: Invalid Move (from:$from, to:$to)';
     }
 
-    step = String.fromCharCode('a'.codeUnitAt(0) + fx) + (9 - fy).toString();
-    step += String.fromCharCode('a'.codeUnitAt(0) + tx) + (9 - ty).toString();
+    move = String.fromCharCode('a'.codeUnitAt(0) + fx) + (9 - fy).toString();
+    move += String.fromCharCode('a'.codeUnitAt(0) + tx) + (9 - ty).toString();
   }
 
   Move.fromCoordinate(this.fx, this.fy, this.tx, this.ty) {
     //
     from = fx + fy * 9;
     to = tx + ty * 9;
-    captured = Piece.empty;
+    captured = Piece.noPiece;
 
-    step = String.fromCharCode('a'.codeUnitAt(0) + fx) + (9 - fy).toString();
-    step += String.fromCharCode('a'.codeUnitAt(0) + tx) + (9 - ty).toString();
+    move = String.fromCharCode('a'.codeUnitAt(0) + fx) + (9 - fy).toString();
+    move += String.fromCharCode('a'.codeUnitAt(0) + tx) + (9 - ty).toString();
   }
 
-  Move.fromEngineStep(this.step) {
+  Move.fromEngineMove(this.move) {
     //
-    if (!validateEngineStep(step)) {
-      throw 'Error: Invalid Step: $step';
+    if (!isOK(move)) {
+      throw 'Error: Invalid Move: $move';
     }
 
-    fx = step[0].codeUnitAt(0) - 'a'.codeUnitAt(0);
-    fy = 9 - (step[1].codeUnitAt(0) - '0'.codeUnitAt(0));
-    tx = step[2].codeUnitAt(0) - 'a'.codeUnitAt(0);
-    ty = 9 - (step[3].codeUnitAt(0) - '0'.codeUnitAt(0));
+    fx = move[0].codeUnitAt(0) - 'a'.codeUnitAt(0);
+    fy = 9 - (move[1].codeUnitAt(0) - '0'.codeUnitAt(0));
+    tx = move[2].codeUnitAt(0) - 'a'.codeUnitAt(0);
+    ty = 9 - (move[3].codeUnitAt(0) - '0'.codeUnitAt(0));
 
     from = fx + fy * 9;
     to = tx + ty * 9;
 
-    captured = Piece.empty;
+    captured = Piece.noPiece;
   }
 
-  String asEngineStep() {
+  String asEngineMove() {
     return '${String.fromCharCode('a'.codeUnitAt(0) + fx)}${9 - fy}'
         '${String.fromCharCode('a'.codeUnitAt(0) + tx)}${9 - ty}';
   }
 
-  static bool validateEngineStep(String step) {
+  static bool isOK(String move) {
     //
-    if (step.length < 4) return false;
+    if (move.length < 4) return false;
 
-    final fx = step[0].codeUnitAt(0) - 'a'.codeUnitAt(0);
-    final fy = 9 - (step[1].codeUnitAt(0) - '0'.codeUnitAt(0));
+    final fx = move[0].codeUnitAt(0) - 'a'.codeUnitAt(0);
+    final fy = 9 - (move[1].codeUnitAt(0) - '0'.codeUnitAt(0));
     if (fx < 0 || fx > 8 || fy < 0 || fy > 9) return false;
 
-    final tx = step[2].codeUnitAt(0) - 'a'.codeUnitAt(0);
-    final ty = 9 - (step[3].codeUnitAt(0) - '0'.codeUnitAt(0));
+    final tx = move[2].codeUnitAt(0) - 'a'.codeUnitAt(0);
+    final ty = 9 - (move[3].codeUnitAt(0) - '0'.codeUnitAt(0));
     if (tx < 0 || tx > 8 || ty < 0 || ty > 9) return false;
 
     return true;
   }
 }
 
-enum BattleResult { pending, win, lose, draw }
+enum GameResult { pending, win, lose, draw }

@@ -6,7 +6,7 @@ import '../cchess/cc_base.dart';
 import '../cchess/cc_rules.dart';
 import '../engine/engine.dart';
 import 'pikafish_engine.dart';
-import '../cchess/phase.dart';
+import '../cchess/position.dart';
 import 'cloud_engine.dart';
 
 class HybridEngine {
@@ -36,43 +36,45 @@ class HybridEngine {
     await _pikafishEngine.applyConfig();
   }
 
-  Future<bool> search(Phase phase, EngineCallback callback,
+  Future<bool> search(Position position, EngineCallback callback,
       {String? ponder}) async {
     //
     if (LocalData().cloudEngineEnabled.value) {
       //
       final result = await Future.any([
-        _cloudEngine.search(phase, callback),
+        _cloudEngine.search(position, callback),
         Future.delayed(const Duration(seconds: 4), () => false),
       ]);
 
       if (result) return true;
     }
 
-    return _pikafishEngine.search(phase, callback, ponder: ponder);
+    return _pikafishEngine.search(position, callback, ponder: ponder);
   }
 
   Future<void> ponderhit() async => _pikafishEngine.ponderhit();
 
-  Future<void> missPonder() async => _pikafishEngine.missPonder();
+  Future<void> stop() async => _pikafishEngine.stop();
 
   Future<void> shutdown() async {
     await _pikafishEngine.shutdown();
   }
 
-  BattleResult scanBattleResult(Phase phase, String playerSide) {
+  GameResult scanGameResult(Position position, String playerSide) {
     //
-    final turnForPerson = (phase.side == playerSide);
+    final turnForPerson = (position.sideToMove == playerSide);
 
-    if (phase.isLongCheck()) {
-      // born 'repeat' phase by oppo
-      return turnForPerson ? BattleResult.win : BattleResult.lose;
+    if (position.isLongCheck()) {
+      // born 'repeat' position by oppo
+      return turnForPerson ? GameResult.win : GameResult.lose;
     }
 
-    if (ChessRules.beKilled(phase)) {
-      return turnForPerson ? BattleResult.lose : BattleResult.win;
+    if (ChessRules.beCheckmated(position)) {
+      return turnForPerson ? GameResult.lose : GameResult.win;
     }
 
-    return (phase.halfMove > 120) ? BattleResult.draw : BattleResult.pending;
+    return (position.halfMove > 120) ? GameResult.draw : GameResult.pending;
   }
+
+  void newGame() => _pikafishEngine.newGame();
 }

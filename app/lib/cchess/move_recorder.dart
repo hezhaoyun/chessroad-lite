@@ -24,9 +24,9 @@ class MoveRecorder {
     fullMove = other.fullMove;
   }
 
-  void stepIn(Move move, String side) {
+  void moveIn(Move move, String sideToMove) {
     //
-    if (move.captured != Piece.empty) {
+    if (move.captured != Piece.noPiece) {
       halfMove = 0;
     } else {
       halfMove++;
@@ -34,7 +34,7 @@ class MoveRecorder {
 
     if (fullMove == 0) {
       fullMove++;
-    } else if (side == Side.black) {
+    } else if (sideToMove == PieceColor.black) {
       fullMove++;
     }
 
@@ -53,7 +53,7 @@ class MoveRecorder {
     var moves = <Move>[];
 
     for (var i = _history.length - 1; i >= 0; i--) {
-      if (_history[i].captured != Piece.empty) break;
+      if (_history[i].captured != Piece.noPiece) break;
       moves.add(_history[i]);
     }
 
@@ -62,42 +62,42 @@ class MoveRecorder {
 
   String movesAfterLastCaptured() {
     //
-    var steps = '', posAfterLastCaptured = -1;
+    var moves = '', posAfterLastCaptured = -1;
 
     for (var i = _history.length - 1; i >= 0; i--) {
-      if (_history[i].captured != Piece.empty) {
+      if (_history[i].captured != Piece.noPiece) {
         posAfterLastCaptured = i;
         break;
       }
     }
 
     for (var i = posAfterLastCaptured + 1; i < _history.length; i++) {
-      steps += ' ${_history[i].step}';
+      moves += ' ${_history[i].move}';
     }
 
-    return steps.isNotEmpty ? steps.substring(1) : '';
+    return moves.isNotEmpty ? moves.substring(1) : '';
   }
 
   String allMoves() {
     //
-    var steps = '';
+    var moves = '';
 
     for (var i = 0; i < _history.length; i++) {
-      steps += ' ${_history[i].step}';
+      moves += ' ${_history[i].move}';
     }
 
-    return steps.isNotEmpty ? steps.substring(1) : '';
+    return moves.isNotEmpty ? moves.substring(1) : '';
   }
 
-  String buildManualText() {
+  String buildMoveList() {
     //
-    var manualText = '';
+    var moveList = '';
 
     for (var i = 0; i < _history.length; i++) {
-      manualText += '${_history[i].stepName} ';
+      moveList += '${_history[i].name} ';
     }
 
-    return manualText;
+    return moveList;
   }
 
   String buildMoveListForManual() {
@@ -113,7 +113,7 @@ class MoveRecorder {
 
   int get historyLength => _history.length;
 
-  Move stepAt(int index) => _history[index];
+  Move moveAt(int index) => _history[index];
 
   @override
   String toString() {

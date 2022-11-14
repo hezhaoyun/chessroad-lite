@@ -5,7 +5,7 @@ import '../engine/analysis.dart';
 import '../engine/engine.dart';
 import 'chess_db.dart';
 import '../cchess/cc_fen.dart';
-import '../cchess/phase.dart';
+import '../cchess/position.dart';
 
 class CloudEngine {
   //
@@ -17,12 +17,12 @@ class CloudEngine {
 
   EngineCallback? callback;
 
-  Future<bool> search(Phase phase, EngineCallback callback,
+  Future<bool> search(Position position, EngineCallback callback,
       {String? ponder, String? banMoves}) async {
     //
     this.callback = callback;
 
-    final fen = Fen.phaseToFen(phase);
+    final fen = Fen.positionToFen(position);
 
     final response = await ChessDB.query(fen, banMoves: banMoves);
     if (response == null) {
@@ -45,9 +45,9 @@ class CloudEngine {
     return false;
   }
 
-  Future<EngineResponse> analysis(Phase phase) async {
+  Future<EngineResponse> analysis(Position position) async {
     //
-    final fen = Fen.phaseToFen(phase);
+    final fen = Fen.positionToFen(position);
     var response = await ChessDB.query(fen);
 
     if (response == null) {
@@ -96,11 +96,11 @@ class CloudEngine {
     return null;
   }
 
-  Map<String, String> _fetchResponseTokens(String step) {
+  Map<String, String> _fetchResponseTokens(String move) {
     //
     final kvps = <String, String>{};
 
-    step.split(',').forEach((token) {
+    move.split(',').forEach((token) {
       //
       final kv = token.split(':');
 

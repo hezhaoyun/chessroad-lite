@@ -101,7 +101,7 @@ class BoardPainter extends CustomPainter {
     );
 
     // 炮/兵架位置指示
-    final positions = [
+    final points = [
       // 炮架位置指示
       Offset(left + squareWidth, top + squareWidth * 2),
       Offset(left + squareWidth * 7, top + squareWidth * 2),
@@ -116,26 +116,26 @@ class BoardPainter extends CustomPainter {
       Offset(left + squareWidth * 6, top + squareWidth * 6),
     ];
 
-    for (var pos in positions) {
-      canvas.drawCircle(pos, 5, paint);
+    for (var p in points) {
+      canvas.drawCircle(p, 5, paint);
     }
 
     // 兵架靠边位置指示
-    final leftPositions = [
+    final leftPoints = [
       Offset(left, top + squareWidth * 3),
       Offset(left, top + squareWidth * 6),
     ];
-    for (var pos in leftPositions) {
-      var rect = Rect.fromCenter(center: pos, width: 10, height: 10);
+    for (var p in leftPoints) {
+      var rect = Rect.fromCenter(center: p, width: 10, height: 10);
       canvas.drawArc(rect, -math.pi / 2, math.pi, true, paint);
     }
 
-    final rightPositions = [
+    final rightPoints = [
       Offset(left + squareWidth * 8, top + squareWidth * 3),
       Offset(left + squareWidth * 8, top + squareWidth * 6),
     ];
-    for (var pos in rightPositions) {
-      var rect = Rect.fromCenter(center: pos, width: 10, height: 10);
+    for (var p in rightPoints) {
+      var rect = Rect.fromCenter(center: p, width: 10, height: 10);
       canvas.drawArc(rect, math.pi / 2, math.pi, true, paint);
     }
   }

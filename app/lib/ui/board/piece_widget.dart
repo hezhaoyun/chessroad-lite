@@ -64,7 +64,7 @@ class PieceWidget extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              Piece.names[piece]!,
+              Piece.zhName[piece]!,
               style: textStyle,
               textScaleFactor: 1,
             ),
@@ -93,7 +93,7 @@ class PieceWidget extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            Piece.names[piece]!,
+            Piece.zhName[piece]!,
             style: textStyle,
             textScaleFactor: 1,
           ),
