@@ -14,10 +14,10 @@ class BoardState with ChangeNotifier {
   late double _pieceAnimationValue;
 
   EngineInfo? _engineInfo;
-  String? ponder;
+  Bestmove? bestmove;
 
   BoardState() {
-    _position = Position.defaultPosition();
+    _position = Position.startpos;
     _focusIndex = _blurIndex = Move.invalidIndex;
     _pieceAnimationValue = 1;
   }

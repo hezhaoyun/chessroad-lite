@@ -36,8 +36,7 @@ class HybridEngine {
     await _pikafishEngine.applyConfig();
   }
 
-  Future<bool> search(Position position, EngineCallback callback,
-      {String? ponder}) async {
+  Future<bool> go(Position position, EngineCallback callback) async {
     //
     if (LocalData().cloudEngineEnabled.value) {
       //
@@ -49,12 +48,25 @@ class HybridEngine {
       if (result) return true;
     }
 
-    return _pikafishEngine.search(position, callback, ponder: ponder);
+    return _pikafishEngine.go(position, callback);
   }
 
-  Future<void> ponderhit() async => _pikafishEngine.ponderhit();
+  Future<bool> goPonder(
+      Position position, EngineCallback callback, String ponder) async {
+    return _pikafishEngine.goPonder(position, callback, ponder);
+  }
 
-  Future<void> missPonder() async => _pikafishEngine.missPonder();
+  Future<bool> goHint(Position position, EngineCallback callback) async {
+    return _pikafishEngine.goHint(position, callback);
+  }
+
+  Future<void> ponderhit() async {
+    return _pikafishEngine.ponderhit();
+  }
+
+  Future<void> stopPonder() async {
+    return _pikafishEngine.stopPonder();
+  }
 
   Future<void> shutdown() async {
     await _pikafishEngine.shutdown();
@@ -76,5 +88,5 @@ class HybridEngine {
     return (position.halfMove > 120) ? GameResult.draw : GameResult.pending;
   }
 
-  void newGame() => _pikafishEngine.newGame();
+  Future<void> newGame() async => _pikafishEngine.newGame();
 }

@@ -21,7 +21,7 @@ class Position {
   String _initBoard = '';
   String? _lastCapturedPosition;
 
-  static Position defaultPosition() {
+  static Position get startpos {
     return Fen.positionFromFen(Fen.defaultPosition)!;
   }
 

@@ -16,8 +16,7 @@ class ThinkingBoardWidget extends BoardWidget {
   Widget buildPiecesLayer(BoardState board, {bool opponentHuman = false}) {
     //
     return ThinkingBoardLayout(
-      board.engineInfo,
-      board.ponder,
+      board,
       PiecesLayout(
         width,
         board.position,

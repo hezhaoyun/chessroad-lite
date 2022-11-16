@@ -1,6 +1,8 @@
 import 'package:chessroad/cchess/cc_base.dart';
 import 'package:chessroad/config/local_data.dart';
 import 'package:chessroad/engine/engine.dart';
+import 'package:chessroad/engine/pikafish_engine.dart';
+import 'package:chessroad/game/board_state.dart';
 import 'package:chessroad/ui/thinking_board_painter.dart';
 import 'package:flutter/material.dart';
 
@@ -8,13 +10,11 @@ import 'pieces_layout.dart';
 
 class ThinkingBoardLayout extends StatefulWidget {
   //
-  final EngineInfo? engineInfo;
-  final String? ponder;
+  final BoardState boardState;
 
   final PiecesLayout layoutParams;
 
-  const ThinkingBoardLayout(this.engineInfo, this.ponder, this.layoutParams,
-      {Key? key})
+  const ThinkingBoardLayout(this.boardState, this.layoutParams, {Key? key})
       : super(key: key);
 
   @override
@@ -28,17 +28,15 @@ class _PiecesLayoutState extends State<ThinkingBoardLayout> {
     //
     final moves = <Move>[];
 
-    if (widget.ponder != null) {
+    if (PikafishEngine().state != EngineState.searching &&
+        widget.boardState.bestmove?.ponder != null) {
       //
-      moves.add(Move.fromEngineMove(widget.ponder!));
+      moves.add(Move.fromEngineMove(widget.boardState.bestmove!.ponder!));
       //
-    } else if (widget.engineInfo != null) {
+    } else if (widget.boardState.engineInfo != null) {
       //
-      var pvs = widget.engineInfo!.pvs;
+      var pvs = widget.boardState.engineInfo!.pvs;
 
-      /* if (pvs.length > 4) {
-        pvs = pvs.sublist(0, 4);
-      } else */
       if (pvs.length > 2) {
         pvs = pvs.sublist(0, 2);
       }

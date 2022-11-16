@@ -11,11 +11,10 @@ import '../config/local_data.dart';
 import 'engine.dart';
 import 'pikafish_config.dart';
 
+enum EngineState { unknown, ready, searching, pondering, hinting }
+
 class PikafishEngine {
   //
-  static const kInfoPrefix = 'info ';
-  static const kScoreIndicator = 'score ';
-
   factory PikafishEngine() => _instance;
   static final PikafishEngine _instance = PikafishEngine._();
 
@@ -27,6 +26,7 @@ class PikafishEngine {
   late StreamSubscription _subscription;
 
   EngineCallback? callback;
+  EngineState _state = EngineState.unknown;
 
   Future<void> startup() async {
     //
@@ -37,11 +37,15 @@ class PikafishEngine {
     _engine.stdin = 'uci';
 
     await _setupNnue();
+
+    _state = EngineState.ready;
   }
 
   Future<void> applyConfig() async {
     //
     final config = PikafishConfig(LocalData().profile);
+
+    if (!config.ponder) stopPonder();
 
     _engine.stdin = 'setoption name Threads value ${config.threads}';
     _engine.stdin = 'setoption name Hash value ${config.hashSize}';
@@ -49,8 +53,7 @@ class PikafishEngine {
     _engine.stdin = 'setoption name Skill Level value ${config.level}';
   }
 
-  Future<bool> search(Position position, EngineCallback callback,
-      {String? ponder}) async {
+  Future<bool> go(Position position, EngineCallback callback) async {
     //
     this.callback = callback;
 
@@ -60,15 +63,11 @@ class PikafishEngine {
     var uciPos = 'position fen $pos', uciGo = '';
     if (moves != '') uciPos += ' moves $moves';
 
-    if (ponder != null) {
-      uciPos += ' $ponder';
-      // uciGo = 'go ponder infinite';
-      uciGo = 'go infinite';
-    } else {
-      var timeLimit = PikafishConfig(LocalData().profile).timeLimit;
-      if (timeLimit <= 90) timeLimit *= 1000;
-      uciGo = 'go movetime $timeLimit';
-    }
+    var timeLimit = PikafishConfig(LocalData().profile).timeLimit;
+    if (timeLimit <= 90) timeLimit *= 1000;
+    uciGo = 'go movetime $timeLimit';
+
+    _state = EngineState.searching;
 
     _engine.stdin = uciPos;
     _engine.stdin = uciGo;
@@ -76,9 +75,42 @@ class PikafishEngine {
     return true;
   }
 
+  Future<bool> goPonder(
+      Position position, EngineCallback callback, String ponder) async {
+    //
+    this.callback = callback;
+
+    final pos = position.lastCapturedPosition;
+    final moves = position.movesAfterLastCaptured;
+
+    var uciPos = 'position fen $pos', uciGo = '';
+    if (moves != '') uciPos += ' moves $moves';
+
+    if (moves == '') uciPos += ' moves ';
+
+    uciPos += ' $ponder';
+    uciGo = 'go ponder infinite';
+
+    _state = EngineState.pondering;
+
+    _engine.stdin = uciPos;
+    _engine.stdin = uciGo;
+
+    return true;
+  }
+
+  Future<bool> goHint(Position position, EngineCallback callback) async {
+    //
+    final result = go(position, callback);
+    _state = EngineState.hinting;
+
+    return result;
+  }
+
   Future<void> ponderhit() async {
     //
-    // _engine.stdin = 'ponderhit';
+    _engine.stdin = 'ponderhit';
+    _state = EngineState.searching;
 
     final timeLimit = PikafishConfig(LocalData().profile).timeLimit;
 
@@ -88,14 +120,20 @@ class PikafishEngine {
     );
   }
 
-  Future<void> missPonder() async {
-    callback = null;
-    _engine.stdin = 'stop';
+  Future<void> stopPonder() async {
+    //
+    if (_state == EngineState.pondering) {
+      callback = null;
+      _engine.stdin = 'stop';
+    }
+
+    _state = EngineState.ready;
   }
 
   Future<void> shutdown() async {
     _engine.dispose();
     _subscription.cancel();
+    _state = EngineState.unknown;
   }
 
   _setupEngine() {
@@ -108,15 +146,16 @@ class PikafishEngine {
     _subscription = _engine.stdout.listen((line) {
       //
       prt('engine=> $line');
-
       if (callback == null) return;
 
       if (line.startsWith('info')) {
         callback!(EngineResponse(EngineType.pikafish, EngineInfo.parse(line)));
       } else if (line.startsWith('bestmove')) {
         callback!(EngineResponse(EngineType.pikafish, Bestmove.parse(line)));
+        _state = EngineState.ready;
       } else if (line.startsWith('nobestmove')) {
         callback!(EngineResponse(EngineType.pikafish, NoBestmove()));
+        _state = EngineState.ready;
       }
     });
   }
@@ -136,7 +175,14 @@ class PikafishEngine {
   }
 
   void newGame() {
-    _engine.stdin = 'stop';
+    //
+    if (_state == EngineState.searching || _state == EngineState.pondering) {
+      _engine.stdin = 'stop';
+    }
+
     _engine.stdin = 'ucinewgame';
+    _state = EngineState.ready;
   }
+
+  EngineState get state => _state;
 }

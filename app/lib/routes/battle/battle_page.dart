@@ -1,14 +1,13 @@
 import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/engine/pikafish_config.dart';
+import 'package:chessroad/engine/pikafish_engine.dart';
 import 'package:flutter/material.dart';
-import 'package:pikafish_engine/pikafish.dart';
 import 'package:provider/provider.dart';
 
 import '../../ad/trigger.dart';
 import '../../cchess/cc_base.dart';
 import '../../cchess/cc_fen.dart';
 import '../../cchess/move_name.dart';
-import '../../common/prt.dart';
 import '../../config/local_data.dart';
 import '../../config/profile.dart';
 import '../../engine/analysis.dart';
@@ -36,12 +35,9 @@ class BattlePage extends StatefulWidget {
   BattlePageState createState() => BattlePageState();
 }
 
-enum PlayState { ready, thinking, hinting, pondering }
-
 class BattlePageState extends State<BattlePage>
     with PieceAnimationMixIn, TickerProviderStateMixin {
   //
-  PlayState _state = PlayState.ready;
   bool _opponentHuman = false;
 
   late BoardState _boardState;
@@ -63,7 +59,7 @@ class BattlePageState extends State<BattlePage>
     await loadBattle();
 
     if (_boardState.isOpponentTurn && !_opponentHuman) {
-      askEngineGo();
+      engineGo();
     } else {
       _pageState.changeStatus(BattlePage.yourTurn);
     }
@@ -78,8 +74,6 @@ class BattlePageState extends State<BattlePage>
     final moveList = profile['battlepage-move-list'] ?? '';
     final boardInversed = profile['battlepage-board-inversed'] ?? false;
     _opponentHuman = profile['battlepage-oppo-human'] ?? false;
-
-    prt('boardInversed: $boardInversed');
 
     final position = Fen.positionFromFen(initBoard)!;
 
@@ -164,17 +158,16 @@ class BattlePageState extends State<BattlePage>
 
     HybridEngine().newGame();
 
+    setState(() {
+      _boardState.engineInfo = null;
+      _boardState.bestmove = null;
+    });
+
     if (opponentFirst && !_opponentHuman) {
-      askEngineGo();
+      engineGo();
     } else {
       _pageState.changeStatus(BattlePage.yourTurn);
     }
-
-    setState(() {
-      _state = PlayState.ready;
-      _boardState.engineInfo = null;
-      _boardState.ponder = null;
-    });
 
     ReviewPanel.popRequest();
   }
@@ -184,7 +177,9 @@ class BattlePageState extends State<BattlePage>
     if (AdTrigger.battle.checkAdChance(AdAction.regret, context)) return;
 
     _boardState.engineInfo = null;
-    HybridEngine().missPonder();
+    _boardState.bestmove = null;
+
+    HybridEngine().stopPonder();
 
     _boardState.regret(GameScene.battle, moves: 2);
   }
@@ -265,7 +260,7 @@ class BattlePageState extends State<BattlePage>
     _boardState.inverseBoard(!_boardState.boardInversed);
 
     if (_boardState.isOpponentTurn && !_opponentHuman) {
-      askEngineGo();
+      engineGo();
     } else {
       _pageState.changeStatus(BattlePage.yourTurn);
     }
@@ -326,20 +321,18 @@ class BattlePageState extends State<BattlePage>
             //
             final move = _boardState.position.lastMove!.asEngineMove();
 
-            if (_boardState.ponder != null &&
+            if (_boardState.bestmove?.ponder != null &&
                 PikafishConfig(LocalData().profile).ponder &&
-                move == _boardState.ponder) {
+                move == _boardState.bestmove?.ponder) {
               //
-              _state = PlayState.thinking;
-
               await HybridEngine().ponderhit();
               //
             } else {
               //
-              await HybridEngine().missPonder();
+              await HybridEngine().stopPonder();
 
               if (!_opponentHuman) {
-                Future.delayed(const Duration(seconds: 1), () => askEngineGo());
+                Future.delayed(const Duration(seconds: 1), () => engineGo());
               }
             }
             break;
@@ -369,20 +362,17 @@ class BattlePageState extends State<BattlePage>
       //
       _boardState.engineInfo = resp;
 
-      if (_state != PlayState.pondering) {
+      if (PikafishEngine().state != EngineState.pondering) {
         final score = _boardState.engineInfo!.score(_boardState, false);
         if (score != null) _pageState.changeStatus(score);
       }
     } else {
       //
-      final lastState = _state;
-      _state = PlayState.ready;
-
       if (resp is Bestmove) {
         //
         final move = Move.fromEngineMove(resp.bestmove);
 
-        _boardState.ponder = (er.response as Bestmove).ponder;
+        _boardState.bestmove = (er.response as Bestmove);
 
         _boardState.move(move);
         startPieceAnimation();
@@ -395,45 +385,7 @@ class BattlePageState extends State<BattlePage>
         switch (result) {
           //
           case GameResult.pending:
-            //
-            if (lastState == PlayState.thinking ||
-                lastState == PlayState.pondering) {
-              //
-              if (_boardState.ponder != null &&
-                  PikafishConfig(LocalData().profile).ponder) {
-                //
-                _state = PlayState.pondering;
-
-                await HybridEngine().search(
-                  _boardState.position,
-                  engineCallback,
-                  ponder: _boardState.ponder,
-                );
-              }
-
-              if (_boardState.engineInfo != null) {
-                //
-                final score = _boardState.engineInfo?.score(
-                  _boardState,
-                  true,
-                );
-                _pageState.changeStatus('$score，${BattlePage.yourTurn}');
-              } else {
-                _pageState.changeStatus(BattlePage.yourTurn);
-              }
-
-              // debug
-              if (LocalData().debugMode.value && mounted) {
-                Future.delayed(
-                  const Duration(seconds: 1),
-                  () => askEngineHint(),
-                );
-              }
-            } else {
-              if (_boardState.isOpponentTurn && !_opponentHuman) {
-                Future.delayed(const Duration(seconds: 1), () => askEngineGo());
-              }
-            }
+            afterEngineMove();
             break;
           case GameResult.win:
             gotWin();
@@ -446,7 +398,7 @@ class BattlePageState extends State<BattlePage>
             break;
         }
       } else if (resp is NoBestmove) {
-        if (lastState == PlayState.thinking) {
+        if (PikafishEngine().state == EngineState.searching) {
           gotWin();
         } else {
           gotLose();
@@ -458,30 +410,80 @@ class BattlePageState extends State<BattlePage>
     }
   }
 
-  askEngineGo() async {
+  afterEngineMove() async {
     //
-    if (_state == PlayState.thinking || _state == PlayState.hinting) return;
+    if (PikafishEngine().state == EngineState.searching) {
+      //
+      if (_boardState.bestmove?.ponder != null &&
+          PikafishConfig(LocalData().profile).ponder) {
+        //
+        await Future.delayed(
+          const Duration(microseconds: 100),
+          () => engineGoPonder(),
+        );
+      }
 
-    _state = PlayState.thinking;
+      if (_boardState.engineInfo != null) {
+        //
+        final score = _boardState.engineInfo?.score(
+          _boardState,
+          true,
+        );
+        _pageState.changeStatus('$score，${BattlePage.yourTurn}');
+      } else {
+        _pageState.changeStatus(BattlePage.yourTurn);
+      }
+
+      // debug
+      if (LocalData().debugMode.value &&
+          !PikafishConfig(LocalData().profile).ponder &&
+          mounted) {
+        //
+        Future.delayed(const Duration(seconds: 1), () => engineGoHint());
+      }
+    } else {
+      if (_boardState.isOpponentTurn && !_opponentHuman) {
+        Future.delayed(const Duration(seconds: 1), () => engineGo());
+      }
+    }
+  }
+
+  engineGo() async {
+    //
+    final state = PikafishEngine().state;
+    if (state == EngineState.searching || state == EngineState.hinting) return;
 
     _pageState.changeStatus('对方思考中...');
 
-    await HybridEngine().search(_boardState.position, engineCallback);
+    await HybridEngine().go(_boardState.position, engineCallback);
   }
 
-  askEngineHint() async {
+  engineGoPonder() async {
+    await HybridEngine().goPonder(
+      _boardState.position,
+      engineCallback,
+      _boardState.bestmove!.ponder!,
+    );
+  }
+
+  engineGoHint() async {
     //
     if (AdTrigger.battle.checkAdChance(AdAction.requestHint, context)) return;
 
-    if (_state == PlayState.thinking || _state == PlayState.hinting) return;
+    final state = PikafishEngine().state;
+    if (state == EngineState.searching || state == EngineState.hinting) return;
 
-    HybridEngine().missPonder();
-
-    _state = PlayState.hinting;
+    HybridEngine().stopPonder();
 
     _pageState.changeStatus('引擎思考提示着法...');
 
-    await HybridEngine().search(_boardState.position, engineCallback);
+    await Future.delayed(
+      const Duration(seconds: 1),
+      () async => await HybridEngine().goHint(
+        _boardState.position,
+        engineCallback,
+      ),
+    );
   }
 
   gotWin() async {
@@ -587,7 +589,7 @@ class BattlePageState extends State<BattlePage>
     final operatorBar = OperationBar(items: [
       ActionItem(name: '新局', callback: confirmNewGame),
       ActionItem(name: '悔棋', callback: regret),
-      ActionItem(name: '提示', callback: askEngineHint),
+      ActionItem(name: '提示', callback: engineGoHint),
       ActionItem(name: '云库', callback: analysisPosition),
       ActionItem(name: '交换局面', callback: swapPosition),
       ActionItem(name: '翻转棋盘', callback: inverseBoard),
@@ -617,12 +619,9 @@ class BattlePageState extends State<BattlePage>
 
     if (_boardState.engineInfo != null) {
       //
-      content = _boardState.engineInfo!.info(
-        _boardState,
-        _state != PlayState.ready,
-      );
+      content = _boardState.engineInfo!.info(_boardState);
 
-      if (_state == PlayState.pondering) {
+      if (PikafishEngine().state == EngineState.pondering) {
         content = '后台思考：\n$content';
       }
     }
@@ -639,7 +638,7 @@ class BattlePageState extends State<BattlePage>
   Widget buildInfoPanel(String text) {
     //
     final manualStyle = GameFonts.ui(
-      fontSize: 17,
+      fontSize: 15,
       color: GameColors.darkTextSecondary,
       height: 1.5,
     );
@@ -683,7 +682,7 @@ class BattlePageState extends State<BattlePage>
   @override
   void dispose() {
     saveBattle().then((_) => _boardState.inverseBoard(false, notify: false));
-    HybridEngine().missPonder();
+    HybridEngine().stopPonder();
     super.dispose();
   }
 }

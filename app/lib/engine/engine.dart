@@ -1,10 +1,12 @@
 import 'package:chessroad/cchess/move_name.dart';
 import 'package:chessroad/game/board_state.dart';
+import 'package:chessroad/routes/battle/battle_page.dart';
 
 import '../cchess/cc_base.dart';
 import '../cchess/position.dart';
 import '../common/prt.dart';
 import 'analysis.dart';
+import 'pikafish_engine.dart';
 
 enum EngineType { cloudLibrary, pikafish }
 
@@ -89,22 +91,53 @@ class EngineInfo extends Response {
     }
   }
 
-  String followingMoves(Position position, bool includeFirst) {
+  String followingMoves(BoardState boardState) {
     //
+    final position = boardState.position;
+
+    final bestmove = boardState.bestmove?.bestmove;
+
     final tempPosition = Position.clone(position);
 
-    String names = '';
+    var names = <String>[];
 
-    for (var i = includeFirst ? 0 : 1; i < pvs.length; i++) {
+    if (PikafishEngine().state == EngineState.searching) {
       //
-      var move = Move.fromEngineMove(pvs[i]);
-      final name = MoveName.translate(tempPosition, move);
-      tempPosition.move(move);
+      for (var i = 0; i < pvs.length; i++) {
+        //
+        var move = Move.fromEngineMove(pvs[i]);
+        final name = MoveName.translate(tempPosition, move);
+        tempPosition.move(move);
 
-      names += '$name ';
+        names.add(name);
+      }
+    } else if (PikafishEngine().state == EngineState.ready) {
+      //
+      for (var i = 0; i < pvs.length; i++) {
+        //
+        if (pvs[i] == bestmove) continue;
+
+        var move = Move.fromEngineMove(pvs[i]);
+        final name = MoveName.translate(tempPosition, move);
+        tempPosition.move(move);
+
+        names.add(name);
+      }
     }
 
-    return names;
+    var result = '';
+
+    if (names.length < 4) {
+      result = names.join(' ');
+    } else if (names.length < 8) {
+      result = '${names.sublist(0, 4).join(' ')}\n';
+      result += names.sublist(4).join(' ');
+    } else {
+      result = '${names.sublist(0, 4).join(' ')}\n';
+      result += names.sublist(4, 8).join(' ');
+    }
+
+    return result;
   }
 
   String? score(BoardState boardState, bool negative) {
@@ -127,7 +160,7 @@ class EngineInfo extends Response {
     return '局面 $score ($judge)';
   }
 
-  String? info(BoardState boardState, bool includeFirst) {
+  String? info(BoardState boardState) {
     //
     var score = tokens['score'];
     if (score == null) return null;
@@ -137,8 +170,7 @@ class EngineInfo extends Response {
         '节点 ${tokens['nodes']}，'
         '时间 ${tokens['time']}\n';
 
-    final position = boardState.position;
-    result += followingMoves(position, includeFirst);
+    result += followingMoves(boardState);
 
     return result;
   }
