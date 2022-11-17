@@ -39,9 +39,7 @@ class BoardState with ChangeNotifier {
     //
     _boardInverse = inverse;
 
-    if (swapSite) {
-      _sitUnderside = !_sitUnderside;
-    }
+    if (swapSite) _sitUnderside = !_sitUnderside;
 
     if (notify) notifyListeners();
   }

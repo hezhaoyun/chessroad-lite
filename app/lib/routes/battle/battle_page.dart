@@ -255,8 +255,13 @@ class BattlePageState extends State<BattlePage>
     );
   }
 
-  swapPosition() {
+  swapPosition() async {
     //
+    if (PikafishEngine().state == EngineState.pondering) {
+      await HybridEngine().stopPonder();
+      await Future.delayed(const Duration(seconds: 1));
+    }
+
     _boardState.inverseBoard(!_boardState.boardInversed);
 
     if (_boardState.isOpponentTurn && !_opponentHuman) {
@@ -266,7 +271,14 @@ class BattlePageState extends State<BattlePage>
     }
   }
 
-  inverseBoard() {
+  inverseBoard() async {
+    //
+    await HybridEngine().newGame();
+    await Future.delayed(const Duration(seconds: 1));
+
+    _boardState.engineInfo = null;
+    _boardState.bestmove = null;
+
     _boardState.inverseBoard(!_boardState.boardInversed, swapSite: true);
   }
 
@@ -385,7 +397,11 @@ class BattlePageState extends State<BattlePage>
         switch (result) {
           //
           case GameResult.pending:
-            afterEngineMove();
+            if (er.type == EngineType.cloudLibrary) {
+              _pageState.changeStatus(BattlePage.yourTurn);
+            } else {
+              afterEngineMove();
+            }
             break;
           case GameResult.win:
             gotWin();

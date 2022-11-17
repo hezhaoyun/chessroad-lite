@@ -176,6 +176,8 @@ class PikafishEngine {
 
   void newGame() {
     //
+    callback = null;
+
     if (_state == EngineState.searching || _state == EngineState.pondering) {
       _engine.stdin = 'stop';
     }
