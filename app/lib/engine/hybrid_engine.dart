@@ -28,13 +28,9 @@ class HybridEngine {
     await _pikafishEngine.applyConfig();
   }
 
-  applyNativeEngineConfig() async {
-    await _pikafishEngine.applyConfig();
-  }
+  applyNativeEngineConfig() async => await _pikafishEngine.applyConfig();
 
-  Future<void> applyConfig() async {
-    await _pikafishEngine.applyConfig();
-  }
+  Future<void> applyConfig() async => await _pikafishEngine.applyConfig();
 
   Future<bool> go(Position position, EngineCallback callback) async {
     //
@@ -60,17 +56,13 @@ class HybridEngine {
     return _pikafishEngine.goHint(position, callback);
   }
 
-  Future<void> ponderhit() async {
-    return _pikafishEngine.ponderhit();
-  }
+  Future<void> ponderhit() async => _pikafishEngine.ponderhit();
 
-  Future<void> stopPonder() async {
-    return _pikafishEngine.stopPonder();
-  }
+  Future<void> stopPonder() async => _pikafishEngine.stopPonder();
 
-  Future<void> shutdown() async {
-    await _pikafishEngine.shutdown();
-  }
+  Future<void> stop() async => _pikafishEngine.stop();
+
+  Future<void> shutdown() async => await _pikafishEngine.shutdown();
 
   GameResult scanGameResult(Position position, String playerSide) {
     //

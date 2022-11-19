@@ -55,15 +55,12 @@ class PikafishConfig {
     } else if (hs < 256) {
       hs += 16;
       hs = hs ~/ 16 * 16;
-    } else if (hs < 4096) {
+    } else {
       hs += 256;
       hs = hs ~/ 256 * 256;
-    } else {
-      hs += 4096;
-      hs = hs ~/ 4096 * 4096;
     }
 
-    if (hs >= 256 * 1024) hs = 256 * 1024;
+    if (hs >= 4 * 1024) hs = 4 * 1024;
 
     _profile[kHashSize] = hs;
   }
@@ -77,12 +74,9 @@ class PikafishConfig {
     } else if (hs <= 256) {
       hs -= 16;
       hs = hs ~/ 16 * 16;
-    } else if (hs <= 4096) {
+    } else {
       hs -= 256;
       hs = hs ~/ 256 * 256;
-    } else {
-      hs -= 4096;
-      hs = hs ~/ 4096 * 4096;
     }
 
     if (hs < 1) hs = 1;

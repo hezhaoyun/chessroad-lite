@@ -13,76 +13,86 @@ const _paddingH = 10.0;
 double _additionPaddingH = 0;
 
 Widget createPageHeader(BuildContext context, GameScene scene,
-    {Function()? leftAction, showSubTitle = true}) {
+    {Function()? leftAction, Function()? rightAction}) {
   //
-  EdgeInsets margin = EdgeInsets.only(top: Ruler.statusBarHeight(context));
-  if (!margin.isNonNegative) {
-    margin = const EdgeInsets.symmetric(vertical: 26);
+  var safeArea = EdgeInsets.only(top: Ruler.statusBarHeight(context));
+
+  if (!safeArea.isNonNegative) {
+    safeArea = const EdgeInsets.only(top: 26);
   }
 
+  final isLongScreen = Ruler.isLongScreen(context);
+
+  final backButton = IconButton(
+    icon: const Icon(
+      Icons.arrow_back,
+      color: GameColors.darkTextPrimary,
+    ),
+    onPressed: leftAction ?? () => Navigator.of(context).pop(),
+  );
+
+  final settingButton = IconButton(
+    icon: const Icon(
+      Icons.settings,
+      color: GameColors.darkTextPrimary,
+    ),
+    onPressed: rightAction ??
+        () => Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) => const SettingsPage(),
+              ),
+            ),
+  );
+
+  final title = Text(
+    titleFor(context, scene),
+    style: GameFonts.art(
+      fontSize: 28,
+      color: GameColors.darkTextPrimary,
+    ),
+  );
+
+  final subtitle = Consumer<PageState>(
+    builder: (context, pageState, child) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          pageState.status,
+          maxLines: 1,
+          style: GameFonts.ui(
+            fontSize: 16,
+            color: GameColors.darkTextSecondary,
+          ),
+        ),
+      );
+    },
+  );
+
+  final hLine = Container(
+    height: 4,
+    width: 180,
+    margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: GameColors.boardBackground,
+      borderRadius: BorderRadius.circular(2),
+    ),
+  );
+
   return Container(
-    margin: margin,
+    margin: safeArea,
     child: Column(
       children: <Widget>[
         Row(
           children: <Widget>[
-            IconButton(
-              icon: const Icon(
-                Icons.arrow_back,
-                color: GameColors.darkTextPrimary,
-              ),
-              onPressed: leftAction ?? () => Navigator.of(context).pop(),
-            ),
+            backButton,
             const Expanded(child: SizedBox()),
-            Text(
-              titleFor(context, scene),
-              style: GameFonts.art(
-                fontSize: 28,
-                color: GameColors.darkTextPrimary,
-              ),
-            ),
+            isLongScreen ? title : subtitle,
             const Expanded(child: SizedBox()),
-            IconButton(
-              icon: const Icon(
-                Icons.settings,
-                color: GameColors.darkTextPrimary,
-              ),
-              onPressed: () => Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (context) => const SettingsPage(),
-                ),
-              ),
-            ),
+            settingButton,
           ],
         ),
-        showSubTitle
-            ? Container(
-                height: 4,
-                width: 180,
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: GameColors.boardBackground,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              )
-            : const SizedBox(),
-        showSubTitle
-            ? Consumer<PageState>(
-                builder: (context, pageState, child) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      pageState.status,
-                      maxLines: 1,
-                      style: GameFonts.ui(
-                        fontSize: 16,
-                        color: GameColors.darkTextSecondary,
-                      ),
-                    ),
-                  );
-                },
-              )
-            : const SizedBox(),
+        if (isLongScreen) hLine,
+        if (isLongScreen) subtitle,
       ],
     ),
   );

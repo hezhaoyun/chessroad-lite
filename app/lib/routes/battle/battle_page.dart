@@ -1,6 +1,7 @@
 import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/engine/pikafish_config.dart';
 import 'package:chessroad/engine/pikafish_engine.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +25,7 @@ import '../../ui/piece_animation_mixin.dart';
 import '../../ui/review_panel.dart';
 import '../../ui/ruler.dart';
 import '../../ui/snack_bar.dart';
+import '../settings/settings_page.dart';
 
 class BattlePage extends StatefulWidget {
   //
@@ -172,14 +174,11 @@ class BattlePageState extends State<BattlePage>
     ReviewPanel.popRequest();
   }
 
-  regret() {
+  regret() async {
     //
     if (AdTrigger.battle.checkAdChance(AdAction.regret, context)) return;
 
-    _boardState.engineInfo = null;
-    _boardState.bestmove = null;
-
-    HybridEngine().stopPonder();
+    await _stopPonder();
 
     _boardState.regret(GameScene.battle, moves: 2);
   }
@@ -258,7 +257,7 @@ class BattlePageState extends State<BattlePage>
   swapPosition() async {
     //
     if (PikafishEngine().state == EngineState.pondering) {
-      await HybridEngine().stopPonder();
+      await _stopPonder();
       await Future.delayed(const Duration(seconds: 1));
     }
 
@@ -341,10 +340,11 @@ class BattlePageState extends State<BattlePage>
               //
             } else {
               //
-              await HybridEngine().stopPonder();
+              await _stopPonder();
 
               if (!_opponentHuman) {
-                Future.delayed(const Duration(seconds: 1), () => engineGo());
+                await Future.delayed(const Duration(seconds: 1));
+                await engineGo();
               }
             }
             break;
@@ -376,7 +376,9 @@ class BattlePageState extends State<BattlePage>
 
       if (PikafishEngine().state != EngineState.pondering) {
         final score = _boardState.engineInfo!.score(_boardState, false);
-        if (score != null) _pageState.changeStatus(score);
+        if (score != null) {
+          _pageState.changeStatus(score);
+        }
       }
     } else {
       //
@@ -445,7 +447,11 @@ class BattlePageState extends State<BattlePage>
           _boardState,
           true,
         );
-        _pageState.changeStatus('$score，${BattlePage.yourTurn}');
+        if (score != null) {
+          _pageState.changeStatus('$score，${BattlePage.yourTurn}');
+        } else {
+          _pageState.changeStatus(BattlePage.yourTurn);
+        }
       } else {
         _pageState.changeStatus(BattlePage.yourTurn);
       }
@@ -464,7 +470,7 @@ class BattlePageState extends State<BattlePage>
     }
   }
 
-  engineGo() async {
+  Future<void> engineGo() async {
     //
     final state = PikafishEngine().state;
     if (state == EngineState.searching || state == EngineState.hinting) return;
@@ -489,17 +495,11 @@ class BattlePageState extends State<BattlePage>
     final state = PikafishEngine().state;
     if (state == EngineState.searching || state == EngineState.hinting) return;
 
-    HybridEngine().stopPonder();
+    await _stopPonder();
+    await Future.delayed(const Duration(seconds: 1));
 
     _pageState.changeStatus('引擎思考提示着法...');
-
-    await Future.delayed(
-      const Duration(seconds: 1),
-      () async => await HybridEngine().goHint(
-        _boardState.position,
-        engineCallback,
-      ),
-    );
+    await HybridEngine().goHint(_boardState.position, engineCallback);
   }
 
   gotWin() async {
@@ -595,7 +595,32 @@ class BattlePageState extends State<BattlePage>
   @override
   Widget build(BuildContext context) {
     //
-    final header = createPageHeader(context, GameScene.battle);
+    final header = createPageHeader(
+      context,
+      GameScene.battle,
+      rightAction: () async {
+        //
+        await HybridEngine().stop();
+
+        _boardState.engineInfo = null;
+        _boardState.bestmove = null;
+
+        if (!mounted) return;
+
+        await Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) => const SettingsPage(),
+          ),
+        );
+
+        if (_boardState.isOpponentTurn && !_opponentHuman) {
+          engineGo();
+        } else {
+          _pageState.changeStatus(BattlePage.yourTurn);
+        }
+      },
+    );
+
     final board = createChessBoard(
       context,
       GameScene.battle,
@@ -638,17 +663,13 @@ class BattlePageState extends State<BattlePage>
       content = _boardState.engineInfo!.info(_boardState);
 
       if (PikafishEngine().state == EngineState.pondering) {
-        content = '后台思考：\n$content';
+        content = '[ 后台思考 ]\n$content';
       }
     }
 
     content ??= _boardState.position.moveList;
 
-    if (Ruler.isLongScreen(context)) {
-      return buildInfoPanel(content);
-    }
-
-    return buildExpandablePanel(context, content);
+    return buildInfoPanel(content);
   }
 
   Widget buildInfoPanel(String text) {
@@ -661,44 +682,29 @@ class BattlePageState extends State<BattlePage>
 
     return Expanded(
       child: Container(
-        width: double.infinity,
+        // width: double.infinity,
         margin: const EdgeInsets.all(16),
-        child: SingleChildScrollView(child: Text(text, style: manualStyle)),
-      ),
-    );
-  }
-
-  Widget buildExpandablePanel(BuildContext context, String text) {
-    //
-    final manualStyle = GameFonts.ui(fontSize: 18, height: 1.5);
-
-    return Expanded(
-      child: IconButton(
-        icon: const Icon(Icons.expand_less, color: GameColors.darkTextPrimary),
-        onPressed: () => showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Text('棋谱', style: GameFonts.uicp()),
-            content: SingleChildScrollView(
-              child: Text(text, style: manualStyle),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+        child: SingleChildScrollView(
+          child: Text(
+            text,
+            style: manualStyle,
+            textAlign: TextAlign.center,
           ),
         ),
       ),
     );
   }
 
+  Future<void> _stopPonder() async {
+    await HybridEngine().stopPonder();
+    _boardState.engineInfo = null;
+    _boardState.bestmove = null;
+  }
+
   @override
   void dispose() {
-    saveBattle().then((_) => _boardState.inverseBoard(false, notify: false));
-    HybridEngine().stopPonder();
+    saveBattle().then((_) => _boardState.reset());
+    HybridEngine().stop();
     super.dispose();
   }
 }

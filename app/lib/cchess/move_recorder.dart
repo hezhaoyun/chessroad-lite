@@ -91,13 +91,13 @@ class MoveRecorder {
 
   String buildMoveList() {
     //
-    var moveList = '';
+    final moveList = <String>[];
 
     for (var i = 0; i < _history.length; i++) {
-      moveList += '${_history[i].name} ';
+      moveList.add('${_history[i].name}${(i + 1) % 4 == 0 ? '\n' : ' '}');
     }
 
-    return moveList;
+    return moveList.join().trim();
   }
 
   String buildMoveListForManual() {

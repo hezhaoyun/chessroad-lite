@@ -146,6 +146,12 @@ class BoardState with ChangeNotifier {
     if (notify) notifyListeners();
   }
 
+  reset() {
+    inverseBoard(false, notify: false);
+    _engineInfo = null;
+    bestmove = null;
+  }
+
   saveManual(GameScene scene) async => await _position.saveManual(scene);
 
   buildMoveListForManual() => _position.buildMoveListForManual();

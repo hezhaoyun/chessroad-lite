@@ -114,7 +114,7 @@ class PikafishParamsPageState extends State<PikafishParamsPage> {
                     context,
                     title: 'Hash尺寸',
                     initValue: config.hashSize,
-                    unit: 'KB',
+                    unit: 'MB',
                     reduce: config.hashSizeReduce,
                     plus: config.hashSizePlus,
                   ),

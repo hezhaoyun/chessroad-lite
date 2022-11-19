@@ -11,7 +11,29 @@ import '../config/local_data.dart';
 import 'engine.dart';
 import 'pikafish_config.dart';
 
-enum EngineState { unknown, ready, searching, pondering, hinting }
+enum EngineState {
+  free,
+  ready,
+  searching,
+  pondering,
+  hinting;
+
+  @override
+  String toString() {
+    switch (this) {
+      case EngineState.free:
+        return 'free';
+      case EngineState.ready:
+        return 'ready';
+      case EngineState.searching:
+        return 'searching';
+      case EngineState.pondering:
+        return 'pondering';
+      case EngineState.hinting:
+        return 'hinting';
+    }
+  }
+}
 
 class PikafishEngine {
   //
@@ -26,7 +48,7 @@ class PikafishEngine {
   late StreamSubscription _subscription;
 
   EngineCallback? callback;
-  EngineState _state = EngineState.unknown;
+  EngineState _state = EngineState.free;
 
   Future<void> startup() async {
     //
@@ -51,6 +73,8 @@ class PikafishEngine {
     _engine.stdin = 'setoption name Hash value ${config.hashSize}';
     _engine.stdin = 'setoption name Ponder value ${config.ponder}';
     _engine.stdin = 'setoption name Skill Level value ${config.level}';
+
+    _engine.stdin = 'ucinewgame';
   }
 
   Future<bool> go(Position position, EngineCallback callback) async {
@@ -113,7 +137,6 @@ class PikafishEngine {
     _state = EngineState.searching;
 
     final timeLimit = PikafishConfig(LocalData().profile).timeLimit;
-
     await Future.delayed(
       Duration(seconds: timeLimit),
       () => _engine.stdin = 'stop',
@@ -123,17 +146,27 @@ class PikafishEngine {
   Future<void> stopPonder() async {
     //
     if (_state == EngineState.pondering) {
+      await stop();
+    } else {
+      prt('##### stopPonder: $_state');
+    }
+  }
+
+  Future<void> stop() async {
+    //
+    if (_state != EngineState.free && _state != EngineState.ready) {
       callback = null;
       _engine.stdin = 'stop';
+      _state = EngineState.ready;
+    } else {
+      prt('##### stop: $_state');
     }
-
-    _state = EngineState.ready;
   }
 
   Future<void> shutdown() async {
     _engine.dispose();
     _subscription.cancel();
-    _state = EngineState.unknown;
+    _state = EngineState.free;
   }
 
   _setupEngine() {
@@ -176,11 +209,7 @@ class PikafishEngine {
 
   void newGame() {
     //
-    callback = null;
-
-    if (_state == EngineState.searching || _state == EngineState.pondering) {
-      _engine.stdin = 'stop';
-    }
+    stop();
 
     _engine.stdin = 'ucinewgame';
     _state = EngineState.ready;
