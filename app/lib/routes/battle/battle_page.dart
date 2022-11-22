@@ -436,7 +436,7 @@ class BattlePageState extends State<BattlePage>
           PikafishConfig(LocalData().profile).ponder) {
         //
         await Future.delayed(
-          const Duration(microseconds: 100),
+          const Duration(seconds: 1),
           () => engineGoPonder(),
         );
       }

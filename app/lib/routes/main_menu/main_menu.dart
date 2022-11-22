@@ -32,7 +32,7 @@ class MainMenuState extends State<MainMenu>
   late AnimationController _inController, _shadowController;
   late Animation _inAnimation, _shadowAnimation;
 
-  bool _waitingInit = true;
+  int _waitingInit = 0;
 
   @override
   void initState() {
@@ -82,20 +82,33 @@ class MainMenuState extends State<MainMenu>
     //
     await LocalData().load();
 
+    setState(() => _waitingInit++);
+
     if (!mounted) return;
 
     createFlowers(context, this, () => setState(() {}));
 
+    setState(() => _waitingInit++);
+
     bool newUser = await checkPrivacyPolicy();
 
+    setState(() => _waitingInit++);
+
     await Ad.instance.init();
+
+    setState(() => _waitingInit++);
+
     startSplashAd(newUser);
+
+    setState(() => _waitingInit++);
 
     Audios.init();
 
+    setState(() => _waitingInit++);
+
     await HybridEngine().startup();
 
-    setState(() => _waitingInit = false);
+    setState(() => _waitingInit++);
 
     Audios.loopBgm();
   }
@@ -181,16 +194,27 @@ class MainMenuState extends State<MainMenu>
     );
   }
 
+  String charRepeat(String ch, int times) {
+    //
+    var result = '';
+
+    for (var i = 0; i < times; i++) {
+      result += ch;
+    }
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     //
-    if (_waitingInit) {
+    if (_waitingInit < 7) {
       return Container(
         color: Colors.black,
-        child: const Center(
+        child: Center(
           child: Text(
-            '加载中',
-            style: TextStyle(color: Colors.white),
+            '加载中\n${charRepeat('.', _waitingInit)}',
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       );

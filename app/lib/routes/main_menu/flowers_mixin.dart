@@ -59,9 +59,7 @@ mixin FlowersMixin {
     _context = ctx;
     _callUpdate = cb;
 
-    Future.delayed(Duration.zero, () {
-      initData();
-    });
+    Future.delayed(Duration.zero, () => initData());
 
     _animationController = AnimationController(
       vsync: vsync,

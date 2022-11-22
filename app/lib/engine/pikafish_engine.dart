@@ -53,7 +53,7 @@ class PikafishEngine {
   Future<void> startup() async {
     //
     while (_engine.state.value == PikafishState.starting) {
-      await Future.delayed(const Duration(microseconds: 100));
+      await Future.delayed(const Duration(seconds: 1));
     }
 
     _engine.stdin = 'uci';

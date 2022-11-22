@@ -12,7 +12,15 @@ class Audios {
 
   static loopBgm() async {
     //
-    if (!LocalData().bgmEnabled.value) return;
+    var enabled = false;
+
+    try {
+      enabled = LocalData().bgmEnabled.value;
+    } catch (_) {
+      // TODO: 首次支行时，有可能配置还没有加载完
+    }
+
+    if (!enabled) return;
 
     const media = 'assets/audios/bg_music.mp3';
 
