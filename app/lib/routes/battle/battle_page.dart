@@ -23,7 +23,6 @@ import '../../ui/checkbox_list_tile_ex.dart';
 import '../../ui/operation_bar.dart';
 import '../../ui/piece_animation_mixin.dart';
 import '../../ui/review_panel.dart';
-import '../../ui/ruler.dart';
 import '../../ui/snack_bar.dart';
 import '../settings/settings_page.dart';
 
@@ -37,8 +36,7 @@ class BattlePage extends StatefulWidget {
   BattlePageState createState() => BattlePageState();
 }
 
-class BattlePageState extends State<BattlePage>
-    with PieceAnimationMixIn, TickerProviderStateMixin {
+class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, TickerProviderStateMixin {
   //
   bool _opponentHuman = false;
 
@@ -302,8 +300,7 @@ class BattlePageState extends State<BattlePage>
 
     // 之前已经有棋子被选中了
     if (_boardState.focusIndex != Move.invalidIndex &&
-        PieceColor.of(position.pieceAt(_boardState.focusIndex)) ==
-            position.sideToMove) {
+        PieceColor.of(position.pieceAt(_boardState.focusIndex)) == position.sideToMove) {
       //
       // 当前点击的棋子和之前已经选择的是同一个位置
       if (_boardState.focusIndex == index) return;
@@ -359,8 +356,7 @@ class BattlePageState extends State<BattlePage>
             break;
         }
       }
-    } else if (tapedPiece != Piece.noPiece &&
-        PieceColor.of(tapedPiece) == position.sideToMove) {
+    } else if (tapedPiece != Piece.noPiece && PieceColor.of(tapedPiece) == position.sideToMove) {
       // 之前未选中棋子，现在点击就是选择棋子
       _boardState.select(index);
     }
@@ -432,8 +428,7 @@ class BattlePageState extends State<BattlePage>
     //
     if (PikafishEngine().state == EngineState.searching) {
       //
-      if (_boardState.bestmove?.ponder != null &&
-          PikafishConfig(LocalData().profile).ponder) {
+      if (_boardState.bestmove?.ponder != null && PikafishConfig(LocalData().profile).ponder) {
         //
         await Future.delayed(
           const Duration(seconds: 1),
@@ -457,9 +452,7 @@ class BattlePageState extends State<BattlePage>
       }
 
       // debug
-      if (LocalData().debugMode.value &&
-          !PikafishConfig(LocalData().profile).ponder &&
-          mounted) {
+      if (LocalData().debugMode.value && !PikafishConfig(LocalData().profile).ponder && mounted) {
         //
         Future.delayed(const Duration(seconds: 1), () => engineGoHint());
       }

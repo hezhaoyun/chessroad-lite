@@ -1,6 +1,5 @@
 import 'package:chessroad/cchess/move_name.dart';
 import 'package:chessroad/game/board_state.dart';
-import 'package:chessroad/routes/battle/battle_page.dart';
 
 import '../cchess/cc_base.dart';
 import '../cchess/position.dart';

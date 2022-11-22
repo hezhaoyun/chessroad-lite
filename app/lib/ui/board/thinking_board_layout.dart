@@ -1,6 +1,5 @@
 import 'package:chessroad/cchess/cc_base.dart';
 import 'package:chessroad/config/local_data.dart';
-import 'package:chessroad/engine/engine.dart';
 import 'package:chessroad/engine/pikafish_engine.dart';
 import 'package:chessroad/game/board_state.dart';
 import 'package:chessroad/ui/thinking_board_painter.dart';
@@ -14,8 +13,7 @@ class ThinkingBoardLayout extends StatefulWidget {
 
   final PiecesLayout layoutParams;
 
-  const ThinkingBoardLayout(this.boardState, this.layoutParams, {Key? key})
-      : super(key: key);
+  const ThinkingBoardLayout(this.boardState, this.layoutParams, {Key? key}) : super(key: key);
 
   @override
   State createState() => _PiecesLayoutState();
@@ -28,8 +26,7 @@ class _PiecesLayoutState extends State<ThinkingBoardLayout> {
     //
     final moves = <Move>[];
 
-    if (PikafishEngine().state != EngineState.searching &&
-        widget.boardState.bestmove?.ponder != null) {
+    if (PikafishEngine().state != EngineState.searching && widget.boardState.bestmove?.ponder != null) {
       //
       moves.add(Move.fromEngineMove(widget.boardState.bestmove!.ponder!));
       //
