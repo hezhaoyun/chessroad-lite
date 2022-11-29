@@ -32,7 +32,7 @@ class MainMenuState extends State<MainMenu>
   late AnimationController _inController, _shadowController;
   late Animation _inAnimation, _shadowAnimation;
 
-  int _waitingInit = 0;
+  bool _waitingInit = true;
 
   @override
   void initState() {
@@ -82,33 +82,21 @@ class MainMenuState extends State<MainMenu>
     //
     await LocalData().load();
 
-    setState(() => _waitingInit++);
-
     if (!mounted) return;
 
     createFlowers(context, this, () => setState(() {}));
 
-    setState(() => _waitingInit++);
-
     bool newUser = await checkPrivacyPolicy();
-
-    setState(() => _waitingInit++);
 
     await Ad.instance.init();
 
-    setState(() => _waitingInit++);
-
     startSplashAd(newUser);
-
-    setState(() => _waitingInit++);
 
     Audios.init();
 
-    setState(() => _waitingInit++);
-
     await HybridEngine().startup();
 
-    setState(() => _waitingInit++);
+    setState(() => _waitingInit = false);
 
     Audios.loopBgm();
   }
@@ -208,14 +196,11 @@ class MainMenuState extends State<MainMenu>
   @override
   Widget build(BuildContext context) {
     //
-    if (_waitingInit < 7) {
+    if (_waitingInit) {
       return Container(
         color: Colors.black,
-        child: Center(
-          child: Text(
-            '加载中\n${charRepeat('.', _waitingInit)}',
-            style: const TextStyle(color: Colors.white),
-          ),
+        child: const Center(
+          child: Text('加载中', style: TextStyle(color: Colors.white)),
         ),
       );
     }
