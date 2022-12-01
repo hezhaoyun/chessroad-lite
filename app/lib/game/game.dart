@@ -10,6 +10,7 @@ const kChannelCurrent = kChannelMainland;
 enum GameScene {
   unknown,
   battle,
+  gameNotation,
 }
 
 bool isVs(GameScene scene) => true;

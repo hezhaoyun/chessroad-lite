@@ -15,6 +15,7 @@ import '../../services/audios.dart';
 import '../../ui/ruler.dart';
 import '../../ui/snack_bar.dart';
 import '../battle/battle_page.dart';
+import '../saved_manuls.dart';
 import '../settings/settings_page.dart';
 import 'flowers_mixin.dart';
 
@@ -239,6 +240,14 @@ class MainMenuState extends State<MainMenu> with TickerProviderStateMixin, Flowe
             ),
             const Expanded(child: SizedBox()),
             TextButton(
+              child: Text(
+                '我的对局',
+                style: menuItemStyle,
+              ),
+              onPressed: () => navigateTo(GameScene.gameNotation),
+            ),
+            const Expanded(child: SizedBox()),
+            TextButton(
               onPressed: showReadme,
               child: Text(
                 '版本说明',
@@ -321,6 +330,10 @@ class MainMenuState extends State<MainMenu> with TickerProviderStateMixin, Flowe
     switch (scene) {
       case GameScene.battle:
         page = const BattlePage();
+        break;
+
+      case GameScene.gameNotation:
+        page = const SavedManuals();
         break;
 
       case GameScene.unknown:
