@@ -18,6 +18,7 @@ import '../battle/battle_page.dart';
 import '../saved_manuls.dart';
 import '../settings/settings_page.dart';
 import 'flowers_mixin.dart';
+import 'readme.dart';
 
 class MainMenu extends StatefulWidget {
   //
@@ -129,60 +130,6 @@ class MainMenuState extends State<MainMenu>
     return false;
   }
 
-  browseHomepage() async {
-    //
-    const url = 'https://mdevs.cn';
-
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } else {
-      Clipboard.setData(const ClipboardData(text: url));
-      showSnackBar(context, '链接已复制到剪贴板！');
-    }
-  }
-
-  showReadme() {
-    //
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('棋路 Lite 版', style: GameFonts.uicp()),
-        content: Linkify(
-          text: '这是棋路的「开源精简」版！\n\n'
-              '使用了目前棋力最强的开源引擎 - 皮卡鱼！\n\n'
-              '完整版本的棋路，已为棋友提供了全面的象棋学习、训练资源！\n'
-              '请从以下地址下载棋路完整版：\n\n'
-              ' - https://mdevs.cn',
-          style: GameFonts.uicp(fontSize: 16),
-          onOpen: (link) async {
-            Navigator.of(context).pop();
-            if (await canLaunchUrl(Uri.parse(link.url))) {
-              await launchUrl(Uri.parse(link.url),
-                  mode: LaunchMode.externalApplication);
-            } else {
-              Clipboard.setData(ClipboardData(text: link.url));
-              showSnackBar(context, '链接已复制到剪贴板！');
-            }
-          },
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('下载完整版', style: GameFonts.uicp(fontSize: 16)),
-            onPressed: () {
-              Navigator.of(context).pop();
-              browseHomepage();
-            },
-          ),
-          TextButton(
-            child: Text('知道了', style: GameFonts.uicp(fontSize: 16)),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-
   String charRepeat(String ch, int times) {
     //
     var result = '';
@@ -247,11 +194,8 @@ class MainMenuState extends State<MainMenu>
             ),
             const Expanded(child: SizedBox()),
             TextButton(
-              onPressed: showReadme,
-              child: Text(
-                '版本说明',
-                style: menuItemStyle,
-              ),
+              onPressed: () => showReadme(context),
+              child: Text('版本说明', style: menuItemStyle),
             ),
             const Expanded(flex: 4, child: SizedBox()),
           ],

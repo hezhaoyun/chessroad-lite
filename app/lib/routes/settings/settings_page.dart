@@ -314,10 +314,7 @@ class SettingsPageState extends State<SettingsPage> {
 
       _titleClicked = 0;
 
-      showSnackBar(
-        context,
-        'DebugMode: ${LocalData().debugMode.value}',
-      );
+      showSnackBar('DebugMode: ${LocalData().debugMode.value}');
     }
   }
 }

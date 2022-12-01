@@ -121,7 +121,7 @@ class AdTrigger {
     LocalData().showAdTimes.value += 1;
     LocalData().save();
 
-    showSnackBar(context, '已获取广告奖励！');
+    showSnackBar('已获取广告奖励！');
   }
 
   static String get today => formatDate(DateTime.now(), [yyyy, mm, dd]);

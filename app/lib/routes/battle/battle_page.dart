@@ -188,7 +188,7 @@ class BattlePageState extends State<BattlePage>
       return;
     }
 
-    showSnackBar(context, '正在分析局面...', shortDuration: true);
+    showSnackBar('正在分析局面...', shortDuration: true);
 
     try {
       final result = await CloudEngine().analysis(_boardState.position);
@@ -211,14 +211,14 @@ class BattlePageState extends State<BattlePage>
           );
         }
       } else if (result.response is Error) {
-        if (mounted) showSnackBar(context, '已请求服务器计算，请稍后查看！');
+        if (mounted) showSnackBar('已请求服务器计算，请稍后查看！');
       } else {
         if (mounted) {
-          showSnackBar(context, '错误：${result.type}');
+          showSnackBar('错误：${result.type}');
         }
       }
     } catch (e) {
-      showSnackBar(context, '错误：$e');
+      showSnackBar('错误：$e');
     }
   }
 
@@ -285,7 +285,7 @@ class BattlePageState extends State<BattlePage>
     final success = await _boardState.saveManual(GameScene.battle);
 
     if (!mounted) return;
-    showSnackBar(context, success ? '保存成功！' : '保存失败！');
+    showSnackBar(success ? '保存成功！' : '保存失败！');
   }
 
   onBoardTap(BuildContext context, int index) async {
@@ -427,7 +427,7 @@ class BattlePageState extends State<BattlePage>
           gotLose();
         }
       } else if (resp is Error) {
-        if (mounted) showSnackBar(context, resp.message);
+        showSnackBar(resp.message);
         _pageState.changeStatus(resp.message);
       }
     }

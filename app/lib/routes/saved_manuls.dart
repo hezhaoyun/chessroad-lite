@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:chessroad/common/file_extension.dart';
+import 'package:chessroad/routes/main_menu/readme.dart';
+import 'package:chessroad/ui/snack_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -44,7 +46,7 @@ class _SavedManualsState extends State<SavedManuals> {
     super.initState();
 
     _pageState = Provider.of<PageState>(context, listen: false);
-    _pageState.changeStatus('左滑删除或改名', notify: false);
+    _pageState.changeStatus('左滑删除，右滑改名', notify: false);
 
     refresh();
   }
@@ -67,12 +69,27 @@ class _SavedManualsState extends State<SavedManuals> {
 
   openManual(int index) async {
     //
-    final Uri emailLaunchUri = Uri(
+    final file = File(_manuals[index].path);
+    final content = await file.readAsString();
+
+    List<int> bytes = utf8.encode(content);
+    String crmBase64 = base64Encode(bytes);
+
+    final Uri launchUri = Uri(
       scheme: 'crmf',
       path: _manuals[index].path,
+      queryParameters: {'crm': crmBase64},
     );
 
-    launchUrl(emailLaunchUri);
+    bool success;
+
+    try {
+      success = await launchUrl(launchUri);
+    } catch (e) {
+      success = false;
+    }
+
+    if (!success) if (mounted) showReadme(context);
   }
 
   Future<List<ManualRef>> loadManuals() async {
@@ -233,10 +250,12 @@ class _SavedManualsState extends State<SavedManuals> {
     }
 
     final titleStyle = GameFonts.uicp(fontSize: 16);
+    final subtitleStyle = GameFonts.uicp(fontSize: 13);
 
     final tile = ListTile(
       leading: const Icon(Icons.book, color: GameColors.secondary),
       title: Text(_manuals[index].title, style: titleStyle),
+      subtitle: Text('在完整版中查看', style: subtitleStyle),
       trailing: const Icon(
         Icons.keyboard_arrow_right,
         color: GameColors.secondary,

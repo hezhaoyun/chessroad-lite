@@ -145,6 +145,9 @@ String titleFor(BuildContext context, GameScene scene) {
     case GameScene.battle:
       return '人机练习';
 
+    case GameScene.gameNotation:
+      return '我的对局';
+
     case GameScene.unknown:
       break;
   }
