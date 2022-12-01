@@ -152,10 +152,10 @@ class PikafishEngine {
     }
   }
 
-  Future<void> stop() async {
+  Future<void> stop({removeCallback = true}) async {
     //
     if (_state != EngineState.free && _state != EngineState.ready) {
-      callback = null;
+      if (removeCallback) callback = null;
       _engine.stdin = 'stop';
       _state = EngineState.ready;
     } else {

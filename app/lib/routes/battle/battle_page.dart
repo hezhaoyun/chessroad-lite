@@ -36,7 +36,8 @@ class BattlePage extends StatefulWidget {
   BattlePageState createState() => BattlePageState();
 }
 
-class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, TickerProviderStateMixin {
+class BattlePageState extends State<BattlePage>
+    with PieceAnimationMixIn, TickerProviderStateMixin {
   //
   bool _opponentHuman = false;
 
@@ -300,7 +301,8 @@ class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, Ticker
 
     // 之前已经有棋子被选中了
     if (_boardState.focusIndex != Move.invalidIndex &&
-        PieceColor.of(position.pieceAt(_boardState.focusIndex)) == position.sideToMove) {
+        PieceColor.of(position.pieceAt(_boardState.focusIndex)) ==
+            position.sideToMove) {
       //
       // 当前点击的棋子和之前已经选择的是同一个位置
       if (_boardState.focusIndex == index) return;
@@ -356,7 +358,8 @@ class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, Ticker
             break;
         }
       }
-    } else if (tapedPiece != Piece.noPiece && PieceColor.of(tapedPiece) == position.sideToMove) {
+    } else if (tapedPiece != Piece.noPiece &&
+        PieceColor.of(tapedPiece) == position.sideToMove) {
       // 之前未选中棋子，现在点击就是选择棋子
       _boardState.select(index);
     }
@@ -370,11 +373,17 @@ class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, Ticker
       //
       _boardState.engineInfo = resp;
 
+      // scoreType 0 - cp, 1 - mate
+      final scoreType = _boardState.engineInfo!.tokens['cp_or_mate'];
+      final depth = _boardState.engineInfo!.tokens['depth'];
+
+      if (scoreType != null && scoreType == 1 && depth != null && depth >= 60) {
+        PikafishEngine().stop(removeCallback: false);
+      }
+
       if (PikafishEngine().state != EngineState.pondering) {
         final score = _boardState.engineInfo!.score(_boardState, false);
-        if (score != null) {
-          _pageState.changeStatus(score);
-        }
+        if (score != null) _pageState.changeStatus(score);
       }
     } else {
       //
@@ -428,7 +437,8 @@ class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, Ticker
     //
     if (PikafishEngine().state == EngineState.searching) {
       //
-      if (_boardState.bestmove?.ponder != null && PikafishConfig(LocalData().profile).ponder) {
+      if (_boardState.bestmove?.ponder != null &&
+          PikafishConfig(LocalData().profile).ponder) {
         //
         await Future.delayed(
           const Duration(seconds: 1),
@@ -452,7 +462,9 @@ class BattlePageState extends State<BattlePage> with PieceAnimationMixIn, Ticker
       }
 
       // debug
-      if (LocalData().debugMode.value && !PikafishConfig(LocalData().profile).ponder && mounted) {
+      if (LocalData().debugMode.value &&
+          !PikafishConfig(LocalData().profile).ponder &&
+          mounted) {
         //
         Future.delayed(const Duration(seconds: 1), () => engineGoHint());
       }

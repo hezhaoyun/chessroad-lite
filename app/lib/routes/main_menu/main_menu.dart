@@ -27,7 +27,8 @@ class MainMenu extends StatefulWidget {
   MainMenuState createState() => MainMenuState();
 }
 
-class MainMenuState extends State<MainMenu> with TickerProviderStateMixin, FlowersMixin {
+class MainMenuState extends State<MainMenu>
+    with TickerProviderStateMixin, FlowersMixin {
   //
   late AnimationController _inController, _shadowController;
   late Animation _inAnimation, _shadowAnimation;
@@ -157,7 +158,8 @@ class MainMenuState extends State<MainMenu> with TickerProviderStateMixin, Flowe
           onOpen: (link) async {
             Navigator.of(context).pop();
             if (await canLaunchUrl(Uri.parse(link.url))) {
-              await launchUrl(Uri.parse(link.url), mode: LaunchMode.externalApplication);
+              await launchUrl(Uri.parse(link.url),
+                  mode: LaunchMode.externalApplication);
             } else {
               Clipboard.setData(ClipboardData(text: link.url));
               showSnackBar(context, '链接已复制到剪贴板！');
@@ -199,10 +201,7 @@ class MainMenuState extends State<MainMenu> with TickerProviderStateMixin, Flowe
       return Container(
         color: Colors.black,
         child: const Center(
-          child: Text(
-            '加载中',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text('加载中', style: TextStyle(color: Colors.white)),
         ),
       );
     }
