@@ -14,9 +14,7 @@ class Audios {
   static loopBgm() async {
     //
     if (!booted) return;
-
-    final enabled = LocalData().bgmEnabled.value;
-    if (!enabled) return;
+    if (!LocalData().bgmEnabled.value) return;
 
     const media = 'assets/audios/bg_music.mp3';
 
