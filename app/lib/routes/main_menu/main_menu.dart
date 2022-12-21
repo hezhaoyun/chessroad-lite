@@ -5,17 +5,13 @@ import 'package:chessroad/engine/hybrid_engine.dart';
 import 'package:chessroad/routes/main_menu/privacy_policy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../ad/ad.dart';
 import '../../game/game.dart';
 import '../../services/audios.dart';
 import '../../ui/ruler.dart';
-import '../../ui/snack_bar.dart';
 import '../battle/battle_page.dart';
-import '../saved_manuls.dart';
+import '../saved_manuals.dart';
 import '../settings/settings_page.dart';
 import 'flowers_mixin.dart';
 import 'readme.dart';

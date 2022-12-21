@@ -4,22 +4,18 @@ import '../config/local_data.dart';
 class Audios {
   //
   static PlayerController? _bgmPlayer, _tonePlayer;
+  static bool booted = false;
 
   static init() async {
     Player.boot();
-    loopBgm();
+    booted = true;
   }
 
   static loopBgm() async {
     //
-    var enabled = false;
+    if (!booted) return;
 
-    try {
-      enabled = LocalData().bgmEnabled.value;
-    } catch (_) {
-      // TODO: 首次支行时，有可能配置还没有加载完
-    }
-
+    final enabled = LocalData().bgmEnabled.value;
     if (!enabled) return;
 
     const media = 'assets/audios/bg_music.mp3';

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:chessroad/common/file_extension.dart';
 import 'package:chessroad/routes/main_menu/readme.dart';
-import 'package:chessroad/ui/snack_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
