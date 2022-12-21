@@ -1,7 +1,7 @@
 name: chessroad
 description: 棋路-中国象棋基于 flutter 的实现。
 publish_to: "none"
-version: 1.2.6+22
+version: 1.2.6+23
 
 environment:
   sdk: '>=2.17.0 <4.0.0'

@@ -76,7 +76,8 @@ class _SavedManualsState extends State<SavedManuals> {
     String crmBase64 = base64Encode(bytes);
 
     final Uri launchUri = Uri(
-      scheme: 'crmf',
+      scheme: 'https',
+      host: 'mdevs.cn',
       path: _manuals[index].path,
       queryParameters: {'crm': crmBase64},
     );
