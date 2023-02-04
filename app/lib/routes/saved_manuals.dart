@@ -84,7 +84,10 @@ class _SavedManualsState extends State<SavedManuals> {
     bool success;
 
     try {
-      success = await launchUrl(launchUri);
+      success = await launchUrl(
+        launchUri,
+        mode: LaunchMode.externalApplication,
+      );
     } catch (e) {
       success = false;
     }
