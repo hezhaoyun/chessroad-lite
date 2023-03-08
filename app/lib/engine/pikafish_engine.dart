@@ -196,13 +196,16 @@ class PikafishEngine {
   _setupNnue() async {
     //
     final appDocDir = await getApplicationDocumentsDirectory();
-    final nnueFile = File('${appDocDir.path}/pikafish.nnue');
+    final nnueFile = File('${appDocDir.path}/pikafish1226.nnue');
 
     if (!(await nnueFile.exists())) {
       await nnueFile.create(recursive: true);
       final bytes = await rootBundle.load('assets/pikafish.nnue');
       await nnueFile.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
     }
+
+    final length = await nnueFile.length();
+    prt('length: $length');
 
     _engine.stdin = 'setoption name EvalFile value ${nnueFile.path}';
   }
