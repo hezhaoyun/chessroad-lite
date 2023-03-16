@@ -196,7 +196,7 @@ class PikafishEngine {
   _setupNnue() async {
     //
     final appDocDir = await getApplicationDocumentsDirectory();
-    final nnueFile = File('${appDocDir.path}/pikafish1226.nnue');
+    final nnueFile = File('${appDocDir.path}/pikafish0305.nnue');
 
     if (!(await nnueFile.exists())) {
       await nnueFile.create(recursive: true);
