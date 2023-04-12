@@ -4,10 +4,9 @@ publish_to: "none"
 version: 1.2.9+28
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: ">=2.17.0 <4.0.0"
 
 dependencies:
-
   flutter:
     sdk: flutter
 
@@ -24,23 +23,18 @@ dependencies:
   kplayer: ^0.2.4
   uni_links: ^0.5.1
 
-  pikafish_engine:
-    path: ../pikafish_engine
-  
+  pikafish_engine: ^1.0.3
 
 dev_dependencies:
-
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^2.0.1
 
 flutter:
-
   uses-material-design: true
 
   assets:
-
     - images/logo.png
     - images/mei.png
     - images/zhu.png

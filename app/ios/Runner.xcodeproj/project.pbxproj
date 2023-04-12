@@ -367,6 +367,7 @@
 					"$(inherited)",
 					"-w",
 					"-DNDEBUG",
+					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.mdevs.apps.chessroad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -508,6 +509,7 @@
 					"$(inherited)",
 					"-w",
 					"-DNDEBUG",
+					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.mdevs.apps.chessroad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -540,6 +542,7 @@
 					"$(inherited)",
 					"-w",
 					"-DNDEBUG",
+					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = cn.mdevs.apps.chessroad;
 				PRODUCT_NAME = "$(TARGET_NAME)";
